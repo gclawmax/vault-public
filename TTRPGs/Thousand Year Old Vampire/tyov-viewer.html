@@ -37,45 +37,58 @@
       radial-gradient(ellipse at 80% 100%, #1a0a0a33 0%, transparent 60%);
   }
 
-  /* ── URL bar ── */
-  #url-bar {
+  /* ── Top bar ── */
+  #top-bar {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: #110d08ee;
+    background: #110d08f2;
     border-bottom: 1px solid var(--border);
-    padding: 10px 16px;
+    backdrop-filter: blur(8px);
+  }
+
+  #picker-row {
     display: flex;
     gap: 8px;
     align-items: center;
-    backdrop-filter: blur(6px);
+    padding: 10px 16px;
+    flex-wrap: wrap;
   }
 
-  #url-bar label {
+  #picker-label {
     font-family: 'Cinzel', serif;
     font-size: 10px;
-    letter-spacing: .12em;
+    letter-spacing: .14em;
     color: var(--gold-dim);
     white-space: nowrap;
     text-transform: uppercase;
+    flex-shrink: 0;
   }
 
-  #url-input {
+  #game-select {
     flex: 1;
+    min-width: 160px;
     background: #1e170f;
     border: 1px solid var(--border);
     border-radius: 3px;
     color: var(--ink);
     font-family: 'EB Garamond', serif;
-    font-size: 14px;
+    font-size: 15px;
     padding: 5px 10px;
     outline: none;
+    cursor: pointer;
     transition: border-color .2s;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a6e30'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
   }
-  #url-input:focus { border-color: var(--gold-dim); }
-  #url-input::placeholder { color: var(--ink-faint); font-style: italic; }
+  #game-select:focus { border-color: var(--gold-dim); }
+  #game-select option { background: #1e170f; color: var(--ink); }
 
-  #load-btn, #refresh-btn {
+  #refresh-btn, #back-btn {
     background: transparent;
     border: 1px solid var(--border-bright);
     color: var(--gold);
@@ -88,12 +101,14 @@
     cursor: pointer;
     white-space: nowrap;
     transition: background .2s, color .2s;
+    flex-shrink: 0;
   }
-  #load-btn:hover, #refresh-btn:hover {
+  #refresh-btn:hover, #back-btn:hover {
     background: var(--blood);
     border-color: var(--blood-bright);
     color: #fff;
   }
+  #back-btn { display: none; }
 
   #status-row {
     display: flex;
@@ -462,17 +477,19 @@
 </head>
 <body>
 
-<div id="url-bar">
-  <label>Chronicle URL</label>
-  <input id="url-input" type="text"
-    placeholder="Paste GitHub raw URL or any raw .md URL…"
-    autocomplete="off" autocorrect="off" spellcheck="false" />
-  <button id="load-btn">Load</button>
-  <button id="refresh-btn">↻</button>
-</div>
-<div id="status-row">
-  <div id="status-dot"></div>
-  <span id="status-text">No chronicle loaded. Paste a URL above.</span>
+<div id="top-bar">
+  <div id="picker-row">
+    <span id="picker-label">Chronicle</span>
+    <select id="game-select">
+      <option value="">— Loading games… —</option>
+    </select>
+    <button id="back-btn">← Games</button>
+    <button id="refresh-btn">↻ Refresh</button>
+  </div>
+  <div id="status-row">
+    <div id="status-dot"></div>
+    <span id="status-text">Loading game list…</span>
+  </div>
 </div>
 
 <div id="app">
@@ -480,13 +497,7 @@
     <div class="big-icon">⚰</div>
     <h2>Thousand Year Old Vampire</h2>
     <p>Chronicle Viewer</p>
-    <p>Paste a raw GitHub URL to your vampire's markdown file to begin.</p>
-    <div class="hint">
-      <strong>How to get the URL:</strong><br>
-      Open your file on GitHub → click <em>Raw</em> → copy the URL.<br><br>
-      It will look like:<br>
-      <code>https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/Konstantinos_Doukas.md</code>
-    </div>
+    <p>Select a chronicle from the dropdown above to begin.</p>
   </div>
   <div id="content" style="display:none"></div>
 </div>
@@ -495,261 +506,90 @@
 
 <script>
 // ── Config ──
-const REFRESH_INTERVAL = 60; // seconds
-let refreshTimer = null;
-let countdown = REFRESH_INTERVAL;
-let currentUrl = null;
+const REFRESH_INTERVAL = 60;
+const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire';
+const RAW_BASE   = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/';
 
-// ── Helpers ──
+let refreshTimer = null;
+let countdown    = REFRESH_INTERVAL;
+let currentUrl   = null;
+
+// ── Status helpers ──
 function setStatus(state, msg) {
-  const dot = document.getElementById('status-dot');
-  dot.className = state;
+  document.getElementById('status-dot').className = state;
   document.getElementById('status-text').textContent = msg;
 }
 
-function ghRawUrl(url) {
-  // Convert github.com blob URL to raw.githubusercontent.com if needed
-  return url
-    .replace('https://github.com/', 'https://raw.githubusercontent.com/')
-    .replace('/blob/', '/');
-}
-
-function stripFrontmatter(md) {
-  if (md.startsWith('---')) {
-    const end = md.indexOf('---', 3);
-    if (end !== -1) return { fm: md.slice(3, end).trim(), body: md.slice(end + 3).trim() };
-  }
-  return { fm: '', body: md };
-}
-
-function parseFrontmatter(fm) {
-  const meta = {};
-  fm.split('\n').forEach(line => {
-    const m = line.match(/^(\w+):\s*(.+)$/);
-    if (m) meta[m[1]] = m[2].replace(/^["']|["']$/g, '');
-  });
-  return meta;
-}
-
-// ── Parse the markdown into sections ──
-function parseVampire(md) {
-  const { fm, body } = stripFrontmatter(md);
-  const meta = parseFrontmatter(fm);
-
-  // Split into H2 sections
-  const sections = {};
-  let current = '__header__';
-  const lines = body.split('\n');
-  let buf = [];
-
-  for (const line of lines) {
-    if (line.startsWith('## ')) {
-      sections[current] = buf.join('\n').trim();
-      current = line.replace('## ', '').replace(/^[^\w]+/, '').trim();
-      buf = [];
-    } else {
-      buf.push(line);
-    }
-  }
-  sections[current] = buf.join('\n').trim();
-
-  return { meta, sections, raw: body };
-}
-
-// ── Render a section as structured HTML ──
-function renderMarks(text) {
-  const items = text.match(/^[-*]\s+.+/gm) || [];
-  if (!items.length) return marked.parse(text);
-  return `<ul class="marks-list">${items.map(i => `<li>${i.replace(/^[-*]\s+/, '')}</li>`).join('')}</ul>`;
-}
-
-function renderMemories(text) {
-  const blocks = text.split(/\n(?=###\s)/);
-  return blocks.map(block => {
-    const titleMatch = block.match(/^###\s+(.+)/);
-    const title = titleMatch ? titleMatch[1] : '';
-    const rest = block.replace(/^###.+\n/, '').trim();
-    const items = rest.match(/^\d+\..+/gm) || [];
-    const listHtml = items.length
-      ? `<ol>${items.map(i => `<li>${i.replace(/^\d+\.\s*/, '')}</li>`).join('')}</ol>`
-      : marked.parse(rest);
-    return `<div class="memory-block"><div class="memory-title">${title}</div>${listHtml}</div>`;
-  }).join('');
-}
-
-function renderSkills(text) {
-  const rows = text.match(/\|.+\|/g) || [];
-  if (rows.length < 2) return marked.parse(text);
-  const dataRows = rows.slice(2);
-  return `<div class="skills-grid">${dataRows.map(r => {
-    const cells = r.split('|').map(c => c.trim()).filter(Boolean);
-    if (cells.length < 2) return '';
-    const rawName = cells[0];
-    const rawStatus = cells[1];
-    const isLost = rawName.includes('~~') || rawStatus.toLowerCase().includes('lost');
-    const isChecked = rawStatus.includes('☑') || rawStatus.toLowerCase().includes('checked');
-    const name = rawName.replace(/~~/g, '').trim();
-    const [skillName, skillDesc] = name.split('—').map(s => s.trim());
-    const cls = isLost ? 'skill-row lost' : isChecked ? 'skill-row checked' : 'skill-row';
-    const checkInner = isLost ? '✕' : isChecked ? '✓' : '';
-    return `<div class="${cls}">
-      <div class="skill-check">${checkInner}</div>
-      <div>
-        <div class="skill-name">${skillName || name}</div>
-        ${skillDesc ? `<div class="skill-desc">${skillDesc}</div>` : ''}
-      </div>
-    </div>`;
-  }).join('')}</div>`;
-}
-
-function renderResources(text) {
-  const rows = text.match(/\|.+\|/g) || [];
-  if (rows.length < 2) return marked.parse(text);
-  const dataRows = rows.slice(2);
-  return `<div class="resource-grid">${dataRows.map(r => {
-    const cells = r.split('|').map(c => c.trim()).filter(Boolean);
-    if (cells.length < 2) return '';
-    const rawName = cells[0];
-    const rawType = cells[1] || '';
-    const rawStatus = cells[2] || '';
-    const isLost = rawName.includes('~~') || rawStatus.toLowerCase().includes('lost') || (cells.length >= 3 && cells[2].includes('~~'));
-    const name = rawName.replace(/~~/g, '').trim();
-    const [resName, resDesc] = name.split('—').map(s => s.trim());
-    const isStationary = rawType.includes('stationary') || rawType.includes('📍');
-    const icon = isStationary ? '📍' : '🎒';
-    return `<div class="resource-card${isLost ? ' lost' : ''}">
-      <div class="resource-icon">${icon}</div>
-      <div>
-        <div class="resource-name">${resName || name}</div>
-        ${resDesc ? `<div class="resource-desc">${resDesc}</div>` : ''}
-      </div>
-    </div>`;
-  }).join('')}</div>`;
-}
-
-function renderCharacters(text) {
-  const groups = text.split(/\n(?=###\s)/);
-  return groups.map(block => {
-    const titleMatch = block.match(/^###\s+(.+)/);
-    const title = titleMatch ? titleMatch[1] : '';
-    const rest = block.replace(/^###.+\n/, '').trim();
-    const charLines = rest.split('\n').filter(l => l.trim().startsWith('-'));
-    const cards = charLines.map(line => {
-      const isDead = line.includes('~~');
-      const clean = line.replace(/^-+\s*/, '').replace(/~~/g, '');
-      const [nameRaw, ...descParts] = clean.split('—');
-      const name = nameRaw.replace(/\*+/g, '').trim();
-      const desc = descParts.join('—').trim();
-      return `<div class="char-card${isDead ? ' dead' : ''}">
-        <div class="char-name">${name}${isDead ? ' ✝' : ''}</div>
-        ${desc ? `<div class="char-desc">${desc}</div>` : ''}
-      </div>`;
-    }).join('');
-    return title
-      ? `<div class="char-group-title">${title}</div>${cards}`
-      : cards;
-  }).join('');
-}
-
-function renderJournal(text) {
-  const entries = text.split(/\n(?=###\s)/);
-  return entries.map(block => {
-    const titleMatch = block.match(/^###\s+(.+)/);
-    const title = titleMatch ? titleMatch[1] : '';
-    const rest = block.replace(/^###.+\n/, '').trim();
-
-    // Extract italic prompt line at start
-    const promptMatch = rest.match(/^\*(.+)\*/);
-    const promptText = promptMatch ? promptMatch[1] : '';
-    const body = promptText ? rest.replace(/^\*.+\*\n+/, '') : rest;
-
-    // Split body and changes block
-    const changesMatch = body.match(/\*\*Changes:\*\*(.+)/s);
-    const mainBody = changesMatch ? body.slice(0, body.indexOf('**Changes:**')).trim() : body.trim();
-    const changes = changesMatch ? changesMatch[1].trim() : '';
-
-    return `<div class="journal-entry">
-      <div class="journal-prompt">${title}</div>
-      ${promptText ? `<div class="journal-prompt-text">${promptText}</div>` : ''}
-      <div class="journal-body">${marked.parse(mainBody)}</div>
-      ${changes ? `<div class="journal-changes"><strong>Changes:</strong> ${changes}</div>` : ''}
-    </div>`;
-  }).join('');
-}
-
-function renderDiary(text) {
-  if (!text || text.toLowerCase().includes('no diary')) {
-    return `<div class="diary-block">No diary yet.</div>`;
-  }
-  return `<div class="diary-block">${marked.parse(text)}</div>`;
-}
-
-// ── Main render ──
-function render(md) {
-  const { meta, sections } = parseVampire(md);
-
-  const header = sections['__header__'] || '';
-  const nameMatch = header.match(/^#\s+(.+)/m);
-  const epitaphMatch = header.match(/^>\s*\*(.+)\*/m);
-
-  const vampName = nameMatch ? nameMatch[1] : (meta.vampire || 'Unknown Vampire');
-  const epitaph = epitaphMatch ? epitaphMatch[1] : '';
-
-  let html = `<div class="vamp-header">
-    <div class="vamp-name">${vampName}</div>
-    <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
-    ${epitaph ? `<div class="vamp-epitaph">${epitaph}</div>` : ''}
-    <div class="meta-row">
-      ${meta.current_prompt ? `<div class="meta-pill">Current Prompt <span>${meta.current_prompt}</span></div>` : ''}
-      ${meta.prompts_resolved ? `<div class="meta-pill">Resolved <span>${meta.prompts_resolved}</span></div>` : ''}
-      ${meta.created ? `<div class="meta-pill">Born <span>${meta.created}</span></div>` : ''}
-      ${meta.modified ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
-      ${meta.game_over === 'true' ? `<div class="meta-pill" style="border-color:var(--blood-bright);color:var(--blood-bright)">GAME OVER</div>` : ''}
-    </div>
-  </div>`;
-
-  const sectionMap = [
-    { keys: ['⚰ Marks', 'Marks'], label: '⚰ Marks', icon: '⚰', fn: renderMarks },
-    { keys: ['🧠 Memories', 'Memories'], label: '🧠 Memories', icon: '🧠', fn: renderMemories },
-    { keys: ['📖 Diary', 'Diary'], label: '📖 Diary', icon: '📖', fn: renderDiary },
-    { keys: ['⚔ Skills', 'Skills'], label: '⚔ Skills', icon: '⚔', fn: renderSkills },
-    { keys: ['🏚 Resources', 'Resources'], label: '🏚 Resources', icon: '🏚', fn: renderResources },
-    { keys: ['👥 Characters', 'Characters'], label: '👥 Characters', icon: '👥', fn: renderCharacters },
-    { keys: ['📜 Journal', 'Journal'], label: '📜 Journal', icon: '📜', fn: renderJournal },
-  ];
-
-  for (const { keys, label, icon, fn } of sectionMap) {
-    let text = null;
-    for (const k of keys) {
-      if (sections[k] !== undefined) { text = sections[k]; break; }
-    }
-    if (text === null) continue;
-    html += `<div class="section">
-      <div class="section-title"><span class="icon">${icon}</span>${label.replace(/^[^\w]+/, '')}</div>
-      ${fn(text)}
-    </div>`;
-  }
-
-  return html;
-}
-
-// ── Fetch & display ──
-async function loadUrl(url) {
-  if (!url) return;
-  const rawUrl = ghRawUrl(url.trim());
-  currentUrl = rawUrl;
-  setStatus('busy', 'Fetching chronicle…');
-
+// ── Load game list from GitHub API ──
+async function loadGameList() {
+  setStatus('busy', 'Fetching chronicle list…');
   try {
-    const res = await fetch(rawUrl + '?nocache=' + Date.now());
+    const res = await fetch(GITHUB_API + '?nocache=' + Date.now());
+    if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+    const files = await res.json();
+    const mds = files.filter(f => f.name.endsWith('.md') && f.type === 'file');
+
+    const sel = document.getElementById('game-select');
+    sel.innerHTML = '<option value="">— Choose a chronicle —</option>';
+    mds.forEach(f => {
+      const label = f.name.replace('.md', '').replace(/_/g, ' ');
+      const opt = document.createElement('option');
+      opt.value = RAW_BASE + encodeURIComponent(f.name);
+      opt.textContent = label;
+      sel.appendChild(opt);
+    });
+
+    if (mds.length === 0) {
+      sel.innerHTML = '<option value="">— No .md files found —</option>';
+      setStatus('err', 'No chronicle files found in the repository folder.');
+    } else {
+      setStatus('ok', `${mds.length} chronicle${mds.length > 1 ? 's' : ''} found — choose one above`);
+      // Auto-select if hash matches a filename
+      const hash = decodeURIComponent(location.hash.slice(1));
+      if (hash) {
+        const match = [...sel.options].find(o => o.value.includes(hash));
+        if (match) { sel.value = match.value; loadChronicle(match.value); }
+      }
+      // If only one file, auto-load it
+      if (mds.length === 1) { sel.value = sel.options[1].value; loadChronicle(sel.options[1].value); }
+    }
+  } catch (e) {
+    setStatus('err', `Could not load game list: ${e.message}`);
+    document.getElementById('game-select').innerHTML =
+      '<option value="">— Error loading list —</option>';
+  }
+}
+
+// ── Fetch & render a chronicle ──
+async function loadChronicle(url) {
+  if (!url) {
+    // Deselected — go back to empty state
+    document.getElementById('content').style.display = 'none';
+    document.getElementById('empty-state').style.display = '';
+    document.getElementById('back-btn').style.display = 'none';
+    clearInterval(refreshTimer);
+    currentUrl = null;
+    setStatus('ok', 'Choose a chronicle above.');
+    resetTimerBar();
+    return;
+  }
+  currentUrl = url;
+  setStatus('busy', 'Fetching chronicle…');
+  try {
+    const res = await fetch(url + '?nocache=' + Date.now());
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const md = await res.text();
 
-    const el = document.getElementById('content');
+    const el    = document.getElementById('content');
     const empty = document.getElementById('empty-state');
-    el.innerHTML = render(md);
-    el.style.display = 'block';
+    el.innerHTML       = render(md);
+    el.style.display   = 'block';
     empty.style.display = 'none';
+    document.getElementById('back-btn').style.display = '';
+
+    // Save selection to hash for bookmarking
+    const filename = url.split('/').pop();
+    history.replaceState(null, '', '#' + filename);
 
     const now = new Date().toLocaleTimeString();
     setStatus('ok', `Last updated: ${now} — auto-refresh in ${REFRESH_INTERVAL}s`);
@@ -760,54 +600,212 @@ async function loadUrl(url) {
 }
 
 // ── Countdown bar ──
-function startCountdown() {
-  clearInterval(refreshTimer);
-  countdown = REFRESH_INTERVAL;
+function resetTimerBar() {
   const fill = document.getElementById('timer-fill');
   fill.style.transition = 'none';
   fill.style.width = '100%';
+}
 
+function startCountdown() {
+  clearInterval(refreshTimer);
+  countdown = REFRESH_INTERVAL;
+  resetTimerBar();
   refreshTimer = setInterval(() => {
     countdown--;
     const pct = (countdown / REFRESH_INTERVAL) * 100;
+    const fill = document.getElementById('timer-fill');
     fill.style.transition = 'width 1s linear';
     fill.style.width = pct + '%';
-    const dot = document.getElementById('status-dot');
-    if (dot.className !== 'err') {
+    if (document.getElementById('status-dot').className !== 'err') {
       document.getElementById('status-text').textContent =
         `Last updated: ${new Date().toLocaleTimeString()} — auto-refresh in ${countdown}s`;
     }
-    if (countdown <= 0) {
-      if (currentUrl) loadUrl(currentUrl);
-    }
+    if (countdown <= 0 && currentUrl) loadChronicle(currentUrl);
   }, 1000);
 }
 
-// ── Events ──
-document.getElementById('load-btn').addEventListener('click', () => {
-  loadUrl(document.getElementById('url-input').value);
-});
-
-document.getElementById('url-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') loadUrl(document.getElementById('url-input').value);
-});
-
-document.getElementById('refresh-btn').addEventListener('click', () => {
-  if (currentUrl) loadUrl(currentUrl);
-});
-
-// ── Auto-load from URL hash ──
-window.addEventListener('load', () => {
-  const hash = decodeURIComponent(location.hash.slice(1));
-  if (hash.startsWith('http')) {
-    document.getElementById('url-input').value = hash;
-    loadUrl(hash);
+// ── Helpers ──
+function stripFrontmatter(md) {
+  if (md.startsWith('---')) {
+    const end = md.indexOf('---', 3);
+    if (end !== -1) return { fm: md.slice(3, end).trim(), body: md.slice(end + 3).trim() };
   }
+  return { fm: '', body: md };
+}
+function parseFrontmatter(fm) {
+  const meta = {};
+  fm.split('\n').forEach(line => {
+    const m = line.match(/^(\w+):\s*(.+)$/);
+    if (m) meta[m[1]] = m[2].replace(/^["']|["']$/g, '');
+  });
+  return meta;
+}
+function parseVampire(md) {
+  const { fm, body } = stripFrontmatter(md);
+  const meta = parseFrontmatter(fm);
+  const sections = {};
+  let current = '__header__';
+  const lines = body.split('\n');
+  let buf = [];
+  for (const line of lines) {
+    if (line.startsWith('## ')) {
+      sections[current] = buf.join('\n').trim();
+      current = line.replace('## ', '').replace(/^[^\w]+/, '').trim();
+      buf = [];
+    } else { buf.push(line); }
+  }
+  sections[current] = buf.join('\n').trim();
+  return { meta, sections, raw: body };
+}
+
+// ── Section renderers ──
+function renderMarks(text) {
+  const items = text.match(/^[-*]\s+.+/gm) || [];
+  if (!items.length) return marked.parse(text);
+  return `<ul class="marks-list">${items.map(i => `<li>${i.replace(/^[-*]\s+/, '')}</li>`).join('')}</ul>`;
+}
+function renderMemories(text) {
+  const blocks = text.split(/\n(?=###\s)/);
+  return blocks.map(block => {
+    const titleMatch = block.match(/^###\s+(.+)/);
+    const title = titleMatch ? titleMatch[1] : '';
+    const rest  = block.replace(/^###.+\n/, '').trim();
+    const items = rest.match(/^\d+\..+/gm) || [];
+    const listHtml = items.length
+      ? `<ol>${items.map(i => `<li>${i.replace(/^\d+\.\s*/, '')}</li>`).join('')}</ol>`
+      : marked.parse(rest);
+    return `<div class="memory-block"><div class="memory-title">${title}</div>${listHtml}</div>`;
+  }).join('');
+}
+function renderSkills(text) {
+  const rows = text.match(/\|.+\|/g) || [];
+  if (rows.length < 2) return marked.parse(text);
+  return `<div class="skills-grid">${rows.slice(2).map(r => {
+    const cells = r.split('|').map(c => c.trim()).filter(Boolean);
+    if (cells.length < 2) return '';
+    const rawName = cells[0], rawStatus = cells[1];
+    const isLost    = rawName.includes('~~') || rawStatus.toLowerCase().includes('lost');
+    const isChecked = rawStatus.includes('☑') || rawStatus.toLowerCase().includes('checked');
+    const name = rawName.replace(/~~/g, '').trim();
+    const [skillName, skillDesc] = name.split('—').map(s => s.trim());
+    const cls = isLost ? 'skill-row lost' : isChecked ? 'skill-row checked' : 'skill-row';
+    return `<div class="${cls}"><div class="skill-check">${isLost ? '✕' : isChecked ? '✓' : ''}</div>
+      <div><div class="skill-name">${skillName || name}</div>${skillDesc ? `<div class="skill-desc">${skillDesc}</div>` : ''}</div></div>`;
+  }).join('')}</div>`;
+}
+function renderResources(text) {
+  const rows = text.match(/\|.+\|/g) || [];
+  if (rows.length < 2) return marked.parse(text);
+  return `<div class="resource-grid">${rows.slice(2).map(r => {
+    const cells = r.split('|').map(c => c.trim()).filter(Boolean);
+    if (cells.length < 2) return '';
+    const rawName = cells[0], rawType = cells[1] || '', rawStatus = cells[2] || '';
+    const isLost = rawName.includes('~~') || rawStatus.toLowerCase().includes('lost') || rawStatus.includes('~~');
+    const name = rawName.replace(/~~/g, '').trim();
+    const [resName, resDesc] = name.split('—').map(s => s.trim());
+    const icon = (rawType.includes('stationary') || rawType.includes('📍')) ? '📍' : '🎒';
+    return `<div class="resource-card${isLost ? ' lost' : ''}"><div class="resource-icon">${icon}</div>
+      <div><div class="resource-name">${resName || name}</div>${resDesc ? `<div class="resource-desc">${resDesc}</div>` : ''}</div></div>`;
+  }).join('')}</div>`;
+}
+function renderCharacters(text) {
+  return text.split(/\n(?=###\s)/).map(block => {
+    const titleMatch = block.match(/^###\s+(.+)/);
+    const title = titleMatch ? titleMatch[1] : '';
+    const rest  = block.replace(/^###.+\n/, '').trim();
+    const cards = rest.split('\n').filter(l => l.trim().startsWith('-')).map(line => {
+      const isDead = line.includes('~~');
+      const clean  = line.replace(/^-+\s*/, '').replace(/~~/g, '');
+      const [nameRaw, ...descParts] = clean.split('—');
+      const name = nameRaw.replace(/\*+/g, '').trim();
+      const desc = descParts.join('—').trim();
+      return `<div class="char-card${isDead ? ' dead' : ''}">
+        <div class="char-name">${name}${isDead ? ' ✝' : ''}</div>
+        ${desc ? `<div class="char-desc">${desc}</div>` : ''}</div>`;
+    }).join('');
+    return title ? `<div class="char-group-title">${title}</div>${cards}` : cards;
+  }).join('');
+}
+function renderJournal(text) {
+  return text.split(/\n(?=###\s)/).map(block => {
+    const titleMatch = block.match(/^###\s+(.+)/);
+    const title = titleMatch ? titleMatch[1] : '';
+    const rest  = block.replace(/^###.+\n/, '').trim();
+    const promptMatch = rest.match(/^\*(.+)\*/);
+    const promptText  = promptMatch ? promptMatch[1] : '';
+    const body = promptText ? rest.replace(/^\*.+\*\n+/, '') : rest;
+    const changesMatch = body.match(/\*\*Changes:\*\*(.+)/s);
+    const mainBody = changesMatch ? body.slice(0, body.indexOf('**Changes:**')).trim() : body.trim();
+    const changes  = changesMatch ? changesMatch[1].trim() : '';
+    return `<div class="journal-entry">
+      <div class="journal-prompt">${title}</div>
+      ${promptText ? `<div class="journal-prompt-text">${promptText}</div>` : ''}
+      <div class="journal-body">${marked.parse(mainBody)}</div>
+      ${changes ? `<div class="journal-changes"><strong>Changes:</strong> ${changes}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+function renderDiary(text) {
+  if (!text || text.toLowerCase().includes('no diary'))
+    return `<div class="diary-block">No diary yet.</div>`;
+  return `<div class="diary-block">${marked.parse(text)}</div>`;
+}
+
+// ── Main render ──
+function render(md) {
+  const { meta, sections } = parseVampire(md);
+  const header = sections['__header__'] || '';
+  const vampName = (header.match(/^#\s+(.+)/m) || [])[1] || meta.vampire || 'Unknown Vampire';
+  const epitaph  = (header.match(/^>\s*\*(.+)\*/m) || [])[1] || '';
+
+  let html = `<div class="vamp-header">
+    <div class="vamp-name">${vampName}</div>
+    <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
+    ${epitaph ? `<div class="vamp-epitaph">${epitaph}</div>` : ''}
+    <div class="meta-row">
+      ${meta.current_prompt  ? `<div class="meta-pill">Current Prompt <span>${meta.current_prompt}</span></div>` : ''}
+      ${meta.prompts_resolved? `<div class="meta-pill">Resolved <span>${meta.prompts_resolved}</span></div>` : ''}
+      ${meta.created         ? `<div class="meta-pill">Born <span>${meta.created}</span></div>` : ''}
+      ${meta.modified        ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
+      ${meta.game_over==='true' ? `<div class="meta-pill" style="border-color:var(--blood-bright);color:var(--blood-bright)">GAME OVER</div>` : ''}
+    </div>
+  </div>`;
+
+  const sectionMap = [
+    { keys:['⚰ Marks','Marks'],       label:'⚰ Marks',       icon:'⚰', fn:renderMarks },
+    { keys:['🧠 Memories','Memories'], label:'🧠 Memories',   icon:'🧠', fn:renderMemories },
+    { keys:['📖 Diary','Diary'],       label:'📖 Diary',       icon:'📖', fn:renderDiary },
+    { keys:['⚔ Skills','Skills'],      label:'⚔ Skills',       icon:'⚔', fn:renderSkills },
+    { keys:['🏚 Resources','Resources'],label:'🏚 Resources',  icon:'🏚', fn:renderResources },
+    { keys:['👥 Characters','Characters'],label:'👥 Characters',icon:'👥', fn:renderCharacters },
+    { keys:['📜 Journal','Journal'],   label:'📜 Journal',     icon:'📜', fn:renderJournal },
+  ];
+  for (const { keys, label, icon, fn } of sectionMap) {
+    let text = null;
+    for (const k of keys) { if (sections[k] !== undefined) { text = sections[k]; break; } }
+    if (text === null) continue;
+    html += `<div class="section">
+      <div class="section-title"><span class="icon">${icon}</span>${label.replace(/^[^\w]+/, '')}</div>
+      ${fn(text)}</div>`;
+  }
+  return html;
+}
+
+// ── Events ──
+document.getElementById('game-select').addEventListener('change', e => {
+  loadChronicle(e.target.value);
+});
+document.getElementById('refresh-btn').addEventListener('click', () => {
+  if (currentUrl) loadChronicle(currentUrl);
+  else loadGameList();
+});
+document.getElementById('back-btn').addEventListener('click', () => {
+  document.getElementById('game-select').value = '';
+  loadChronicle('');
 });
 
-// Save URL to hash when loading so it persists on reload
-const origLoad = loadUrl;
-// (already handled inline above)
+// ── Boot ──
+window.addEventListener('load', loadGameList);
 </script>
 </body>
 </html>
