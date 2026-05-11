@@ -1,0 +1,31 @@
+yaml# .github/workflows/deploy-hello.yml
+name: Deploy Hello World
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'hello-world.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          mkdir -p _site
+          cp hello-world.html _site/index.html
+
+      - name: Deploy to gh-pages root
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          destination_dir: .
+          keep_files: true
