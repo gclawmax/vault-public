@@ -5,8 +5,11 @@ current_prompt: 8
 prompts_resolved: 5
 game_over: false
 game_over_reason: ""
+game_start: 2025-05-11
 diary_exists: false
 diary_name: ""
+show_suggestions: true
+era_cache: ""
 created: 2025-05-11
 modified: 2025-05-11
 ---
@@ -135,3 +138,9 @@ Someone saw. A goatherd, perhaps, or a pilgrim on the Nicaea road — I never le
 ---
 
 *Last played: 2025-05-11*
+
+---
+
+## 🌍 Era Cache
+
+*None yet.
