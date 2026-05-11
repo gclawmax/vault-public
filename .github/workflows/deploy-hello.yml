@@ -1,4 +1,3 @@
-yaml# .github/workflows/deploy-hello.yml
 name: Deploy Hello World
 
 on:
