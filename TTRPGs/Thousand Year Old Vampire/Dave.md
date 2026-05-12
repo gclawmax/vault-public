@@ -60,7 +60,7 @@ open_entry: 1
 ## ⚔ Skills
 
 | Skill | Status |
-|-------|--------|
+|-----|--|
 | Scythe Work | ✅ unchecked |
 | Animal Handling | ✅ unchecked |
 | Spearwork | ✅ unchecked |
@@ -89,32 +89,17 @@ open_entry: 1
 
 ---
 
-
-## ⏳ Pending Prompt
-
-**Prompt 1, Entry 1**
-
-*In your blood-hunger you destroy someone close to you. Kill a mortal Character. Create a mortal if none are available.Take the skill Bloodthirsty.*
-
-What do you feed upon tonight?
-
-*Awaiting your response.*
-
----
-
-
-## ⏳ Pending Prompt
-
-**Prompt 1, Entry 1**
-
-*In your blood-hunger you destroy someone close to you. Kill a mortal Character. Create a mortal if none are available. Take the skill Bloodthirsty.*
-
-What do you feed upon tonight?
-
-*Awaiting your response.*
-
----
 ## 📜 Journal
+
+### Turn 1 — Prompt 1, Entry 1
+*In your blood-hunger you destroy someone close to you.*
+
+"In your blood-hunger you destroy someone close to you. Kill a mortal Character. Create a mortal if none are available. Take the skill Bloodthirsty."
+
+
+**Changes:** Opened Prompt 1. Awaiting resolution.
+
+---
 
 *Last played: 2026-05-12*
 
