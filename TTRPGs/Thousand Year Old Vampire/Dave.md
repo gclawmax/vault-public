@@ -91,9 +91,9 @@ modified: '2026-05-12'
 ## 📜 Journal
 
 ### Turn 1 — Prompt 1, Entry 1
-*In your blood-hunger you destroy someone close to you.*
+*In your blood-hunger you destroy someone close to you. Kill a mortal Character. Create a mortal if none are available. Take the skill Bloodthirsty*
 
-"In your blood-hunger you destroy someone close to you. Kill a mortal Character. Create a mortal if none are available. Take the skill Bloodthirsty."
+Awaiting resolution.
 
 
 **Changes:** Opened Prompt 1. Awaiting resolution.
