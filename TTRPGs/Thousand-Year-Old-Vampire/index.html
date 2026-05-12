@@ -1051,6 +1051,93 @@
       color: var(--accent-dim);
     }
 
+    /* ── Chat log ── */
+    #hermes-chat-log {
+      max-height: 180px;
+      overflow-y: auto;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--bg3);
+      padding: 6px 0;
+    }
+
+    .hermes-log-entry {
+      margin: 4px 10px;
+      border-bottom: 1px solid var(--border-bright);
+      padding: 6px 0;
+    }
+
+    .hermes-log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .hermes-log-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+
+    .hermes-log-role {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .hermes-log-meta-text {
+      font-size: .72rem;
+      color: var(--ink-faint);
+    }
+
+    .hermes-log-content {
+      font-size: .88rem;
+      color: var(--ink);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .hermes-log-content code {
+      background: var(--surface);
+      padding: 1px 4px;
+      border-radius: 2px;
+      font-size: .84em;
+    }
+
+    .hermes-log-content p {
+      margin: 4px 0;
+    }
+
+    .hermes-log-error {
+      color: var(--blood-bright);
+    }
+
+    .hermes-log-error .hermes-log-content {
+      color: var(--blood-bright);
+    }
+
+    /* ── API info ── */
+    #hermes-api-info {
+      margin-bottom: 6px;
+      font-size: .75rem;
+      padding: 4px 8px;
+      background: var(--surface2);
+      border-radius: 3px;
+      border: 1px dashed var(--border);
+    }
+
+    .hermes-api-request {
+      color: var(--ink-faint);
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow: hidden;
+    }
+
     body.hermes-open #app {
       padding-bottom: 260px;
     }
@@ -1145,13 +1232,16 @@
     </div>
     <div id="hermes-body">
       <div id="hermes-context"></div>
+      <div id="hermes-chat-log"></div>
+      <div id="hermes-api-info"></div>
       <textarea id="hermes-textarea" placeholder="Write your journal entry or command… (e.g. !tyov roll)"
-        rows="4"></textarea>
+        rows="2"></textarea>
       <div id="hermes-footer">
         <div id="hermes-command-preview">!tyov …</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="hermes-roll-btn">🎲 Roll Dice</button>
-          <button id="hermes-send-btn" disabled>Send to Hermes</button>
+          <button id="hermes-roll-btn">🎲 Roll</button>
+          <button id="hermes-send-btn" disabled>Send</button>
+          <button id="hermes-new-session-btn">⟳ New Session</button>
         </div>
       </div>
       <div id="hermes-status"></div>
@@ -1167,9 +1257,9 @@
     // SHA (commit ref) of the currently-loaded file from the GitHub API contents endpoint
     let currentSha = null;
 
-    // ── Hermes / Discord config ──
-    // Replace this URL with your current webhook to re-enable Hermes integration.
-    const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1503690810657341590/PXnLEm4kZp_LF_zj8MK8nX8kuJvqdOdyeZycGu8YAPFSGVKvvicMeEB_WE6gjCuD-ufP';
+    // ── Hermes API config ──
+    const HERMES_API = 'http://localhost:8642';
+    const HERMES_SESSION_KEY = 'tyov-player';
 
     let currentUrl = null;
     let currentChronicleName = null;
@@ -1466,7 +1556,7 @@
     document.getElementById('refresh-btn').addEventListener('click', () => { if (currentUrl) loadChronicle(currentUrl); else loadGameList(); });
     document.getElementById('back-btn').addEventListener('click', () => { document.getElementById('game-select').value = ''; loadChronicle(''); });
 
-    // ── Hermes panel ──
+    // ── Hermes panel (API server chat) ──
     (function () {
       const panel = document.getElementById('hermes-panel');
       const toggle = document.getElementById('hermes-toggle');
@@ -1474,20 +1564,201 @@
       const preview = document.getElementById('hermes-command-preview');
       const sendBtn = document.getElementById('hermes-send-btn');
       const rollBtn = document.getElementById('hermes-roll-btn');
+      const newSessionBtn = document.getElementById('hermes-new-session-btn');
       const statusEl = document.getElementById('hermes-status');
       const contextEl = document.getElementById('hermes-context');
+      const chatLogEl = document.getElementById('hermes-chat-log');
+      const apiInfoEl = document.getElementById('hermes-api-info');
 
-      toggle.addEventListener('click', () => {
-        const isOpen = panel.classList.toggle('open');
-        document.body.classList.toggle('hermes-open', isOpen);
-        if (isOpen) { updateContext(); textarea.focus(); }
-      });
+      // Session state
+      let sessionId = null;
+      const history = []; // { role, content }
+      let isProcessing = false;
+
+      // ── Helpers ──
+      function setHS(cls, msg) {
+        statusEl.className = cls; statusEl.textContent = msg;
+        if (cls === 'ok') setTimeout(() => { if (statusEl.textContent === msg) statusEl.textContent = ''; }, 6000);
+      }
+
+      function addChatLog(role, content, meta) {
+        const div = document.createElement('div');
+        div.className = 'hermes-log-entry hermes-log-' + role;
+        div.innerHTML = '<div class="hermes-log-meta">' +
+          '<span class="hermes-log-role">' + role.toUpperCase() + '</span>' +
+          (meta ? '<span class="hermes-log-meta-text">' + meta + '</span>' : '') +
+          '</div>' +
+          '<div class="hermes-log-content">' + content + '</div>';
+        chatLogEl.appendChild(div);
+        chatLogEl.scrollTop = chatLogEl.scrollHeight;
+      }
+
+      function clearChatLog() {
+        chatLogEl.innerHTML = '';
+        history.length = 0;
+        sessionId = null;
+        newSessionBtn.textContent = '⟳ New Session';
+      }
+
+      function formatResponse(content) {
+        // Minimal markdown-ish rendering for API responses
+        return content
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g, '<em>$1</em>')
+          .replace(/`(.+?)`/g, '<code>$1</code>')
+          .replace(/\n/g, '<br>');
+      }
+
       function updateContext() {
         if (!currentUrl) { contextEl.style.display = 'none'; return; }
         const els = document.querySelectorAll('.journal-turn');
         if (els.length) { contextEl.textContent = '↳ Last turn: ' + els[els.length - 1].textContent.trim(); contextEl.style.display = 'block'; }
         else contextEl.style.display = 'none';
       }
+
+      function prependSystemPrefix() {
+        const contextPrefix = currentChronicleName
+          ? '[Chronicle: ' + currentChronicleName + '] '
+          : '';
+        const raw = textarea.value.trim();
+        if (!raw) return null;
+        return (raw.startsWith('!tyov') ? raw : '!tyov ' + raw);
+      }
+
+      // ── Session management ──
+      function startSession() {
+        clearChatLog();
+        sessionId = 'tyov-session-' + Date.now();
+        newSessionBtn.textContent = '⟳ New Session';
+        setHS('ok', 'New session started.');
+      }
+
+      // ── API interaction ──
+      async function sendToHermes(rawCommand) {
+        if (!rawCommand || isProcessing) return;
+        isProcessing = true;
+        sendBtn.disabled = true;
+        rollBtn.disabled = true;
+        textarea.disabled = true;
+        newSessionBtn.disabled = true;
+
+        // Ensure session exists
+        if (!sessionId) startSession();
+
+        const fullMessage = rawCommand;
+        const cmdPreview = prependSystemPrefix();
+
+        // Add user message to history
+        history.push({ role: 'user', content: fullMessage });
+
+        // Add to chat log
+        addChatLog('request', '<p>' + formatResponse(fullMessage) + '</p>', 'Session: ' + sessionId);
+
+        // Prepare system message if we have a loaded vampire game
+        const systemPrompt = currentChronicleName
+          ? '[Context: ' + currentChronicleName + ']'
+          : '[Context: No chronicle loaded — use the dropdown to select a game]';
+
+        const apiMessages = [];
+        if (systemPrompt) {
+          apiMessages.push({ role: 'system', content: systemPrompt });
+        }
+        // Include recent history (last 20 messages to keep payload reasonable)
+        const historySlice = history.slice(-20);
+        apiMessages.push(...historySlice.filter(m => m.role !== 'system'));
+
+        const requestPayload = {
+          model: 'hermes-agent',
+          messages: apiMessages,
+          max_tokens: 4096,
+          stream: false
+        };
+
+        setHS('busy', 'Sending to Hermes API…');
+        apiInfoEl.innerHTML = '<div class="hermes-api-request">API: POST /v1/chat/completions</div>';
+
+        try {
+          const headers = {
+            'Content-Type': 'application/json'
+          };
+          if (sessionId) {
+            headers['X-Hermes-Session-Id'] = sessionId;
+          }
+          headers['X-Hermes-Session-Key'] = HERMES_SESSION_KEY;
+
+          apiInfoEl.innerHTML += '<div class="hermes-api-request">Headers: X-Hermes-Session-Key=' +
+            HERMES_SESSION_KEY + '; X-Hermes-Session-Id=' + sessionId + '</div>';
+
+          const res = await fetch(HERMES_API + '/v1/chat/completions', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(requestPayload)
+          });
+
+          if (!res.ok) {
+            const errText = await res.text().catch(() => '');
+            addChatLog('error', 'HTTP ' + res.status + (errText ? ': ' + errText.slice(0, 200) : ''), '');
+            setHS('err', 'API error ' + res.status + '. Check Hermes gateway is running.');
+            isProcessing = false;
+            sendBtn.disabled = !textarea.value.trim();
+            rollBtn.disabled = false;
+            textarea.disabled = false;
+            newSessionBtn.disabled = false;
+            return;
+          }
+
+          const data = await res.json();
+          apiInfoEl.innerHTML += '<div class="hermes-api-request">Response: status ' + res.status + ', model: ' + (data.model || 'unknown') + '</div>';
+
+          // Extract response content
+          let responseContent = '';
+          if (data.choices && data.choices[0]) {
+            const choice = data.choices[0];
+            responseContent = choice.message?.content || '';
+            sessionId = data['X-Hermes-Session-Id'] || data.x_hermes_session_id || sessionId;
+
+            // Track in history
+            history.push({ role: 'assistant', content: responseContent });
+
+            addChatLog('response', formatResponse(responseContent), 'Session: ' + sessionId);
+          }
+
+          textarea.value = '';
+          preview.textContent = '!tyov …';
+          setHS('ok', '✦ Received from Hermes. Chronicle refreshed.');
+
+          // Auto-refresh the chronicle when the backend may have updated the vampire note
+          setTimeout(() => {
+            if (currentUrl) loadChronicle(currentUrl);
+          }, 3000);
+
+          setHS('ok', '✦ Response received. Chronicle ready.');
+
+          isProcessing = false;
+          sendBtn.disabled = !textarea.value.trim();
+          rollBtn.disabled = false;
+          textarea.disabled = false;
+          newSessionBtn.disabled = false;
+
+        } catch (e) {
+          addChatLog('error', 'Network error: ' + e.message, '')
+          setHS('err', 'Network error: ' + e.message);
+          isProcessing = false;
+          sendBtn.disabled = !textarea.value.trim();
+          rollBtn.disabled = false;
+          textarea.disabled = false;
+          newSessionBtn.disabled = false;
+        }
+      }
+
+      // ── Event listeners ──
+      toggle.addEventListener('click', () => {
+        const isOpen = panel.classList.toggle('open');
+        document.body.classList.toggle('hermes-open', isOpen);
+        if (isOpen) { updateContext(); textarea.focus(); }
+      });
+
       textarea.addEventListener('input', () => {
         const val = textarea.value.trim();
         sendBtn.disabled = !val;
@@ -1495,76 +1766,34 @@
         const cmd = val.startsWith('!tyov') ? val : '!tyov ' + val;
         preview.textContent = cmd.length > 80 ? cmd.slice(0, 80) + '…' : cmd;
       });
-      async function sendHermesCommand(rawCommand) {
-        if (!rawCommand) return;
-
-        const HERMES_ID = '1502269556000034966';
-
-        const contextPrefix = currentChronicleName
-          ? '[Chronicle: ' + currentChronicleName + '] '
-          : '';
-
-        const message = '<@' + HERMES_ID + '> ' + '!tyov' + contextPrefix + rawCommand;
-
-        const sel = document.getElementById('game-select');
-        const vampName = sel.options[sel.selectedIndex]?.text || 'Unknown Vampire';
-
-        setHS('busy', 'Sending to Hermes…');
-
-        sendBtn.disabled = true;
-        rollBtn.disabled = true;
-
-        try {
-          const res = await fetch(DISCORD_WEBHOOK, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              content: message,
-              username: vampName + ' — Chronicle Viewer',
-              avatar_url: 'https://gclawmax.github.io/vault-public/TTRPGs/Thousand-Year-Old-Vampire/favicon.ico'
-            })
-          });
-
-          if (res.ok || res.status === 204) {
-            setHS('ok', '✦ Message sent. Hermes will respond in Discord.');
-
-            textarea.value = '';
-            preview.textContent = '!tyov …';
-            sendBtn.disabled = true;
-
-            setTimeout(() => {
-              if (currentUrl) loadChronicle(currentUrl);
-            }, 8000);
-          } else {
-            const b = await res.text().catch(() => "");
-            setHS('err', 'Send failed (' + res.status + ')' + (b ? ': ' + b.slice(0, 120) : ''));
-            sendBtn.disabled = false;
-          }
-        } catch (e) {
-          setHS('err', 'Network error: ' + e.message);
-          sendBtn.disabled = false;
-        }
-
-        rollBtn.disabled = false;
-      }
 
       sendBtn.addEventListener('click', async () => {
         const raw = textarea.value.trim();
         if (!raw) return;
-
-        await sendHermesCommand(raw);
+        await sendToHermes(raw);
       });
 
       rollBtn.addEventListener('click', async () => {
-        await sendHermesCommand('roll');
+        textarea.value = 'roll';
+        textarea.dispatchEvent(new Event('input'));
+        await sendToHermes('roll');
       });
+
+      newSessionBtn.addEventListener('click', () => {
+        startSession();
+        textarea.value = '';
+        textarea.dispatchEvent(new Event('input'));
+        if (currentUrl) loadChronicle(currentUrl);
+      });
+
       textarea.addEventListener('keydown', e => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); if (!sendBtn.disabled) sendBtn.click(); }
+        // Shift+Enter for newline, regular Enter for send
+        if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !sendBtn.disabled) {
+          e.preventDefault();
+          sendBtn.click();
+        }
       });
-      function setHS(cls, msg) {
-        statusEl.className = cls; statusEl.textContent = msg;
-        if (cls === 'ok') setTimeout(() => { if (statusEl.textContent === msg) statusEl.textContent = ''; }, 6000);
-      }
     })();
 
     // ── Boot ──
