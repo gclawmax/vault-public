@@ -473,6 +473,153 @@
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--parchment2); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Hermes response panel ── */
+  #hermes-panel {
+    position: fixed;
+    bottom: 3px; /* sits above the timer bar */
+    left: 0; right: 0;
+    z-index: 150;
+    background: #0e0a06f5;
+    border-top: 1px solid var(--border-bright);
+    backdrop-filter: blur(10px);
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
+    transform: translateY(calc(100% - 42px));
+  }
+  #hermes-panel.open {
+    transform: translateY(0);
+  }
+  #hermes-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 42px;
+    cursor: pointer;
+    user-select: none;
+    gap: 10px;
+  }
+  #hermes-toggle-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hermes-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+  #hermes-caret {
+    font-size: 11px;
+    color: var(--ink-faint);
+    transition: transform .3s;
+  }
+  #hermes-panel.open #hermes-caret { transform: rotate(180deg); }
+
+  #hermes-body {
+    padding: 12px 16px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  #hermes-context {
+    font-size: .82rem;
+    color: var(--ink-faint);
+    font-style: italic;
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    background: #160f08;
+    border-left: 2px solid var(--blood);
+    border-radius: 0 3px 3px 0;
+    display: none;
+  }
+
+  #hermes-textarea {
+    width: 100%;
+    background: #160f08;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  #hermes-textarea:focus { border-color: var(--gold-dim); }
+  #hermes-textarea::placeholder { color: var(--ink-faint); font-style: italic; }
+
+  #hermes-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  #hermes-command-preview {
+    font-family: monospace;
+    font-size: .78rem;
+    color: var(--ink-faint);
+    background: #160f08;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #hermes-send-btn {
+    background: var(--blood);
+    border: 1px solid var(--blood-bright);
+    color: #f5e8d0;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border-radius: 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .2s, border-color .2s;
+  }
+  #hermes-send-btn:hover:not(:disabled) {
+    background: var(--blood-bright);
+    border-color: #e04030;
+  }
+  #hermes-send-btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+  }
+
+  #hermes-status {
+    width: 100%;
+    font-size: .82rem;
+    font-style: italic;
+    min-height: 18px;
+    margin-top: 4px;
+    transition: color .3s;
+  }
+  #hermes-status.ok  { color: #4a8a4a; }
+  #hermes-status.err { color: var(--blood-bright); }
+  #hermes-status.busy { color: var(--gold-dim); }
+
+  /* push page content up so panel doesn't obscure it */
+  body.hermes-open #app { padding-bottom: 260px; }
+
+  @media (max-width: 600px) {
+    #hermes-command-preview { display: none; }
+    #hermes-send-btn { width: 100%; text-align: center; }
+    #hermes-footer { flex-direction: column; align-items: stretch; }
+  }
 </style>
 </head>
 <body>
@@ -504,11 +651,39 @@
 
 <div id="timer-bar"><div id="timer-fill"></div></div>
 
+<!-- ── Hermes Response Panel ── -->
+<div id="hermes-panel">
+  <div id="hermes-toggle">
+    <div id="hermes-toggle-left">
+      <span style="color:var(--blood);font-size:14px;">✦</span>
+      <span class="hermes-label">Speak to Hermes</span>
+    </div>
+    <span id="hermes-caret">▲</span>
+  </div>
+  <div id="hermes-body">
+    <div id="hermes-context"></div>
+    <textarea
+      id="hermes-textarea"
+      placeholder="Write your journal entry or command… (e.g. !tyov roll, or your response to the current prompt)"
+      rows="4"
+    ></textarea>
+    <div id="hermes-footer">
+      <div id="hermes-command-preview">!tyov …</div>
+      <button id="hermes-send-btn" disabled>Send to Hermes</button>
+    </div>
+    <div id="hermes-status"></div>
+  </div>
+</div>
+
 <script>
 // ── Config ──
 const REFRESH_INTERVAL = 60;
 const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire';
 const RAW_BASE   = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/';
+
+// ── Hermes / Discord config ──
+// Replace this URL with your current webhook to re-enable Hermes integration.
+const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1503644095879315467/Uot6xBGSQLzVwKki9WBciCmxUUwMZFo29v5HPKbwSkpGSNnAShRCB_DonBt_FAGe9w3H';
 
 let refreshTimer = null;
 let countdown    = REFRESH_INTERVAL;
@@ -803,6 +978,123 @@ document.getElementById('back-btn').addEventListener('click', () => {
   document.getElementById('game-select').value = '';
   loadChronicle('');
 });
+
+// ── Hermes panel ──
+(function () {
+  const panel     = document.getElementById('hermes-panel');
+  const toggle    = document.getElementById('hermes-toggle');
+  const textarea  = document.getElementById('hermes-textarea');
+  const preview   = document.getElementById('hermes-command-preview');
+  const sendBtn   = document.getElementById('hermes-send-btn');
+  const statusEl  = document.getElementById('hermes-status');
+  const contextEl = document.getElementById('hermes-context');
+
+  // Toggle open/close
+  toggle.addEventListener('click', () => {
+    const isOpen = panel.classList.toggle('open');
+    document.body.classList.toggle('hermes-open', isOpen);
+    if (isOpen) {
+      updateContext();
+      textarea.focus();
+    }
+  });
+
+  // Show current prompt context from the loaded chronicle
+  function updateContext() {
+    if (!currentUrl) { contextEl.style.display = 'none'; return; }
+    // Pull the latest journal entry's prompt line from the rendered content
+    const promptEls = document.querySelectorAll('.journal-prompt');
+    if (promptEls.length) {
+      const last = promptEls[promptEls.length - 1];
+      contextEl.textContent = '↳ Last turn: ' + last.textContent.trim();
+      contextEl.style.display = 'block';
+    } else {
+      contextEl.style.display = 'none';
+    }
+  }
+
+  // Build command preview as user types
+  textarea.addEventListener('input', () => {
+    const val = textarea.value.trim();
+    sendBtn.disabled = val.length === 0;
+    if (!val) {
+      preview.textContent = '!tyov …';
+      return;
+    }
+    // If they've already started with !tyov, show verbatim
+    if (val.startsWith('!tyov')) {
+      preview.textContent = val.length > 80 ? val.slice(0, 80) + '…' : val;
+    } else {
+      // Wrap as a free response
+      const trimmed = val.length > 60 ? val.slice(0, 60) + '…' : val;
+      preview.textContent = '!tyov ' + trimmed;
+    }
+  });
+
+  // Send to Discord webhook
+  sendBtn.addEventListener('click', async () => {
+    const raw = textarea.value.trim();
+    if (!raw) return;
+
+    // Prepend !tyov if not already present
+    const message = raw.startsWith('!tyov') ? raw : '!tyov ' + raw;
+
+    // Derive vampire name from current selection for context
+    const sel = document.getElementById('game-select');
+    const vampName = sel.options[sel.selectedIndex]?.text || 'Unknown Vampire';
+
+    setHermesStatus('busy', 'Sending to Hermes…');
+    sendBtn.disabled = true;
+
+    try {
+      const payload = {
+        content: message,
+        username: vampName + ' — Chronicle Viewer',
+        avatar_url: 'https://gclawmax.github.io/vault-public/TTRPGs/Thousand-Year-Old-Vampire/favicon.ico'
+      };
+
+      const res = await fetch(DISCORD_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok || res.status === 204) {
+        setHermesStatus('ok', '✦ Message sent. Hermes will respond in Discord.');
+        textarea.value = '';
+        preview.textContent = '!tyov …';
+        sendBtn.disabled = true;
+        // Trigger a refresh after a short delay so the updated .md has time to push
+        setTimeout(() => {
+          if (currentUrl) loadChronicle(currentUrl);
+        }, 8000);
+      } else {
+        const body = await res.text().catch(() => '');
+        setHermesStatus('err', `Send failed (${res.status})${body ? ': ' + body.slice(0, 120) : ''}`);
+        sendBtn.disabled = false;
+      }
+    } catch (e) {
+      setHermesStatus('err', 'Network error: ' + e.message);
+      sendBtn.disabled = false;
+    }
+  });
+
+  // Ctrl/Cmd+Enter to send
+  textarea.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (!sendBtn.disabled) sendBtn.click();
+    }
+  });
+
+  function setHermesStatus(cls, msg) {
+    statusEl.className = cls;
+    statusEl.textContent = msg;
+    if (cls === 'ok') {
+      setTimeout(() => { if (statusEl.textContent === msg) statusEl.textContent = ''; }, 6000);
+    }
+  }
+})();
 
 // ── Boot ──
 window.addEventListener('load', loadGameList);
