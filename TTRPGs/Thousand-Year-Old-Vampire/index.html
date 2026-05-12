@@ -1476,15 +1476,11 @@
 
         const HERMES_ID = '1502269556000034966';
 
-        const command = rawCommand.startsWith('!tyov')
-          ? rawCommand
-          : '!tyov ' + rawCommand;
-
         const contextPrefix = currentChronicleName
           ? '[Chronicle: ' + currentChronicleName + '] '
           : '';
 
-        const message = '<@' + HERMES_ID + '> ' + contextPrefix + command;
+        const message = '<@' + HERMES_ID + '> ' + '!tyov' + contextPrefix + rawCommand;
 
         const sel = document.getElementById('game-select');
         const vampName = sel.options[sel.selectedIndex]?.text || 'Unknown Vampire';
