@@ -1,18 +1,24 @@
 ---
-tags: [tyov, vampire, rpg]
-vampire: "Dave"
-current_prompt: 0
+tags:
+- tyov
+- vampire
+- rpg
+vampire: Dave
+current_prompt: 1
 prompts_resolved: 0
 game_over: false
-game_over_reason: ""
+game_over_reason: ''
 game_start: 2026-05-12
-game_completed: ""
+game_completed: ''
 diary_exists: false
-diary_name: ""
+diary_name: ''
 show_suggestions: false
 created: 2026-05-12
-modified: 2026-05-12
+modified: '2026-05-12'
+open_prompt: 1
+open_entry: 1
 ---
+
 
 # Dave
 *A Thousand Year Old Vampire*
@@ -83,6 +89,31 @@ modified: 2026-05-12
 
 ---
 
+
+## ⏳ Pending Prompt
+
+**Prompt 1, Entry 1**
+
+*In your blood-hunger you destroy someone close to you. Kill a mortal Character. Create a mortal if none are available.Take the skill Bloodthirsty.*
+
+What do you feed upon tonight?
+
+*Awaiting your response.*
+
+---
+
+
+## ⏳ Pending Prompt
+
+**Prompt 1, Entry 1**
+
+*In your blood-hunger you destroy someone close to you. Kill a mortal Character. Create a mortal if none are available. Take the skill Bloodthirsty.*
+
+What do you feed upon tonight?
+
+*Awaiting your response.*
+
+---
 ## 📜 Journal
 
 *Last played: 2026-05-12*
