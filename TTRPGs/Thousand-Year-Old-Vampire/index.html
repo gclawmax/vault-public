@@ -1036,8 +1036,10 @@ document.getElementById('back-btn').addEventListener('click', () => {
     const raw = textarea.value.trim();
     if (!raw) return;
 
-    // Prepend !tyov if not already present
-    const message = raw.startsWith('!tyov') ? raw : '!tyov ' + raw;
+    // Prepend Hermes @mention and !tyov prefix
+    const HERMES_ID = '1502269556000034966';
+    const command = raw.startsWith('!tyov') ? raw : '!tyov ' + raw;
+    const message = `<@${HERMES_ID}> ${command}`;
 
     // Derive vampire name from current selection for context
     const sel = document.getElementById('game-select');
