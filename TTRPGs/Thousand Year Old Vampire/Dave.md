@@ -15,9 +15,8 @@ diary_name: ''
 show_suggestions: false
 created: 2026-05-12
 modified: '2026-05-12'
-open_prompt: 1
-open_entry: 1
 ---
+
 
 
 # Dave
