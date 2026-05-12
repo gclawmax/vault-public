@@ -1258,7 +1258,10 @@
     let currentSha = null;
 
     // ── Hermes API config ──
-    const HERMES_API = 'http://localhost:8644';
+    // Ensure API server is running: hermes config set platforms.api_server.enabled true
+    // Then start via: hermes gateway run
+    const HERMES_API = 'http://localhost:8642';
+    const HERMES_API_KEY = '37d17a0d699abd66f4f31189e588c9e9d04fd1ee74b6cd61c0913d08a9787835';
     const HERMES_SESSION_KEY = 'tyov-player';
 
     let currentUrl = null;
@@ -1679,8 +1682,10 @@
         apiInfoEl.innerHTML = '<div class="hermes-api-request">API: POST /v1/chat/completions</div>';
 
         try {
+          const HERMES_API_KEY = '37d17a0d699abd66f4f31189e588c9e9d04fd1ee74b6cd61c0913d08a9787835';
           const headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + HERMES_API_KEY
           };
           if (sessionId) {
             headers['X-Hermes-Session-Id'] = sessionId;
