@@ -34,6 +34,9 @@
       --shadow: rgba(0, 0, 0, 0.18);
       --torn-shadow: rgba(0, 0, 0, 0.14);
       --status-ok: #3a6a2a;
+      --panel-header-bg: #cfc2a0;
+      --panel-header-hover: #c4b590;
+      --chevron-color: #8a6030;
     }
 
     [data-skin="dark"] {
@@ -58,6 +61,9 @@
       --shadow: rgba(0, 0, 0, 0.5);
       --torn-shadow: rgba(0, 0, 0, 0.4);
       --status-ok: #4a8a4a;
+      --panel-header-bg: #2d2418;
+      --panel-header-hover: #3a2e1e;
+      --chevron-color: #8a6e30;
     }
 
     [data-skin="scholar"] {
@@ -82,6 +88,9 @@
       --shadow: rgba(0, 0, 0, 0.10);
       --torn-shadow: rgba(0, 0, 0, 0.08);
       --status-ok: #2a5a2a;
+      --panel-header-bg: #ddd4c0;
+      --panel-header-hover: #d4c8b0;
+      --chevron-color: #4a6a8e;
     }
 
     * {
@@ -167,23 +176,16 @@
       background: var(--ink-faint);
     }
 
-    #status-dot.ok {
-      background: var(--status-ok);
-    }
-
-    #status-dot.err {
-      background: var(--blood-bright);
-    }
-
-    #status-dot.busy {
-      background: var(--accent);
-      animation: pulse 1s infinite;
-    }
+    #status-dot.ok   { background: var(--status-ok); }
+    #status-dot.err  { background: var(--blood-bright); }
+    #status-dot.busy { background: var(--accent); animation: pulse 1s infinite; }
 
     @keyframes pulse {
       0%, 100% { opacity: 1; }
-      50% { opacity: .4; }
+      50%       { opacity: .4; }
     }
+
+    /* ── Layout ───────────────────────────────────────────── */
 
     #app {
       width: 100%;
@@ -194,52 +196,100 @@
 
     .layout {
       display: grid;
-      grid-template-columns: 320px minmax(0, 1fr) 320px;
+      grid-template-columns: 300px minmax(0, 1fr) 300px;
       gap: 20px;
       align-items: start;
     }
+
+    /* ── Sidebar ──────────────────────────────────────────── */
 
     .sidebar {
       position: sticky;
       top: 110px;
       max-height: calc(100vh - 130px);
       overflow-y: auto;
-      padding-right: 4px;
+      overflow-x: hidden;
+      padding-right: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
     }
 
-    .sidebar details {
+    /* ── Accordion panels ─────────────────────────────────── */
+
+    .panel {
       background: var(--surface);
       border: 1px solid var(--border);
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       border-radius: 4px;
       overflow: hidden;
       box-shadow: 0 2px 6px var(--shadow);
     }
 
-    .sidebar summary {
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
       cursor: pointer;
-      list-style: none;
-      padding: 14px 16px;
+      background: var(--panel-header-bg);
+      border-bottom: 1px solid transparent;
+      user-select: none;
+      transition: background 0.15s;
+      gap: 10px;
+    }
+
+    .panel-header:hover {
+      background: var(--panel-header-hover);
+    }
+
+    .panel-header-label {
       font-family: 'Cinzel', serif;
       font-size: 11px;
       letter-spacing: .16em;
       text-transform: uppercase;
       color: var(--accent);
-      border-bottom: 1px solid transparent;
-      background: var(--bg2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .sidebar details[open] summary {
+    .panel-chevron {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--chevron-color);
+      transition: transform 0.25s ease;
+    }
+
+    .panel.open .panel-chevron {
+      transform: rotate(180deg);
+    }
+
+    .panel.open .panel-header {
       border-bottom-color: var(--border);
     }
 
-    .sidebar-content {
+    .panel-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.28s ease;
+    }
+
+    .panel.open .panel-body {
+      grid-template-rows: 1fr;
+    }
+
+    .panel-inner {
+      overflow: hidden;
+    }
+
+    .panel-content {
       padding: 16px;
     }
 
-    .main-column {
-      min-width: 0;
-    }
+    /* ── Main column ──────────────────────────────────────── */
+
+    .main-column { min-width: 0; }
 
     .vamp-header {
       text-align: center;
@@ -295,9 +345,7 @@
       font-weight: 700;
     }
 
-    .section {
-      margin-bottom: 28px;
-    }
+    .section { margin-bottom: 28px; }
 
     .section-title {
       font-family: 'Cinzel', serif;
@@ -313,9 +361,9 @@
       gap: 10px;
     }
 
-    .marks-list {
-      list-style: none;
-    }
+    /* ── Content cards ────────────────────────────────────── */
+
+    .marks-list { list-style: none; }
 
     .marks-list li {
       padding: 10px 0 10px 22px;
@@ -362,15 +410,9 @@
     }
 
     .skills-grid,
-    .resource-grid {
-      display: grid;
-      gap: 10px;
-    }
+    .resource-grid { display: grid; gap: 10px; }
 
-    .skill-row {
-      display: flex;
-      gap: 12px;
-    }
+    .skill-row { display: flex; gap: 12px; }
 
     .skill-check {
       width: 18px;
@@ -383,19 +425,10 @@
       margin-top: 4px;
     }
 
-    .skill-row.checked .skill-check {
-      background: var(--blood);
-      color: white;
-    }
+    .skill-row.checked .skill-check { background: var(--blood); color: white; }
 
-    .resource-card {
-      display: flex;
-      gap: 12px;
-    }
-
-    .resource-icon {
-      font-size: 18px;
-    }
+    .resource-card { display: flex; gap: 12px; }
+    .resource-icon { font-size: 18px; }
 
     .char-name,
     .resource-name,
@@ -411,9 +444,9 @@
       font-size: .95rem;
     }
 
-    .journal-entry {
-      margin-bottom: 34px;
-    }
+    /* ── Journal ──────────────────────────────────────────── */
+
+    .journal-entry { margin-bottom: 34px; }
 
     .journal-turn {
       font-family: 'Cinzel', serif;
@@ -437,18 +470,10 @@
       border-left: 3px solid var(--blood);
     }
 
-    .journal-body {
-      line-height: 1.8;
-    }
-
-    .journal-body p {
-      margin-bottom: 14px;
-    }
-
+    .journal-body { line-height: 1.8; }
+    .journal-body p { margin-bottom: 14px; }
     .journal-body em,
-    .journal-body i {
-      font-style: normal;
-    }
+    .journal-body i { font-style: normal; }
 
     .journal-changes {
       margin-top: 16px;
@@ -464,6 +489,8 @@
       font-size: .8rem;
     }
 
+    /* ── Empty state ──────────────────────────────────────── */
+
     #empty-state {
       text-align: center;
       padding: 100px 20px;
@@ -476,6 +503,8 @@
       margin-bottom: 10px;
     }
 
+    /* ── Skin switcher ────────────────────────────────────── */
+
     .skin-btn {
       width: 22px;
       height: 22px;
@@ -484,25 +513,17 @@
       cursor: pointer;
     }
 
-    .skin-btn.active {
-      border-color: var(--border-bright);
-    }
+    .skin-btn.active { border-color: var(--border-bright); }
 
-    .skin-btn[data-s="book"] {
-      background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070);
-    }
+    .skin-btn[data-s="book"]    { background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070); }
+    .skin-btn[data-s="dark"]    { background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410); }
+    .skin-btn[data-s="scholar"] { background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0); }
 
-    .skin-btn[data-s="dark"] {
-      background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410);
-    }
-
-    .skin-btn[data-s="scholar"] {
-      background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0);
-    }
+    /* ── Responsive ───────────────────────────────────────── */
 
     @media (max-width: 1200px) {
       .layout {
-        grid-template-columns: 280px minmax(0, 1fr);
+        grid-template-columns: 260px minmax(0, 1fr);
       }
 
       .right-sidebar {
@@ -513,30 +534,18 @@
     }
 
     @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
+      .layout { grid-template-columns: 1fr; }
 
       .sidebar {
         position: static;
         max-height: none;
       }
 
-      .left-sidebar {
-        order: 1;
-      }
+      .left-sidebar  { order: 1; }
+      .main-column   { order: 2; }
+      .right-sidebar { order: 3; }
 
-      .main-column {
-        order: 2;
-      }
-
-      .right-sidebar {
-        order: 3;
-      }
-
-      #app {
-        padding: 14px;
-      }
+      #app { padding: 14px; }
     }
   </style>
 </head>
@@ -578,10 +587,8 @@
 
   <script>
     const POLL_INTERVAL = 60;
-
     const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire';
-
-    const RAW_BASE = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/';
+    const RAW_BASE   = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/';
 
     let currentSha = null;
     let currentUrl = null;
@@ -591,6 +598,7 @@
       document.getElementById('status-text').textContent = msg;
     }
 
+    /* ── Skin switcher ──────────────────────────────────────── */
     (function () {
       const saved = localStorage.getItem('tyov-skin') || 'book';
       applySkin(saved);
@@ -608,35 +616,38 @@
         } else {
           document.documentElement.setAttribute('data-skin', skin);
         }
-
         document.querySelectorAll('.skin-btn').forEach(b => {
           b.classList.toggle('active', b.dataset.s === skin);
         });
       }
     })();
 
+    /* ── Accordion panels ───────────────────────────────────── */
+    function initPanels() {
+      document.querySelectorAll('.panel-header').forEach(header => {
+        header.addEventListener('click', () => {
+          const panel = header.closest('.panel');
+          panel.classList.toggle('open');
+        });
+      });
+    }
+
+    /* ── Data loading ───────────────────────────────────────── */
     async function loadGameList() {
       setStatus('busy', 'Fetching chronicle list…');
-
       try {
-        const res = await fetch(GITHUB_API + '?nocache=' + Date.now());
+        const res   = await fetch(GITHUB_API + '?nocache=' + Date.now());
         const files = await res.json();
-
-        const mds = files.filter(f => f.name.endsWith('.md'));
-
-        const sel = document.getElementById('game-select');
-
+        const mds   = files.filter(f => f.name.endsWith('.md'));
+        const sel   = document.getElementById('game-select');
         sel.innerHTML = '<option value="">— Choose a chronicle —</option>';
-
         mds.forEach(f => {
           const opt = document.createElement('option');
-          opt.value = RAW_BASE + encodeURIComponent(f.name);
+          opt.value       = RAW_BASE + encodeURIComponent(f.name);
           opt.textContent = f.name.replace('.md', '');
           sel.appendChild(opt);
         });
-
         setStatus('ok', 'Chronicles loaded');
-
       } catch (e) {
         setStatus('err', e.message);
       }
@@ -644,59 +655,44 @@
 
     async function loadChronicle(url) {
       if (!url) return;
-
       currentUrl = url;
-
       setStatus('busy', 'Loading chronicle…');
-
       try {
         const res = await fetch(url + '?nocache=' + Date.now());
-        let md = await res.text();
+        let md    = await res.text();
 
+        /* Replace "Born" with "Game Started" everywhere */
         md = md.replace(/\bBorn\b/g, 'Game Started');
 
-        const html = render(md);
-
+        const html    = render(md);
         const content = document.getElementById('content');
-
-        content.innerHTML = html;
+        content.innerHTML     = html;
         content.style.display = 'block';
-
         document.getElementById('empty-state').style.display = 'none';
 
-        setStatus('ok', 'Chronicle loaded');
+        initPanels();
 
+        setStatus('ok', 'Chronicle loaded');
       } catch (e) {
         setStatus('err', e.message);
       }
     }
 
+    /* ── Markdown / frontmatter parsing ────────────────────── */
     function stripFrontmatter(md) {
       if (md.startsWith('---')) {
         const end = md.indexOf('---', 3);
-
-        if (end !== -1) {
-          return {
-            fm: md.slice(3, end).trim(),
-            body: md.slice(end + 3).trim()
-          };
-        }
+        if (end !== -1) return { fm: md.slice(3, end).trim(), body: md.slice(end + 3).trim() };
       }
-
       return { fm: '', body: md };
     }
 
     function parseFrontmatter(fm) {
       const meta = {};
-
       fm.split('\n').forEach(line => {
         const m = line.match(/^(\w+):\s*(.+)$/);
-
-        if (m) {
-          meta[m[1]] = m[2].replace(/^["']|["']$/g, '');
-        }
+        if (m) meta[m[1]] = m[2].replace(/^["']|["']$/g, '');
       });
-
       return meta;
     }
 
@@ -705,8 +701,8 @@
       const meta = parseFrontmatter(fm);
 
       const sections = {};
-      let current = '__header__';
-      const buf = [];
+      let current    = '__header__';
+      const buf      = [];
 
       for (const line of body.split('\n')) {
         if (line.startsWith('## ')) {
@@ -717,15 +713,14 @@
           buf.push(line);
         }
       }
-
       sections[current] = buf.join('\n').trim();
 
       return { meta, sections };
     }
 
+    /* ── Section renderers ──────────────────────────────────── */
     function renderMarks(text) {
       const items = text.match(/^[-*]\s+.+/gm) || [];
-
       return '<ul class="marks-list">' +
         items.map(i => '<li>' + i.replace(/^[-*]\s+/, '') + '</li>').join('') +
         '</ul>';
@@ -733,13 +728,10 @@
 
     function renderMemories(text) {
       return text.split(/\n(?=###\s)/).map(block => {
-        const tm = block.match(/^###\s+(.+)/);
-        const title = tm ? tm[1].replace(/~~/g, '') : '';
-
+        const tm        = block.match(/^###\s+(.+)/);
+        const title     = tm ? tm[1].replace(/~~/g, '') : '';
         const forgotten = block.includes('~~');
-
-        const rest = block.replace(/^###.+\n/, '').trim();
-
+        const rest      = block.replace(/^###.+\n/, '').trim();
         return '<div class="memory-block' + (forgotten ? ' forgotten' : '') + '">' +
           '<div class="memory-title">' + title + '</div>' +
           marked.parse(rest.replace(/~~/g, '')) +
@@ -753,16 +745,12 @@
 
     function renderJournal(text) {
       return text.split(/\n(?=###\s)/).map(block => {
-        const tm = block.match(/^###\s+(.+)/);
-        const title = tm ? tm[1] : '';
-
-        const rest = block.replace(/^###.+\n/, '').trim();
-
-        const pm = rest.match(/^\*(.+)\*/);
+        const tm         = block.match(/^###\s+(.+)/);
+        const title      = tm ? tm[1] : '';
+        const rest       = block.replace(/^###.+\n/, '').trim();
+        const pm         = rest.match(/^\*(.+)\*/);
         const promptText = pm ? pm[1] : '';
-
-        const body = promptText ? rest.replace(/^\*.+\*\n+/, '') : rest;
-
+        const body       = promptText ? rest.replace(/^\*.+\*\n+/, '') : rest;
         return '<div class="journal-entry">' +
           '<div class="journal-turn">' + title + '</div>' +
           '<div class="journal-scrap">' +
@@ -775,17 +763,13 @@
 
     function renderSkills(text) {
       const rows = text.match(/\|.+\|/g) || [];
-
       return '<div class="skills-grid">' +
         rows.slice(2).map(r => {
-          const cells = r.split('|').map(c => c.trim()).filter(Boolean);
-
-          const rn = cells[0] || '';
-          const rs = cells[1] || '';
-
-          const lost = rn.includes('~~');
+          const cells   = r.split('|').map(c => c.trim()).filter(Boolean);
+          const rn      = cells[0] || '';
+          const rs      = cells[1] || '';
+          const lost    = rn.includes('~~');
           const checked = rs.includes('☑');
-
           return '<div class="skill-row ' + (lost ? 'lost' : checked ? 'checked' : '') + '">' +
             '<div class="skill-check">' + (checked ? '✓' : '') + '</div>' +
             '<div>' +
@@ -799,16 +783,12 @@
 
     function renderResources(text) {
       const rows = text.match(/\|.+\|/g) || [];
-
       return '<div class="resource-grid">' +
         rows.slice(2).map(r => {
           const cells = r.split('|').map(c => c.trim()).filter(Boolean);
-
-          const rn = cells[0] || '';
-          const rt = cells[1] || '';
-
-          const lost = rn.includes('~~');
-
+          const rn    = cells[0] || '';
+          const rt    = cells[1] || '';
+          const lost  = rn.includes('~~');
           return '<div class="resource-card ' + (lost ? 'lost' : '') + '">' +
             '<div class="resource-icon">🎒</div>' +
             '<div>' +
@@ -822,70 +802,70 @@
 
     function renderCharacters(text) {
       return text.split(/\n(?=###\s)/).map(block => {
-        const tm = block.match(/^###\s+(.+)/);
+        const tm    = block.match(/^###\s+(.+)/);
         const title = tm ? tm[1] : '';
-
-        const rest = block.replace(/^###.+\n/, '').trim();
-
+        const rest  = block.replace(/^###.+\n/, '').trim();
         const cards = rest.split('\n').filter(l => l.startsWith('-')).map(line => {
-          const dead = line.includes('~~');
-
+          const dead  = line.includes('~~');
           const clean = line.replace(/^-\s*/, '').replace(/~~/g, '');
-
           const parts = clean.split('—');
-
           return '<div class="char-card ' + (dead ? 'dead' : '') + '">' +
             '<div class="char-name">' + parts[0] + '</div>' +
             '<div class="char-desc">' + (parts[1] || '') + '</div>' +
             '</div>';
         }).join('');
-
         return '<div class="char-group-title">' + title + '</div>' + cards;
       }).join('');
     }
 
+    /* ── Chevron SVG ────────────────────────────────────────── */
+    function chevronSVG() {
+      return `<svg class="panel-chevron" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 5.5L8 10.5L13 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+    }
+
+    /* ── Panel builder ──────────────────────────────────────── */
+    function makePanel(icon, label, content, openByDefault = false) {
+      return `
+        <div class="panel${openByDefault ? ' open' : ''}">
+          <div class="panel-header">
+            <span class="panel-header-label">${icon} ${label}</span>
+            ${chevronSVG()}
+          </div>
+          <div class="panel-body">
+            <div class="panel-inner">
+              <div class="panel-content">
+                ${content}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    /* ── Main render ────────────────────────────────────────── */
     function render(md) {
       const { meta, sections } = parseVampire(md);
 
-      const header = sections['__header__'] || '';
-
+      const header   = sections['__header__'] || '';
       const vampName = (header.match(/^#\s+(.+)/m) || [])[1] || 'Unknown Vampire';
+      const epitaph  = (header.match(/^>\s*\*?(.+?)\*?\s*$/m) || [])[1] || '';
 
-      const epitaph = (header.match(/^>\s*\*?(.+?)\*?\s*$/m) || [])[1] || '';
+      const leftPanels =
+        makePanel('👥', 'Characters', sections['Characters'] ? renderCharacters(sections['Characters']) : '<p style="color:var(--ink-faint);font-size:.9rem;">No characters recorded.</p>', true) +
+        makePanel('⚰', 'Marks',      sections['Marks']      ? renderMarks(sections['Marks'])           : '<p style="color:var(--ink-faint);font-size:.9rem;">No marks yet.</p>') +
+        makePanel('🏚', 'Resources',  sections['Resources']  ? renderResources(sections['Resources'])   : '<p style="color:var(--ink-faint);font-size:.9rem;">No resources recorded.</p>') +
+        makePanel('⚔', 'Skills',     sections['Skills']     ? renderSkills(sections['Skills'])         : '<p style="color:var(--ink-faint);font-size:.9rem;">No skills recorded.</p>');
+
+      const rightPanels =
+        makePanel('📖', 'Diary',    sections['Diary']    ? renderDiary(sections['Diary'])       : '<p style="color:var(--ink-faint);font-size:.9rem;">No diary entries yet.</p>', true) +
+        makePanel('🧠', 'Memories', sections['Memories'] ? renderMemories(sections['Memories']) : '<p style="color:var(--ink-faint);font-size:.9rem;">No memories recorded.</p>');
 
       return `
         <div class="layout">
 
           <aside class="sidebar left-sidebar">
-
-            <details open>
-              <summary>👥 Characters</summary>
-              <div class="sidebar-content">
-                ${sections['Characters'] ? renderCharacters(sections['Characters']) : ''}
-              </div>
-            </details>
-
-            <details>
-              <summary>⚰ Marks</summary>
-              <div class="sidebar-content">
-                ${sections['Marks'] ? renderMarks(sections['Marks']) : ''}
-              </div>
-            </details>
-
-            <details>
-              <summary>🏚 Resources</summary>
-              <div class="sidebar-content">
-                ${sections['Resources'] ? renderResources(sections['Resources']) : ''}
-              </div>
-            </details>
-
-            <details>
-              <summary>⚔ Skills</summary>
-              <div class="sidebar-content">
-                ${sections['Skills'] ? renderSkills(sections['Skills']) : ''}
-              </div>
-            </details>
-
+            ${leftPanels}
           </aside>
 
           <main class="main-column">
@@ -893,14 +873,12 @@
             <div class="vamp-header">
               <div class="vamp-name">${vampName}</div>
               <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
-
               ${epitaph ? `<div class="vamp-epitaph">${epitaph}</div>` : ''}
-
               <div class="meta-row">
-                ${meta.current_prompt ? `<div class="meta-pill">Prompt <span>${meta.current_prompt}</span></div>` : ''}
+                ${meta.current_prompt  ? `<div class="meta-pill">Prompt <span>${meta.current_prompt}</span></div>` : ''}
                 ${meta.prompts_resolved ? `<div class="meta-pill">Resolved <span>${meta.prompts_resolved}</span></div>` : ''}
-                ${meta.created ? `<div class="meta-pill">Game Started <span>${meta.created}</span></div>` : ''}
-                ${meta.modified ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
+                ${meta.created         ? `<div class="meta-pill">Game Started <span>${meta.created}</span></div>` : ''}
+                ${meta.modified        ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
               </div>
             </div>
 
@@ -912,27 +890,14 @@
           </main>
 
           <aside class="sidebar right-sidebar">
-
-            <details open>
-              <summary>📖 Diary</summary>
-              <div class="sidebar-content">
-                ${sections['Diary'] ? renderDiary(sections['Diary']) : ''}
-              </div>
-            </details>
-
-            <details>
-              <summary>🧠 Memories</summary>
-              <div class="sidebar-content">
-                ${sections['Memories'] ? renderMemories(sections['Memories']) : ''}
-              </div>
-            </details>
-
+            ${rightPanels}
           </aside>
 
         </div>
       `;
     }
 
+    /* ── Event listeners ────────────────────────────────────── */
     document.getElementById('game-select').addEventListener('change', e => {
       loadChronicle(e.target.value);
     });
