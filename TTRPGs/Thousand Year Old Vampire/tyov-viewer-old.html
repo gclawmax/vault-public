@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thousand Year Old Vampire — Chronicle Viewer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:wght@400;500;600&family=UnifrakturMaguntia&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    /* ════════════════════════════════════════════════
+   SKIN DEFINITIONS — three themes via CSS vars
+   ════════════════════════════════════════════════ */
+
+    /* Default: Book (aged parchment — matches the physical book) */
+    :root {
+      --bg: #e8dfc8;
+      --bg2: #dfd5ba;
+      --bg3: #d4c9a8;
+      --surface: #f0e8d0;
+      --surface2: #e8ddc0;
+      --ink: #1c1208;
+      --ink-dim: #3a2c18;
+      --ink-faint: #7a6040;
+      --blood: #8b1a1a;
+      --blood-bright: #c0392b;
+      --accent: #5c3a10;
+      --accent-dim: #8a6030;
+      --border: #b8a070;
+      --border-bright: #8a6030;
+      --topbar-bg: #d4c9a8f2;
+      --topbar-border: #b8a070;
+      --hermes-bg: #cfc3a0f5;
+      --hermes-border: #8a6030;
+      --pill-bg: #d4c9a8;
+      --tag-bg: #c8b888;
+      --shadow: rgba(0, 0, 0, 0.18);
+      --torn-shadow: rgba(0, 0, 0, 0.14);
+      --timer-grad: linear-gradient(90deg, #8b1a1a, #5c3a10);
+      --status-ok: #3a6a2a;
+      --select-arr: %238a6030;
+    }
+
+    /* Dark Crypt */
+    [data-skin="dark"] {
+      --bg: #1a1410;
+      --bg2: #221c15;
+      --bg3: #2d2418;
+      --surface: #1e1710;
+      --surface2: #160f08;
+      --ink: #e8d9b8;
+      --ink-dim: #a89070;
+      --ink-faint: #6a5840;
+      --blood: #8b1a1a;
+      --blood-bright: #c0392b;
+      --accent: #c9a84c;
+      --accent-dim: #8a6e30;
+      --border: #4a3520;
+      --border-bright: #7a5530;
+      --topbar-bg: #110d08f2;
+      --topbar-border: #2a1e10;
+      --hermes-bg: #0e0a06f5;
+      --hermes-border: #7a5530;
+      --pill-bg: #2a1e10;
+      --tag-bg: #2d2418;
+      --shadow: rgba(0, 0, 0, 0.5);
+      --torn-shadow: rgba(0, 0, 0, 0.4);
+      --timer-grad: linear-gradient(90deg, #8b1a1a, #c9a84c);
+      --status-ok: #4a8a4a;
+      --select-arr: %238a6e30;
+    }
+
+    /* Pale Scholar (light, muted blue-grey accents) */
+    [data-skin="scholar"] {
+      --bg: #f5f0e8;
+      --bg2: #ede6d8;
+      --bg3: #e4dccc;
+      --surface: #faf7f0;
+      --surface2: #f0ebe0;
+      --ink: #1a1208;
+      --ink-dim: #4a3c28;
+      --ink-faint: #9a8a70;
+      --blood: #6b0f0f;
+      --blood-bright: #9b2020;
+      --accent: #2c4a6e;
+      --accent-dim: #4a6a8e;
+      --border: #c8bca0;
+      --border-bright: #a09070;
+      --topbar-bg: #ede6d8f5;
+      --topbar-border: #c8bca0;
+      --hermes-bg: #e4dcccf5;
+      --hermes-border: #a09070;
+      --pill-bg: #e4dccc;
+      --tag-bg: #ddd4c0;
+      --shadow: rgba(0, 0, 0, 0.10);
+      --torn-shadow: rgba(0, 0, 0, 0.08);
+      --timer-grad: linear-gradient(90deg, #6b0f0f, #2c4a6e);
+      --status-ok: #2a5a2a;
+      --select-arr: %234a6a8e;
+    }
+
+    /* ════════════════════════════════════════════════
+   RESET & BODY
+   ════════════════════════════════════════════════ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.75;
+      min-height: 100vh;
+      transition: background .3s, color .3s;
+    }
+
+    /* Parchment texture on book skin only */
+    :root body {
+      background-image:
+        radial-gradient(ellipse at 10% 0%, #c8a86022 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 100%, #8b4a1022 0%, transparent 55%);
+    }
+
+    [data-skin="dark"] body {
+      background-image:
+        radial-gradient(ellipse at 20% 0%, #2d1a0a44 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, #1a0a0a33 0%, transparent 60%);
+    }
+
+    /* ════════════════════════════════════════════════
+   TOP BAR
+   ════════════════════════════════════════════════ */
+    #top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--topbar-bg);
+      border-bottom: 1px solid var(--topbar-border);
+      backdrop-filter: blur(8px);
+    }
+
+    #picker-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 16px;
+      flex-wrap: wrap;
+    }
+
+    #picker-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: .14em;
+      color: var(--accent-dim);
+      white-space: nowrap;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    #game-select {
+      flex: 1;
+      min-width: 160px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--ink);
+      font-family: 'EB Garamond', serif;
+      font-size: 15px;
+      padding: 5px 28px 5px 10px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+      appearance: none;
+      -webkit-appearance: none;
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    :root #game-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a6030'/%3E%3C/svg%3E");
+    }
+
+    [data-skin="dark"] #game-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a6e30'/%3E%3C/svg%3E");
+    }
+
+    [data-skin="scholar"] #game-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a6a8e'/%3E%3C/svg%3E");
+    }
+
+    #game-select:focus {
+      border-color: var(--border-bright);
+    }
+
+    #game-select option {
+      background: var(--bg2);
+      color: var(--ink);
+    }
+
+    .top-btn {
+      background: transparent;
+      border: 1px solid var(--border-bright);
+      color: var(--accent);
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 3px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s, color .2s;
+      flex-shrink: 0;
+    }
+
+    .top-btn:hover {
+      background: var(--blood);
+      border-color: var(--blood-bright);
+      color: #fff;
+    }
+
+    #back-btn {
+      display: none;
+    }
+
+    /* Skin swatches */
+    #skin-switcher {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .skin-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color .2s, transform .15s;
+    }
+
+    .skin-btn:hover {
+      transform: scale(1.15);
+    }
+
+    .skin-btn.active {
+      border-color: var(--border-bright);
+    }
+
+    .skin-btn[data-s="book"] {
+      background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070);
+    }
+
+    .skin-btn[data-s="dark"] {
+      background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410);
+    }
+
+    .skin-btn[data-s="scholar"] {
+      background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0);
+    }
+
+    #status-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 16px 6px;
+      font-size: 12px;
+      color: var(--ink-faint);
+      border-bottom: 1px solid var(--topbar-border);
+    }
+
+    #status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ink-faint);
+      flex-shrink: 0;
+      transition: background .4s;
+    }
+
+    #status-dot.ok {
+      background: var(--status-ok);
+      box-shadow: 0 0 6px var(--status-ok);
+    }
+
+    #status-dot.err {
+      background: var(--blood-bright);
+      box-shadow: 0 0 6px #c0392b88;
+    }
+
+    #status-dot.busy {
+      background: var(--accent);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    /* ════════════════════════════════════════════════
+   LAYOUT
+   ════════════════════════════════════════════════ */
+    #app {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 30px 16px 80px;
+    }
+
+    /* ════════════════════════════════════════════════
+   VAMPIRE HEADER
+   ════════════════════════════════════════════════ */
+    .vamp-header {
+      text-align: center;
+      padding: 44px 0 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
+
+    .vamp-header::after {
+      content: '✦  ✦  ✦';
+      display: block;
+      color: var(--blood);
+      font-size: 13px;
+      margin-top: 18px;
+      letter-spacing: .6em;
+    }
+
+    .vamp-name {
+      font-family: 'UnifrakturMaguntia', 'Cinzel', serif;
+      font-size: clamp(2rem, 6vw, 3.4rem);
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: .03em;
+      line-height: 1.15;
+    }
+
+    [data-skin="dark"] .vamp-name {
+      color: var(--accent);
+      text-shadow: 0 2px 20px #c9a84c33;
+    }
+
+    [data-skin="scholar"] .vamp-name {
+      color: var(--accent);
+    }
+
+    .vamp-subtitle {
+      color: var(--ink-faint);
+      margin-top: 6px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+    }
+
+    .vamp-epitaph {
+      margin: 18px auto 0;
+      color: var(--ink-dim);
+      font-size: 1.05rem;
+      max-width: 520px;
+      line-height: 1.65;
+      border-left: 2px solid var(--blood);
+      padding-left: 16px;
+      text-align: left;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .meta-pill {
+      background: var(--pill-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 14px;
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: .08em;
+      color: var(--ink-dim);
+      text-transform: uppercase;
+    }
+
+    .meta-pill span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .meta-pill.gameover {
+      border-color: var(--blood-bright);
+      color: var(--blood-bright);
+    }
+
+    /* ════════════════════════════════════════════════
+   SECTIONS
+   ════════════════════════════════════════════════ */
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .icon {
+      font-size: 15px;
+    }
+
+    /* ── Marks ── */
+    .marks-list {
+      list-style: none;
+    }
+
+    .marks-list li {
+      padding: 10px 0 10px 22px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+      position: relative;
+    }
+
+    .marks-list li::before {
+      content: '⬥';
+      position: absolute;
+      left: 0;
+      color: var(--blood);
+      font-size: 10px;
+      top: 14px;
+    }
+
+    /* ── Memories ── */
+    .memory-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--blood);
+      border-radius: 2px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      box-shadow: 2px 2px 6px var(--shadow);
+    }
+
+    .memory-title {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: .14em;
+      color: var(--accent-dim);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .memory-block ol {
+      padding-left: 20px;
+    }
+
+    .memory-block ol li {
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    .memory-block.forgotten {
+      opacity: .42;
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
+
+    /* ── Skills ── */
+    .skills-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .skill-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+
+    .skill-row.lost {
+      opacity: .4;
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
+
+    .skill-row.checked {
+      border-color: var(--blood);
+    }
+
+    .skill-check {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--border-bright);
+      border-radius: 2px;
+      flex-shrink: 0;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .skill-row.checked .skill-check {
+      background: var(--blood);
+      border-color: var(--blood-bright);
+      color: #fff;
+    }
+
+    .skill-name {
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .skill-desc {
+      font-size: .9rem;
+      color: var(--ink-dim);
+      margin-top: 2px;
+    }
+
+    /* ── Resources ── */
+    .resource-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .resource-card {
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .resource-card.lost {
+      opacity: .4;
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
+
+    .resource-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .resource-name {
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .resource-desc {
+      font-size: .9rem;
+      color: var(--ink-dim);
+      margin-top: 2px;
+    }
+
+    /* ── Characters ── */
+    .char-group-title {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      color: var(--accent-dim);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      margin: 16px 0 8px;
+    }
+
+    .char-card {
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      margin-bottom: 8px;
+    }
+
+    .char-card.dead {
+      opacity: .38;
+      border-style: dashed;
+    }
+
+    .char-name {
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 1rem;
+    }
+
+    .char-desc {
+      color: var(--ink-dim);
+      font-size: .95rem;
+      margin-top: 3px;
+    }
+
+    /* ── Journal — torn paper scrap ── */
+    .journal-entry {
+      margin-bottom: 32px;
+    }
+
+    .journal-turn {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      color: var(--blood);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      margin-bottom: 6px;
+    }
+
+    .journal-scrap {
+      background: var(--surface2);
+      position: relative;
+      padding: 18px 22px 16px;
+      box-shadow: 1px 3px 10px var(--torn-shadow), 0 1px 3px var(--shadow);
+      clip-path: polygon(0% 5px, 1% 1px, 2.5% 5px, 4% 2px, 6% 6px, 8% 2px, 10% 5px,
+          12% 1px, 14% 5px, 17% 1px, 19% 4px, 22% 1px, 25% 5px, 28% 1px,
+          31% 4px, 34% 1px, 37% 5px, 40% 1px, 43% 4px, 46% 1px, 50% 6px,
+          54% 1px, 57% 4px, 60% 1px, 63% 5px, 66% 1px, 70% 5px, 73% 1px,
+          76% 4px, 79% 1px, 82% 5px, 85% 1px, 88% 4px, 91% 1px, 94% 5px,
+          97% 1px, 100% 4px,
+          100% 100%, 0% 100%);
+    }
+
+    .journal-entry:nth-child(3n) .journal-scrap {
+      transform: rotate(-0.3deg);
+    }
+
+    .journal-entry:nth-child(3n+1) .journal-scrap {
+      transform: rotate(0.2deg);
+    }
+
+    .journal-entry:nth-child(3n+2) .journal-scrap {
+      transform: rotate(-0.15deg);
+    }
+
+    .journal-prompt-text {
+      color: var(--ink-dim);
+      font-size: .95rem;
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      background: var(--tag-bg);
+      border-left: 3px solid var(--blood);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .journal-body {
+      color: var(--ink);
+      font-size: 1rem;
+      line-height: 1.72;
+    }
+
+    /* No italics anywhere in journal */
+    .journal-body em,
+    .journal-body i,
+    .journal-prompt-text em,
+    .journal-prompt-text i {
+      font-style: normal;
+    }
+
+    .journal-changes {
+      margin-top: 12px;
+      padding: 7px 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-size: .83rem;
+      color: var(--ink-faint);
+      font-family: 'Cinzel', serif;
+      letter-spacing: .04em;
+    }
+
+    .journal-changes strong {
+      color: var(--accent-dim);
+      font-weight: 400;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      font-size: .78rem;
+    }
+
+    /* ── Diary ── */
+    .diary-block {
+      padding: 18px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--ink-dim);
+    }
+
+    .diary-block em,
+    .diary-block i {
+      font-style: normal;
+    }
+
+    /* ── Generic markdown fallback ── */
+    #rendered-content h1 {
+      font-family: 'Cinzel', serif;
+      color: var(--accent);
+      font-size: 1.8rem;
+      margin: 24px 0 12px;
+    }
+
+    #rendered-content h2 {
+      font-family: 'Cinzel', serif;
+      color: var(--accent-dim);
+      font-size: 1.2rem;
+      margin: 20px 0 8px;
+    }
+
+    #rendered-content h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--ink);
+      font-size: 1rem;
+      margin: 16px 0 6px;
+    }
+
+    #rendered-content p {
+      margin: 0 0 10px;
+    }
+
+    #rendered-content hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    #rendered-content blockquote {
+      border-left: 3px solid var(--blood);
+      padding-left: 14px;
+      color: var(--ink-dim);
+      margin: 12px 0;
+    }
+
+    #rendered-content em {
+      font-style: normal;
+      color: var(--ink-dim);
+    }
+
+    #rendered-content table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    #rendered-content td,
+    #rendered-content th {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+    }
+
+    #rendered-content th {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: .1em;
+      color: var(--accent-dim);
+      background: var(--surface);
+    }
+
+    #rendered-content del {
+      opacity: .4;
+      text-decoration-color: var(--blood);
+    }
+
+    #rendered-content ul,
+    #rendered-content ol {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+
+    #rendered-content li {
+      margin-bottom: 4px;
+    }
+
+    #rendered-content strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    #rendered-content code {
+      font-family: monospace;
+      background: var(--surface);
+      padding: 1px 5px;
+      border-radius: 2px;
+      font-size: .9em;
+    }
+
+    /* ── Empty state ── */
+    #empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--ink-faint);
+    }
+
+    #empty-state .big-icon {
+      font-size: 52px;
+      margin-bottom: 20px;
+      opacity: .4;
+    }
+
+    #empty-state h2 {
+      font-family: 'UnifrakturMaguntia', serif;
+      font-size: 2rem;
+      color: var(--accent-dim);
+      margin-bottom: 12px;
+      font-weight: 400;
+    }
+
+    #empty-state p {
+      max-width: 400px;
+      margin: 0 auto 6px;
+      line-height: 1.6;
+      color: var(--ink-dim);
+    }
+
+    #empty-state .hint {
+      margin: 24px auto 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 14px 18px;
+      font-size: .9rem;
+      color: var(--ink-dim);
+      max-width: 500px;
+      text-align: left;
+    }
+
+    #empty-state .hint code {
+      font-family: monospace;
+      font-size: .85rem;
+      background: var(--bg3);
+      padding: 2px 6px;
+      border-radius: 2px;
+      color: var(--accent);
+      word-break: break-all;
+    }
+
+    /* Timer bar hidden — replaced by commit-based polling */
+    #timer-bar {
+      display: none !important;
+    }
+
+    #timer-fill {
+      display: none !important;
+    }
+
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg2);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width:600px) {
+      .vamp-name {
+        font-size: 2rem;
+      }
+
+      .meta-row {
+        justify-content: flex-start;
+      }
+
+      #hermes-command-preview {
+        display: none;
+      }
+
+      #hermes-send-btn {
+        width: 100%;
+      }
+
+      #hermes-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .journal-scrap {
+        clip-path: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="top-bar">
+    <div id="picker-row">
+      <span id="picker-label">Chronicle</span>
+      <select id="game-select">
+        <option value="">— Loading games… —</option>
+      </select>
+      <button id="back-btn" class="top-btn">← Games</button>
+      <button id="refresh-btn" class="top-btn">↻ Refresh</button>
+      <div id="skin-switcher">
+        <button class="skin-btn active" data-s="book" title="Book"></button>
+        <button class="skin-btn" data-s="dark" title="Crypt"></button>
+        <button class="skin-btn" data-s="scholar" title="Scholar"></button>
+      </div>
+    </div>
+    <div id="status-row">
+      <div id="status-dot"></div>
+      <span id="status-text">Loading game list…</span>
+    </div>
+  </div>
+
+  <div id="app">
+    <div id="empty-state">
+      <div class="big-icon">⚰</div>
+      <h2>Thousand Year Old Vampire</h2>
+      <p>Chronicle Viewer</p>
+      <p>Select a chronicle from the dropdown above to begin.</p>
+    </div>
+    <div id="content" style="display:none"></div>
+  </div>
+
+  <div id="timer-bar">
+    <div id="timer-fill"></div>
+  </div>
+
+  <script>
+    // ── Config ──
+    // Polling interval in seconds for checking new commits
+    const POLL_INTERVAL = 60;
+    const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire';
+    const RAW_BASE = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/';
+    // SHA (commit ref) of the currently-loaded file from the GitHub API contents endpoint
+    let currentSha = null;
+
+    // ── Hermes API config ──
+    // Ensure API server is running: hermes config set platforms.api_server.enabled true
+    // Then start via: hermes gateway run
+    const HERMES_API = 'http://localhost:8642';
+    const HERMES_API_KEY = '37d17a0d699abd66f4f31189e588c9e9d04fd1ee74b6cd61c0913d08a9787835';
+    const HERMES_SESSION_KEY = 'tyov-player';
+
+    let currentUrl = null;
+    let currentChronicleName = null;
+
+    // ── Skin switcher ──
+    (function () {
+      const saved = localStorage.getItem('tyov-skin') || 'book';
+      applySkin(saved);
+      document.querySelectorAll('.skin-btn').forEach(btn => {
+        btn.addEventListener('click', () => { applySkin(btn.dataset.s); localStorage.setItem('tyov-skin', btn.dataset.s); });
+      });
+      function applySkin(skin) {
+        if (skin === 'book') document.documentElement.removeAttribute('data-skin');
+        else document.documentElement.setAttribute('data-skin', skin);
+        document.querySelectorAll('.skin-btn').forEach(b => b.classList.toggle('active', b.dataset.s === skin));
+      }
+    })();
+
+    // ── Status helpers ──
+    function setStatus(state, msg) {
+      document.getElementById('status-dot').className = state;
+      document.getElementById('status-text').textContent = msg;
+    }
+
+    // ── Load game list from GitHub API ──
+    async function loadGameList() {
+      setStatus('busy', 'Fetching chronicle list…');
+      try {
+        const res = await fetch(GITHUB_API + '?nocache=' + Date.now());
+        if (!res.ok) throw new Error('GitHub API ' + res.status);
+        const files = await res.json();
+        const mds = files.filter(f => f.name.endsWith('.md') && f.type === 'file');
+        const sel = document.getElementById('game-select');
+        sel.innerHTML = '<option value="">— Choose a chronicle —</option>';
+        mds.forEach(f => {
+          const opt = document.createElement('option');
+          opt.value = RAW_BASE + encodeURIComponent(f.name);
+          opt.textContent = f.name.replace('.md', '').replace(/_/g, ' ');
+          sel.appendChild(opt);
+        });
+        if (!mds.length) {
+          sel.innerHTML = '<option value="">— No .md files found —</option>';
+          setStatus('err', 'No chronicle files found in the repository folder.');
+        } else {
+          setStatus('ok', mds.length + ' chronicle' + (mds.length > 1 ? 's' : '') + ' found — choose one above');
+          const hash = decodeURIComponent(location.hash.slice(1));
+          if (hash) {
+            const match = [...sel.options].find(o => o.value.includes(hash));
+            if (match) { sel.value = match.value; loadChronicle(match.value); }
+          }
+          if (mds.length === 1) { sel.value = sel.options[1].value; loadChronicle(sel.options[1].value); }
+        }
+      } catch (e) {
+        setStatus('err', 'Could not load game list: ' + e.message);
+        document.getElementById('game-select').innerHTML = '<option value="">— Error loading list —</option>';
+      }
+    }
+
+    // ── Fetch & render chronicle ──
+    async function loadChronicle(url) {
+      if (!url) {
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('empty-state').style.display = '';
+        document.getElementById('back-btn').style.display = 'none';
+        clearInterval(pollingTimer); currentUrl = null; currentSha = null;
+        setStatus('ok', 'Choose a chronicle above.'); clearInterval(pollingTimer); return;
+      }
+      currentUrl = url;
+      currentChronicleName = decodeURIComponent(url.split('/').pop() || '').replace(/\.md$/i, '');
+      currentSha = null; // Reset SHA when loading a new chronicle
+      setStatus('busy', 'Fetching chronicle…');
+      try {
+        const res = await fetch(url + '?nocache=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const md = await res.text();
+        const el = document.getElementById('content');
+        el.innerHTML = render(md); el.style.display = 'block';
+        document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('back-btn').style.display = '';
+        history.replaceState(null, '', '#' + url.split('/').pop());
+        setStatus('ok', 'Last updated: ' + new Date().toLocaleTimeString() + ' — polling for new commits');
+        // Fetch the SHA from the GitHub API for this file
+        const fileName = getFileName(url);
+        const shaUrl = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire/' + encodeURIComponent(fileName);
+        await fetch(shaUrl)
+          .then(r => r.json())
+          .then(data => { if (data && data.sha) currentSha = data.sha; })
+          .catch(() => {});
+        startPolling(url);
+      } catch (e) { setStatus('err', 'Error: ' + e.message); }
+    }
+
+    // ── Commit SHA polling (GitHub contents API) ──
+    let pollingTimer = null;
+
+    function getFileName(url) {
+      return decodeURIComponent(url.split('/').pop() || '');
+    }
+
+    function startPolling(url) {
+      clearInterval(pollingTimer);
+      checkShaForNewCommit(url);
+      pollingTimer = setInterval(() => { if (currentUrl) checkShaForNewCommit(currentUrl); }, POLL_INTERVAL * 1000);
+    }
+
+    function checkShaForNewCommit(url) {
+      if (!url) { clearInterval(pollingTimer); return; }
+      const fileName = getFileName(url);
+      const apiUrl = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire/' + encodeURIComponent(fileName);
+
+      fetch(apiUrl)
+      .then(res => {
+        if (!res.ok) {
+          setStatus('ok', 'Last checked: ' + new Date().toLocaleTimeString() + ' — up to date');
+          return null;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (!data || !data.sha) {
+          setStatus('ok', 'Last checked: ' + new Date().toLocaleTimeString() + ' — up to date');
+          return;
+        }
+        const newSha = data.sha;
+        if (newSha !== currentSha) {
+          // SHA changed — reload
+          setStatus('ok', 'New commit detected — refreshing…');
+          if (currentUrl) loadChronicle(currentUrl);
+        } else {
+          setStatus('ok', 'Last checked: ' + new Date().toLocaleTimeString() + ' — up to date');
+        }
+      })
+      .catch(e => {
+        setStatus('err', 'Poll error: ' + e.message);
+      });
+    }
+
+    // ── Helpers ──
+    function stripFrontmatter(md) {
+      if (md.startsWith('---')) {
+        const end = md.indexOf('---', 3);
+        if (end !== -1) return { fm: md.slice(3, end).trim(), body: md.slice(end + 3).trim() };
+      }
+      return { fm: '', body: md };
+    }
+    function parseFrontmatter(fm) {
+      const meta = {};
+      fm.split('\n').forEach(line => {
+        const m = line.match(/^(\w+):\s*(.+)$/);
+        if (m) meta[m[1]] = m[2].replace(/^["']|["']$/g, '');
+      });
+      return meta;
+    }
+    function parseVampire(md) {
+      const { fm, body } = stripFrontmatter(md);
+      const meta = parseFrontmatter(fm);
+      const sections = {}; let current = '__header__';
+      const buf = [];
+      for (const line of body.split('\n')) {
+        if (line.startsWith('## ')) {
+          sections[current] = buf.join('\n').trim(); buf.length = 0;
+          current = line.replace('## ', '').replace(/^[^\w]+/, '').trim();
+        } else buf.push(line);
+      }
+      sections[current] = buf.join('\n').trim();
+      return { meta, sections };
+    }
+
+    // ── Section renderers ──
+    function renderMarks(text) {
+      const items = text.match(/^[-*]\s+.+/gm) || [];
+      if (!items.length) return marked.parse(text);
+      return '<ul class="marks-list">' + items.map(i => '<li>' + i.replace(/^[-*]\s+/, '') + '</li>').join('') + '</ul>';
+    }
+    function renderMemories(text) {
+      return text.split(/\n(?=###\s)/).map(block => {
+        const tm = block.match(/^###\s+(.+)/); const title = tm ? tm[1] : '';
+        const rest = block.replace(/^###.+\n/, '').trim();
+        const forgotten = title.includes('~~');
+        const cleanTitle = title.replace(/~~/g, '');
+        const items = rest.match(/^\d+\..+/gm) || [];
+        const listHtml = items.length
+          ? '<ol>' + items.map(i => '<li>' + i.replace(/^\d+\.\s*/, '').replace(/~~/g, '') + '</li>').join('') + '</ol>'
+          : marked.parse(rest.replace(/~~/g, ''));
+        return '<div class="memory-block' + (forgotten ? ' forgotten' : '') + '"><div class="memory-title">' + cleanTitle + '</div>' + listHtml + '</div>';
+      }).join('');
+    }
+    function renderSkills(text) {
+      const rows = text.match(/\|.+\|/g) || [];
+      if (rows.length < 2) return marked.parse(text);
+      return '<div class="skills-grid">' + rows.slice(2).map(r => {
+        const cells = r.split('|').map(c => c.trim()).filter(Boolean);
+        if (cells.length < 2) return '';
+        const rn = cells[0], rs = cells[1];
+        const isLost = rn.includes('~~') || rs.toLowerCase().includes('lost');
+        const isChk = rs.includes('☑') || rs.toLowerCase().includes('checked');
+        const name = rn.replace(/~~/g, '').trim();
+        const [sn, sd] = name.split('—').map(s => s.trim());
+        const cls = isLost ? 'skill-row lost' : isChk ? 'skill-row checked' : 'skill-row';
+        return '<div class="' + cls + '"><div class="skill-check">' + (isLost ? '✕' : isChk ? '✓' : '') + '</div><div><div class="skill-name">' + (sn || name) + '</div>' + (sd ? '<div class="skill-desc">' + sd + '</div>' : '') + '</div></div>';
+      }).join('') + '</div>';
+    }
+    function renderResources(text) {
+      const rows = text.match(/\|.+\|/g) || [];
+      if (rows.length < 2) return marked.parse(text);
+      return '<div class="resource-grid">' + rows.slice(2).map(r => {
+        const cells = r.split('|').map(c => c.trim()).filter(Boolean);
+        if (cells.length < 2) return '';
+        const rn = cells[0], rt = cells[1] || '', rs = cells[2] || '';
+        const isLost = rn.includes('~~') || rs.toLowerCase().includes('lost') || rs.includes('~~');
+        const name = rn.replace(/~~/g, '').trim();
+        const [resN, resD] = name.split('—').map(s => s.trim());
+        const icon = (rt.includes('stationary') || rt.includes('📍')) ? '📍' : '🎒';
+        return '<div class="resource-card' + (isLost ? ' lost' : '') + '"><div class="resource-icon">' + icon + '</div><div><div class="resource-name">' + (resN || name) + '</div>' + (resD ? '<div class="resource-desc">' + resD + '</div>' : '') + '</div></div>';
+      }).join('') + '</div>';
+    }
+    function renderCharacters(text) {
+      return text.split(/\n(?=###\s)/).map(block => {
+        const tm = block.match(/^###\s+(.+)/); const title = tm ? tm[1] : '';
+        const rest = block.replace(/^###.+\n/, '').trim();
+        const cards = rest.split('\n').filter(l => l.trim().startsWith('-')).map(line => {
+          const dead = line.includes('~~');
+          const clean = line.replace(/^-+\s*/, '').replace(/~~/g, '');
+          const [nameRaw, ...dp] = clean.split('—');
+          const name = nameRaw.replace(/\*+/g, '').trim();
+          const desc = dp.join('—').trim();
+          return '<div class="char-card' + (dead ? ' dead' : '') + '"><div class="char-name">' + name + (dead ? ' ✝' : '') + '</div>' + (desc ? '<div class="char-desc">' + desc + '</div>' : '') + '</div>';
+        }).join('');
+        return (title ? '<div class="char-group-title">' + title + '</div>' : '') + cards;
+      }).join('');
+    }
+    function renderJournal(text) {
+      return text.split(/\n(?=###\s)/).map(block => {
+        const tm = block.match(/^###\s+(.+)/); const title = tm ? tm[1] : '';
+        const rest = block.replace(/^###.+\n/, '').trim();
+        const pm = rest.match(/^\*(.+)\*/); const promptText = pm ? pm[1] : '';
+        const body = promptText ? rest.replace(/^\*.+\*\n+/, '') : rest;
+        const cm = body.match(/\*\*Changes:\*\*(.+)/s);
+        const mainBody = cm ? body.slice(0, body.indexOf('**Changes:**')).trim() : body.trim();
+        const changes = cm ? cm[1].trim() : '';
+        return '<div class="journal-entry">' +
+          '<div class="journal-turn">' + title + '</div>' +
+          '<div class="journal-scrap">' +
+          (promptText ? '<div class="journal-prompt-text">' + promptText + '</div>' : '') +
+          '<div class="journal-body">' + marked.parse(mainBody) + '</div>' +
+          (changes ? '<div class="journal-changes"><strong>Changes</strong> — ' + changes + '</div>' : '') +
+          '</div></div>';
+      }).join('');
+    }
+    function renderDiary(text) {
+      if (!text || text.toLowerCase().includes('no diary')) return '<div class="diary-block">No diary yet.</div>';
+      return '<div class="diary-block">' + marked.parse(text) + '</div>';
+    }
+
+    // ── Main render ──
+    function render(md) {
+      const { meta, sections } = parseVampire(md);
+      const header = sections['__header__'] || '';
+      const vampName = (header.match(/^#\s+(.+)/m) || [])[1] || meta.vampire || 'Unknown Vampire';
+      const epitaph = (header.match(/^>\s*\*?(.+?)\*?\s*$/m) || [])[1] || '';
+
+      let html = '<div class="vamp-header">' +
+        '<div class="vamp-name">' + vampName + '</div>' +
+        '<div class="vamp-subtitle">A Thousand Year Old Vampire</div>' +
+        (epitaph ? '<div class="vamp-epitaph">' + epitaph + '</div>' : '') +
+        '<div class="meta-row">' +
+        (meta.current_prompt ? '<div class="meta-pill">Prompt <span>' + meta.current_prompt + '</span></div>' : '') +
+        (meta.prompts_resolved ? '<div class="meta-pill">Resolved <span>' + meta.prompts_resolved + '</span></div>' : '') +
+        (meta.created ? '<div class="meta-pill">Game Start <span>' + meta.created + '</span></div>' : '') +
+        (meta.modified ? '<div class="meta-pill">Updated <span>' + meta.modified + '</span></div>' : '') +
+        (meta.game_over === 'true' ? '<div class="meta-pill gameover">Game Over</div>' : '') +
+        '</div></div>';
+
+      const sectionMap = [
+        { keys: ['⚰ Marks', 'Marks'], label: 'Marks', icon: '⚰', fn: renderMarks },
+        { keys: ['🧠 Memories', 'Memories'], label: 'Memories', icon: '🧠', fn: renderMemories },
+        { keys: ['📖 Diary', 'Diary'], label: 'Diary', icon: '📖', fn: renderDiary },
+        { keys: ['⚔ Skills', 'Skills'], label: 'Skills', icon: '⚔', fn: renderSkills },
+        { keys: ['🏚 Resources', 'Resources'], label: 'Resources', icon: '🏚', fn: renderResources },
+        { keys: ['👥 Characters', 'Characters'], label: 'Characters', icon: '👥', fn: renderCharacters },
+        { keys: ['📜 Journal', 'Journal'], label: 'Journal', icon: '📜', fn: renderJournal },
+      ];
+      for (const { keys, label, icon, fn } of sectionMap) {
+        let text = null;
+        for (const k of keys) { if (sections[k] !== undefined) { text = sections[k]; break; } }
+        if (text === null) continue;
+        html += '<div class="section"><div class="section-title"><span class="icon">' + icon + '</span>' + label + '</div>' + fn(text) + '</div>';
+      }
+      return html;
+    }
+
+    // ── Events ──
+    document.getElementById('game-select').addEventListener('change', e => loadChronicle(e.target.value));
+    document.getElementById('refresh-btn').addEventListener('click', () => { if (currentUrl) loadChronicle(currentUrl); else loadGameList(); });
+    document.getElementById('back-btn').addEventListener('click', () => { document.getElementById('game-select').value = ''; loadChronicle(''); });
+
+    // ── Hermes panel (API server chat) ──
+    (function () {
+      const panel = document.getElementById('hermes-panel');
+      const toggle = document.getElementById('hermes-toggle');
+      const textarea = document.getElementById('hermes-textarea');
+      const preview = document.getElementById('hermes-command-preview');
+      const sendBtn = document.getElementById('hermes-send-btn');
+      const rollBtn = document.getElementById('hermes-roll-btn');
+      const newSessionBtn = document.getElementById('hermes-new-session-btn');
+      const statusEl = document.getElementById('hermes-status');
+      const contextEl = document.getElementById('hermes-context');
+      const chatLogEl = document.getElementById('hermes-chat-log');
+      const apiInfoEl = document.getElementById('hermes-api-info');
+
+      // Session state
+      let sessionId = null;
+      const history = []; // { role, content }
+      let isProcessing = false;
+
+      // ── Helpers ──
+      function setHS(cls, msg) {
+        statusEl.className = cls; statusEl.textContent = msg;
+        if (cls === 'ok') setTimeout(() => { if (statusEl.textContent === msg) statusEl.textContent = ''; }, 6000);
+      }
+
+      function addChatLog(role, content, meta) {
+        const div = document.createElement('div');
+        div.className = 'hermes-log-entry hermes-log-' + role;
+        div.innerHTML = '<div class="hermes-log-meta">' +
+          '<span class="hermes-log-role">' + role.toUpperCase() + '</span>' +
+          (meta ? '<span class="hermes-log-meta-text">' + meta + '</span>' : '') +
+          '</div>' +
+          '<div class="hermes-log-content">' + content + '</div>';
+        chatLogEl.appendChild(div);
+        chatLogEl.scrollTop = chatLogEl.scrollHeight;
+      }
+
+      function clearChatLog() {
+        chatLogEl.innerHTML = '';
+        history.length = 0;
+        sessionId = null;
+        newSessionBtn.textContent = '⟳ New Session';
+      }
+
+      function formatResponse(content) {
+        // Minimal markdown-ish rendering for API responses
+        return content
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g, '<em>$1</em>')
+          .replace(/`(.+?)`/g, '<code>$1</code>')
+          .replace(/\n/g, '<br>');
+      }
+
+      function updateContext() {
+        if (!currentUrl) { contextEl.style.display = 'none'; return; }
+        const els = document.querySelectorAll('.journal-turn');
+        if (els.length) { contextEl.textContent = '↳ Last turn: ' + els[els.length - 1].textContent.trim(); contextEl.style.display = 'block'; }
+        else contextEl.style.display = 'none';
+      }
+
+      function prependSystemPrefix() {
+        const contextPrefix = currentChronicleName
+          ? '[Chronicle: ' + currentChronicleName + '] '
+          : '';
+        const raw = textarea.value.trim();
+        if (!raw) return null;
+        return (raw.startsWith('!tyov') ? raw : '!tyov ' + raw);
+      }
+
+      // ── Session management ──
+      function startSession() {
+        clearChatLog();
+        sessionId = 'tyov-session-' + Date.now();
+        newSessionBtn.textContent = '⟳ New Session';
+        setHS('ok', 'New session started.');
+      }
+
+      // ── API interaction ──
+      async function sendToHermes(rawCommand) {
+        if (!rawCommand || isProcessing) return;
+        isProcessing = true;
+        sendBtn.disabled = true;
+        rollBtn.disabled = true;
+        textarea.disabled = true;
+        newSessionBtn.disabled = true;
+
+        // Ensure session exists
+        if (!sessionId) startSession();
+
+        const fullMessage = rawCommand;
+        const cmdPreview = prependSystemPrefix();
+
+        // Add user message to history
+        history.push({ role: 'user', content: fullMessage });
+
+        // Add to chat log
+        addChatLog('request', '<p>' + formatResponse(fullMessage) + '</p>', 'Session: ' + sessionId);
+
+        // Prepare system message if we have a loaded vampire game
+        const systemPrompt = currentChronicleName
+          ? '[Context: ' + currentChronicleName + ']'
+          : '[Context: No chronicle loaded — use the dropdown to select a game]';
+
+        const apiMessages = [];
+        if (systemPrompt) {
+          apiMessages.push({ role: 'system', content: systemPrompt });
+        }
+        // Include recent history (last 20 messages to keep payload reasonable)
+        const historySlice = history.slice(-20);
+        apiMessages.push(...historySlice.filter(m => m.role !== 'system'));
+
+        const requestPayload = {
+          model: 'hermes-agent',
+          messages: apiMessages,
+          max_tokens: 4096,
+          stream: false
+        };
+
+        setHS('busy', 'Sending to Hermes API…');
+        apiInfoEl.innerHTML = '<div class="hermes-api-request">API: POST /v1/chat/completions</div>';
+
+        try {
+          const HERMES_API_KEY = '37d17a0d699abd66f4f31189e588c9e9d04fd1ee74b6cd61c0913d08a9787835';
+          const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + HERMES_API_KEY
+          };
+          if (sessionId) {
+                // X-Hermes-Session-Id not sent (would block CORS preflight, only Authorization/Content-Type/Idempotency-Key allowed)
+          }
+                // X-Hermes-Session-Key not sent (would block CORS preflight, only Authorization/Content-Type/Idempotency-Key allowed)
+
+                apiInfoEl.innerHTML += '<div class="hermes-api-request">Headers: Content-Type=application/json; Authorization=Bearer [key]</div>';
+                  HERMES_API_KEY.slice(0,6) + '...' + ';' /* Auth header sent */
+
+          const res = await fetch(HERMES_API + '/v1/chat/completions', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(requestPayload)
+          });
+
+          if (!res.ok) {
+            const errText = await res.text().catch(() => '');
+            addChatLog('error', 'HTTP ' + res.status + (errText ? ': ' + errText.slice(0, 200) : ''), '');
+            setHS('err', 'API error ' + res.status + '. Check Hermes gateway is running.');
+            isProcessing = false;
+            sendBtn.disabled = !textarea.value.trim();
+            rollBtn.disabled = false;
+            textarea.disabled = false;
+            newSessionBtn.disabled = false;
+            return;
+          }
+
+          const data = await res.json();
+          apiInfoEl.innerHTML += '<div class="hermes-api-request">Response: status ' + res.status + ', model: ' + (data.model || 'unknown') + '</div>';
+
+          // Extract response content
+          let responseContent = '';
+          if (data.choices && data.choices[0]) {
+            const choice = data.choices[0];
+            responseContent = choice.message?.content || '';
+              // SessionId from response not available (API server doesn't echo it back)
+              sessionId = sessionId; // keep existing sessionId
+
+            // Track in history
+            history.push({ role: 'assistant', content: responseContent });
+
+            addChatLog('response', formatResponse(responseContent), 'Session: ' + sessionId);
+          }
+
+          textarea.value = '';
+          preview.textContent = '!tyov …';
+          setHS('ok', '✦ Received from Hermes. Chronicle refreshed.');
+
+          // Auto-refresh the chronicle when the backend may have updated the vampire note
+          setTimeout(() => {
+            if (currentUrl) loadChronicle(currentUrl);
+          }, 3000);
+
+          setHS('ok', '✦ Response received. Chronicle ready.');
+
+          isProcessing = false;
+          sendBtn.disabled = !textarea.value.trim();
+          rollBtn.disabled = false;
+          textarea.disabled = false;
+          newSessionBtn.disabled = false;
+
+        } catch (e) {
+          addChatLog('error', 'Network error: ' + e.message, '')
+          setHS('err', 'Network error: ' + e.message);
+          isProcessing = false;
+          sendBtn.disabled = !textarea.value.trim();
+          rollBtn.disabled = false;
+          textarea.disabled = false;
+          newSessionBtn.disabled = false;
+        }
+      }
+
+      // ── Event listeners ──
+      toggle.addEventListener('click', () => {
+        const isOpen = panel.classList.toggle('open');
+        document.body.classList.toggle('hermes-open', isOpen);
+        if (isOpen) { updateContext(); textarea.focus(); }
+      });
+
+      textarea.addEventListener('input', () => {
+        const val = textarea.value.trim();
+        sendBtn.disabled = !val;
+        if (!val) { preview.textContent = '!tyov …'; return; }
+        const cmd = val.startsWith('!tyov') ? val : '!tyov ' + val;
+        preview.textContent = cmd.length > 80 ? cmd.slice(0, 80) + '…' : cmd;
+      });
+
+      sendBtn.addEventListener('click', async () => {
+        const raw = textarea.value.trim();
+        if (!raw) return;
+        await sendToHermes(raw);
+      });
+
+      rollBtn.addEventListener('click', async () => {
+        textarea.value = 'roll';
+        textarea.dispatchEvent(new Event('input'));
+        await sendToHermes('roll');
+      });
+
+      newSessionBtn.addEventListener('click', () => {
+        startSession();
+        textarea.value = '';
+        textarea.dispatchEvent(new Event('input'));
+        if (currentUrl) loadChronicle(currentUrl);
+      });
+
+      textarea.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); if (!sendBtn.disabled) sendBtn.click(); }
+        // Shift+Enter for newline, regular Enter for send
+        if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !sendBtn.disabled) {
+          e.preventDefault();
+          sendBtn.click();
+        }
+      });
+    })();
+
+    // ── Boot ──
+    window.addEventListener('load', loadGameList);
+  </script>
+</body>
+
+</html>
