@@ -862,22 +862,13 @@
       word-break: break-all;
     }
 
-    /* ── Timer bar ── */
+    /* Timer bar hidden — replaced by commit-based polling */
     #timer-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--border);
-      z-index: 200;
+      display: none !important;
     }
 
     #timer-fill {
-      height: 100%;
-      background: var(--timer-grad);
-      width: 100%;
-      transition: none;
+      display: none !important;
     }
 
     /* ── Hermes panel ── */
@@ -1124,9 +1115,7 @@
         <button class="skin-btn" data-s="scholar" title="Scholar"></button>
       </div>
     </div>
-    <div id="status-row">let refreshTimer = null;
-      let countdown = REFRESH_INTERVAL;
-      let currentUrl = null;
+    <div id="status-row">
       <div id="status-dot"></div>
       <span id="status-text">Loading game list…</span>
     </div>
@@ -1171,16 +1160,17 @@
 
   <script>
     // ── Config ──
-    const REFRESH_INTERVAL = 60;
+    // Polling interval in seconds for checking new commits
+    const POLL_INTERVAL = 60;
     const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire';
     const RAW_BASE = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/';
+    // SHA (commit ref) of the currently-loaded file from the GitHub API contents endpoint
+    let currentSha = null;
 
     // ── Hermes / Discord config ──
     // Replace this URL with your current webhook to re-enable Hermes integration.
     const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1503690810657341590/PXnLEm4kZp_LF_zj8MK8nX8kuJvqdOdyeZycGu8YAPFSGVKvvicMeEB_WE6gjCuD-ufP';
 
-    let refreshTimer = null;
-    let countdown = REFRESH_INTERVAL;
     let currentUrl = null;
     let currentChronicleName = null;
 
@@ -1244,11 +1234,12 @@
         document.getElementById('content').style.display = 'none';
         document.getElementById('empty-state').style.display = '';
         document.getElementById('back-btn').style.display = 'none';
-        clearInterval(refreshTimer); currentUrl = null;
-        setStatus('ok', 'Choose a chronicle above.'); resetTimerBar(); return;
+        clearInterval(pollingTimer); currentUrl = null; currentSha = null;
+        setStatus('ok', 'Choose a chronicle above.'); clearInterval(pollingTimer); return;
       }
       currentUrl = url;
       currentChronicleName = decodeURIComponent(url.split('/').pop() || '').replace(/\.md$/i, '');
+      currentSha = null; // Reset SHA when loading a new chronicle
       setStatus('busy', 'Fetching chronicle…');
       try {
         const res = await fetch(url + '?nocache=' + Date.now());
@@ -1259,28 +1250,61 @@
         document.getElementById('empty-state').style.display = 'none';
         document.getElementById('back-btn').style.display = '';
         history.replaceState(null, '', '#' + url.split('/').pop());
-        setStatus('ok', 'Last updated: ' + new Date().toLocaleTimeString() + ' — auto-refresh in ' + REFRESH_INTERVAL + 's');
-        startCountdown();
+        setStatus('ok', 'Last updated: ' + new Date().toLocaleTimeString() + ' — polling for new commits');
+        // Fetch the SHA from the GitHub API for this file
+        const fileName = getFileName(url);
+        const shaUrl = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire/' + encodeURIComponent(fileName);
+        await fetch(shaUrl)
+          .then(r => r.json())
+          .then(data => { if (data && data.sha) currentSha = data.sha; })
+          .catch(() => {});
+        startPolling(url);
       } catch (e) { setStatus('err', 'Error: ' + e.message); }
     }
 
-    // ── Countdown bar ──
-    function resetTimerBar() {
-      const fill = document.getElementById('timer-fill');
-      fill.style.transition = 'none'; fill.style.width = '100%';
+    // ── Commit SHA polling (GitHub contents API) ──
+    let pollingTimer = null;
+
+    function getFileName(url) {
+      return decodeURIComponent(url.split('/').pop() || '');
     }
-    function startCountdown() {
-      clearInterval(refreshTimer); countdown = REFRESH_INTERVAL; resetTimerBar();
-      refreshTimer = setInterval(() => {
-        countdown--;
-        const fill = document.getElementById('timer-fill');
-        fill.style.transition = 'width 1s linear';
-        fill.style.width = (countdown / REFRESH_INTERVAL * 100) + '%';
-        if (document.getElementById('status-dot').className !== 'err')
-          document.getElementById('status-text').textContent =
-            'Last updated: ' + new Date().toLocaleTimeString() + ' — auto-refresh in ' + countdown + 's';
-        if (countdown <= 0 && currentUrl) loadChronicle(currentUrl);
-      }, 1000);
+
+    function startPolling(url) {
+      clearInterval(pollingTimer);
+      checkShaForNewCommit(url);
+      pollingTimer = setInterval(() => { if (currentUrl) checkShaForNewCommit(currentUrl); }, POLL_INTERVAL * 1000);
+    }
+
+    function checkShaForNewCommit(url) {
+      if (!url) { clearInterval(pollingTimer); return; }
+      const fileName = getFileName(url);
+      const apiUrl = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire/' + encodeURIComponent(fileName);
+
+      fetch(apiUrl)
+      .then(res => {
+        if (!res.ok) {
+          setStatus('ok', 'Last checked: ' + new Date().toLocaleTimeString() + ' — up to date');
+          return null;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (!data || !data.sha) {
+          setStatus('ok', 'Last checked: ' + new Date().toLocaleTimeString() + ' — up to date');
+          return;
+        }
+        const newSha = data.sha;
+        if (newSha !== currentSha) {
+          // SHA changed — reload
+          setStatus('ok', 'New commit detected — refreshing…');
+          if (currentUrl) loadChronicle(currentUrl);
+        } else {
+          setStatus('ok', 'Last checked: ' + new Date().toLocaleTimeString() + ' — up to date');
+        }
+      })
+      .catch(e => {
+        setStatus('err', 'Poll error: ' + e.message);
+      });
     }
 
     // ── Helpers ──
