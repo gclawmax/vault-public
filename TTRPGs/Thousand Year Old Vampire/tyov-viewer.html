@@ -1688,12 +1688,12 @@
             'Authorization': 'Bearer ' + HERMES_API_KEY
           };
           if (sessionId) {
-            headers['X-Hermes-Session-Id'] = sessionId;
+                // X-Hermes-Session-Id not sent (would block CORS preflight, only Authorization/Content-Type/Idempotency-Key allowed)
           }
-          headers['X-Hermes-Session-Key'] = HERMES_SESSION_KEY;
+                // X-Hermes-Session-Key not sent (would block CORS preflight, only Authorization/Content-Type/Idempotency-Key allowed)
 
-          apiInfoEl.innerHTML += '<div class="hermes-api-request">Headers: X-Hermes-Session-Key=' +
-            HERMES_SESSION_KEY + '; X-Hermes-Session-Id=' + sessionId + '</div>';
+                apiInfoEl.innerHTML += '<div class="hermes-api-request">Headers: Content-Type=application/json; Authorization=Bearer [key]</div>';
+                  HERMES_API_KEY.slice(0,6) + '...' + ';' /* Auth header sent */
 
           const res = await fetch(HERMES_API + '/v1/chat/completions', {
             method: 'POST',
@@ -1721,7 +1721,8 @@
           if (data.choices && data.choices[0]) {
             const choice = data.choices[0];
             responseContent = choice.message?.content || '';
-            sessionId = data['X-Hermes-Session-Id'] || data.x_hermes_session_id || sessionId;
+              // SessionId from response not available (API server doesn't echo it back)
+              sessionId = sessionId; // keep existing sessionId
 
             // Track in history
             history.push({ role: 'assistant', content: responseContent });
