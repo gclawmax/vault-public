@@ -874,9 +874,19 @@
         document.getElementById('unknown-key').value = artifact;
       }
 
-      toggle.addEventListener('click', () => {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
         panel.classList.toggle('open');
         toggle.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (panel.classList.contains('open') &&
+            !panel.contains(e.target) &&
+            !toggle.contains(e.target)) {
+          panel.classList.remove('open');
+          toggle.classList.remove('hidden');
+        }
       });
 
       document.getElementById('unknown-key').addEventListener('change', (e) => {
