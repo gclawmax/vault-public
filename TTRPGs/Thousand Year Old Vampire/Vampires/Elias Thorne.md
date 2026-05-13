@@ -1,8 +1,8 @@
 ---
 tags: [tyov, vampire, rpg]
 vampire: "Elias Thorne"
-current_prompt: 0
-prompts_resolved: 0
+current_prompt: 1
+prompts_resolved: 1
 game_over: false
 game_over_reason: ""
 game_start: 2026-05-13
@@ -22,7 +22,7 @@ modified: 2026-05-13
 
 ## ⚰ Marks
 
-- Cold skin that never warms — concealed by the weight of clerical vestments, layers of wool and linen hiding the flesh. No mortal has felt it.
+- Cold skin that never warms *(concealed: by the weight of clerical vestments, layers of wool and linen hiding the flesh)*
 
 ---
 
@@ -42,6 +42,7 @@ modified: 2026-05-13
 
 ### Memory 5 — The Turning
 1. *The evening mass was delayed by the bishop's inspector — Thomas, who'd come to audit my accounts late. He stood by the vestry door, lantern in hand, saying the bishop wanted to see my ledgers. I told him the bishop knew I kept no ledgers, only the Codex in the margins of which lay a different kind of accounting. The air went still. Not Thomas — he shifted, blinked, exhaled. But behind him, in the door's shadow, something had no shadow at all: a woman in clothes the moor had never seen and the church had never known, and her eyes were the colour of the standing stones.*
+2. *Lydia came to the vestry door asking for her cloak, unaware of what waited within; it took only an instant to find her throat.*
 
 ---
 
@@ -53,17 +54,18 @@ modified: 2026-05-13
 ## ⚔ Skills
 
 | Skill | Status |
-|------|--------|
+|------|:---:|
 | Herbalism | ✅ unchecked |
 | Theology | ✅ unchecked |
 | Discretion | ✅ unchecked |
+| Bloodthirsty | ☑ checked |
 
 ---
 
 ## 🏚 Resources
 
 | Resource | Type | Status |
-|------|------|-|
+|:---------|:------|:------|
 | The Herbarium | portable | ✅ |
 | The Vicarage Garden | 📍 stationary | ✅ |
 | The Marginal Codex | portable | ✅ |
@@ -75,7 +77,7 @@ modified: 2026-05-13
 ### Mortals
 - **Martha Peake** — Your aged parishioner and unofficial apothecary. She left jars of elderberry cordial at your gate every solstice and once grabbed your wrist with a grip like iron to say, *"The moor doesn't feed what walks on it, Elias. It feeds what grows from it."*
 - **Thomas Blackwood** — The diocesan bishop's inspector, a man who read sermons like ledgers. He'd begun noting the hours you didn't spend in the pulpit and the heavy books you borrowed from Cambridge without ever checking them out.
-- **Lydia Thorne** — Your younger sister, twenty years younger still in the village. She knew more than she let on — the way she'd hum when she thought you weren't listening, the way she'd sometimes trace patterns in the dirt that matched the standing stones.
+- ~~**Lydia Thorne**~~ — Your younger sister, twenty years younger still in the village. She knew more than she let on — the way she'd hum when she thought you weren't listening, the way she'd sometimes trace patterns in the dirt that matched the standing stones — *dust, and the moor took her name.*
 
 ### Immortals
 - **An unnamed woman** — Seen once in the door's shadow, her eyes the colour of standing stones. Her nature: impossible stillness, absence of shadow, clothing unknown to moor or church.
@@ -84,7 +86,16 @@ modified: 2026-05-13
 
 ## 📜 Journal
 
-*Awaiting your first turn.*
+### Turn 1 — Prompt 1, Entry 1
+*In your blood-hunger you destroy someone close to you. Kill a mortal Character. Create a mortal if none are available.Take the skill Bloodthirsty.*
+
+Lydia came to the vestry door asking for her cloak, unaware of what waited within; it took only an instant to find her throat.
+
+**Changes:** Killed Lydia Thorne, a mortal Character. Created *Bloodthirsty* (☑ checked).
+
+---
+
+*Awaiting your next turn.*
 
 ---
 
