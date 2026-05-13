@@ -637,7 +637,7 @@
   </div>
 
   <script>
-    const POLL_INTERVAL = 60;
+    const POLL_INTERVAL = 30;
     const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire';
     const RAW_BASE   = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/';
 
@@ -703,7 +703,9 @@
       setStatus('busy', 'Loading chronicle…');
       try {
         const res = await fetch(url + '?nocache=' + Date.now());
-        let md    = await res.text();
+        const etag = res.headers.get('ETag');
+        if (etag) currentEtag = etag;
+        let md = await res.text();
 
         /* Replace "Born" with "Game Started" everywhere */
         md = md.replace(/\bBorn\b/g, 'Game Started');
@@ -715,6 +717,7 @@
         document.getElementById('empty-state').style.display = 'none';
 
         initPanels();
+        startPolling();
 
         setStatus('ok', 'Chronicle loaded');
       } catch (e) {
@@ -928,8 +931,34 @@
       `;
     }
 
+    /* ── ETag polling ───────────────────────────────────────── */
+    let currentEtag   = null;
+    let pollTimer     = null;
+
+    async function checkForUpdate() {
+      if (!currentUrl) return;
+      try {
+        const res = await fetch(currentUrl, { method: 'HEAD' });
+        const etag = res.headers.get('ETag');
+        if (etag && etag !== currentEtag) {
+          currentEtag = etag;
+          await loadChronicle(currentUrl);
+        }
+      } catch (_) { /* silent — network blip, try again next tick */ }
+    }
+
+    function startPolling() {
+      stopPolling();
+      pollTimer = setInterval(checkForUpdate, POLL_INTERVAL * 1000);
+    }
+
+    function stopPolling() {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+
     /* ── Event listeners ────────────────────────────────────── */
     document.getElementById('game-select').addEventListener('change', e => {
+      currentEtag = null; // reset so next poll always sees it as fresh
       loadChronicle(e.target.value);
     });
 
@@ -938,6 +967,7 @@
     });
 
     window.addEventListener('load', loadGameList);
+    window.addEventListener('focus', checkForUpdate); // catch up after tab was hidden
   </script>
 
 </body>
