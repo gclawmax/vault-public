@@ -7,7 +7,7 @@
   <title>Thousand Year Old Vampire — Chronicle Viewer</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:wght@400;500;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -34,9 +34,8 @@
       --shadow: rgba(0, 0, 0, 0.18);
       --torn-shadow: rgba(0, 0, 0, 0.14);
       --status-ok: #3a6a2a;
-      --panel-header-bg: #cfc2a0;
-      --panel-header-hover: #c4b590;
-      --chevron-color: #8a6030;
+      --card-bg: #f5edd8;
+      --card-bg2: #ece0c4;
     }
 
     [data-skin="dark"] {
@@ -61,9 +60,8 @@
       --shadow: rgba(0, 0, 0, 0.5);
       --torn-shadow: rgba(0, 0, 0, 0.4);
       --status-ok: #4a8a4a;
-      --panel-header-bg: #2d2418;
-      --panel-header-hover: #3a2e1e;
-      --chevron-color: #8a6e30;
+      --card-bg: #221c14;
+      --card-bg2: #1a1510;
     }
 
     [data-skin="scholar"] {
@@ -88,25 +86,22 @@
       --shadow: rgba(0, 0, 0, 0.10);
       --torn-shadow: rgba(0, 0, 0, 0.08);
       --status-ok: #2a5a2a;
-      --panel-header-bg: #ddd4c0;
-      --panel-header-hover: #d4c8b0;
-      --chevron-color: #4a6a8e;
+      --card-bg: #faf7f0;
+      --card-bg2: #f0ebe0;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background: var(--bg);
       color: var(--ink);
       font-family: 'EB Garamond', serif;
       font-size: 17px;
-      line-height: 1.75;
+      line-height: 1.7;
       min-height: 100vh;
     }
+
+    /* ── Top bar ──────────────────────────────────────────── */
 
     #top-bar {
       position: sticky;
@@ -153,11 +148,7 @@
       font-size: 10px;
       text-transform: uppercase;
     }
-
-    .top-btn:hover {
-      background: var(--blood);
-      color: white;
-    }
+    .top-btn:hover { background: var(--blood); color: white; }
 
     #status-row {
       display: flex;
@@ -170,324 +161,404 @@
     }
 
     #status-dot {
-      width: 7px;
-      height: 7px;
+      width: 7px; height: 7px;
       border-radius: 50%;
       background: var(--ink-faint);
     }
-
     #status-dot.ok   { background: var(--status-ok); }
     #status-dot.err  { background: var(--blood-bright); }
     #status-dot.busy { background: var(--accent); animation: pulse 1s infinite; }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: .4; }
+      0%,100% { opacity: 1; }
+      50%      { opacity: .4; }
     }
 
-    /* ── Layout ───────────────────────────────────────────── */
+    .skin-btn {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .skin-btn.active { border-color: var(--border-bright); }
+    .skin-btn[data-s="book"]    { background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070); }
+    .skin-btn[data-s="dark"]    { background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410); }
+    .skin-btn[data-s="scholar"] { background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0); }
+
+    /* ── App wrapper ──────────────────────────────────────── */
 
     #app {
-      width: 100%;
-      max-width: 1800px;
+      max-width: 1600px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 0 0 40px;
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 300px minmax(0, 1fr) 300px;
-      gap: 20px;
-      align-items: start;
-    }
-
-    /* ── Sidebar ──────────────────────────────────────────── */
-
-    .sidebar {
-      position: sticky;
-      top: 110px;
-      max-height: calc(100vh - 130px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding-right: 2px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
-
-    /* ── Accordion panels ─────────────────────────────────── */
-
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      margin-bottom: 10px;
-      border-radius: 4px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px var(--shadow);
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 13px 16px;
-      cursor: pointer;
-      background: var(--panel-header-bg);
-      border-bottom: 1px solid transparent;
-      user-select: none;
-      transition: background 0.15s;
-      gap: 10px;
-    }
-
-    .panel-header:hover {
-      background: var(--panel-header-hover);
-    }
-
-    .panel-header-label {
-      font-family: 'Cinzel', serif;
-      font-size: 11px;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .panel-chevron {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      color: var(--chevron-color);
-      transition: transform 0.25s ease;
-    }
-
-    .panel.open .panel-chevron {
-      transform: rotate(180deg);
-    }
-
-    .panel.open .panel-header {
-      border-bottom-color: var(--border);
-    }
-
-    .panel-body {
-      display: grid;
-      grid-template-rows: 0fr;
-      transition: grid-template-rows 0.28s ease;
-    }
-
-    .panel.open .panel-body {
-      grid-template-rows: 1fr;
-    }
-
-    .panel-inner {
-      overflow: hidden;
-    }
-
-    .panel-content {
-      padding: 16px;
-    }
-
-    /* ── Main column ──────────────────────────────────────── */
-
-    .main-column { min-width: 0; }
+    /* ── Vampire header ───────────────────────────────────── */
 
     .vamp-header {
       text-align: center;
-      padding: 44px 0 32px;
+      padding: 36px 20px 28px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 40px;
+      margin-bottom: 0;
     }
 
+    .vamp-name-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin: 0 auto;
+      max-width: 700px;
+    }
+
+    .vamp-rule {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .vamp-rule span {
+      display: block;
+      background: var(--blood);
+      height: 1px;
+    }
+
+    .vamp-rule span:first-child { opacity: 0.5; }
+    .vamp-rule span:last-child  { opacity: 0.3; }
+
     .vamp-name {
-      font-family: 'UnifrakturMaguntia', serif;
-      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-family: 'Cinzel Decorative', serif;
+      font-weight: 400;
+      font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+      line-height: 1.15;
+      color: var(--blood);
+      letter-spacing: .04em;
+      white-space: nowrap;
     }
 
     .vamp-subtitle {
+      font-family: 'Cinzel Decorative', serif;
+      font-weight: 400;
+      font-size: clamp(0.7rem, 1.5vw, 1rem);
       color: var(--ink-faint);
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      font-size: 10px;
-      margin-top: 8px;
-      font-family: 'Cinzel', serif;
+      letter-spacing: .08em;
+      margin-top: 10px;
     }
 
     .vamp-epitaph {
-      margin: 18px auto 0;
-      max-width: 700px;
-      padding-left: 16px;
+      margin: 14px auto 0;
+      max-width: 600px;
+      padding: 10px 16px;
       border-left: 2px solid var(--blood);
       text-align: left;
       color: var(--ink-dim);
+      font-style: italic;
+      font-size: .95rem;
+      background: var(--surface2);
     }
 
     .meta-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       justify-content: center;
-      margin-top: 20px;
+      margin-top: 16px;
     }
 
     .meta-pill {
       background: var(--pill-bg);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 4px 14px;
-      font-size: 10px;
+      padding: 3px 12px;
+      font-size: 9px;
       font-family: 'Cinzel', serif;
       text-transform: uppercase;
       letter-spacing: .08em;
     }
+    .meta-pill span { color: var(--accent); font-weight: 700; }
 
-    .meta-pill span {
-      color: var(--accent);
-      font-weight: 700;
+    /* ── Dashboard strip (stats row below header) ─────────── */
+
+    .dashboard-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
     }
 
-    .section { margin-bottom: 28px; }
+    .strip-cell {
+      padding: 14px 18px;
+      border-right: 1px solid var(--border);
+    }
+    .strip-cell:last-child { border-right: none; }
 
-    .section-title {
+    .strip-label {
       font-family: 'Cinzel', serif;
-      font-size: 11px;
+      font-size: 9px;
       letter-spacing: .18em;
       text-transform: uppercase;
       color: var(--accent-dim);
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 18px;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
     }
 
-    /* ── Content cards ────────────────────────────────────── */
+    /* ── Marks inline ─────────────────────────────────────── */
 
-    .marks-list { list-style: none; }
-
-    .marks-list li {
-      padding: 10px 0 10px 22px;
-      border-bottom: 1px solid var(--border);
-      position: relative;
+    .marks-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
-    .marks-list li::before {
-      content: '⬥';
-      position: absolute;
-      left: 0;
-      color: var(--blood);
-    }
-
-    .memory-block,
-    .skill-row,
-    .resource-card,
-    .char-card,
-    .diary-block {
+    .mark-chip {
       background: var(--surface);
       border: 1px solid var(--border);
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 6px var(--shadow);
+      padding: 3px 10px;
+      font-size: .85rem;
+      color: var(--ink-dim);
+      position: relative;
+      padding-left: 18px;
+    }
+    .mark-chip::before {
+      content: '⬥';
+      position: absolute;
+      left: 6px;
+      color: var(--blood);
+      font-size: .7rem;
     }
 
-    .memory-block.forgotten,
-    .skill-row.lost,
-    .resource-card.lost,
-    .char-card.dead {
-      opacity: .45;
+    /* ── Skills inline ────────────────────────────────────── */
+
+    .skills-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .skill-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      font-size: .85rem;
+    }
+    .skill-chip.lost { opacity: .4; text-decoration: line-through; text-decoration-color: var(--blood); }
+    .skill-chip.checked { border-color: var(--blood); }
+
+    .skill-box {
+      width: 12px; height: 12px;
+      border: 1px solid var(--border-bright);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; flex-shrink: 0;
+    }
+    .skill-chip.checked .skill-box { background: var(--blood); color: white; }
+
+    /* ── Resources inline ─────────────────────────────────── */
+
+    .resources-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .resource-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      font-size: .85rem;
+    }
+    .resource-chip.lost { opacity: .4; text-decoration: line-through; text-decoration-color: var(--blood); }
+
+    .resource-type-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      flex-shrink: 0;
+    }
+    .resource-chip.portable .resource-type-dot { background: var(--accent); }
+    .resource-chip.stationary .resource-type-dot { background: var(--ink-faint); }
+
+    /* ── Main layout: characters + journal + memories ──────── */
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr) 280px;
+      gap: 0;
+      min-height: 60vh;
+    }
+
+    /* ── Characters panel (left) ──────────────────────────── */
+
+    .chars-col {
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+      background: var(--bg2);
+    }
+
+    .col-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .char-group-label {
+      font-family: 'Cinzel', serif;
+      font-size: 8px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin: 14px 0 6px;
+    }
+    .char-group-label:first-child { margin-top: 0; }
+
+    .char-row {
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .88rem;
+    }
+    .char-row:last-child { border-bottom: none; }
+    .char-row.dead { opacity: .4; }
+    .char-row.dead .char-row-name { text-decoration: line-through; text-decoration-color: var(--blood); }
+
+    .char-row-name {
+      font-weight: 600;
+      color: var(--accent);
+      font-size: .88rem;
+    }
+    .char-row-desc {
+      color: var(--ink-faint);
+      font-size: .8rem;
+      line-height: 1.3;
+      margin-top: 1px;
+    }
+
+    /* ── Journal (centre) ─────────────────────────────────── */
+
+    .journal-col {
+      padding: 24px 28px;
+      min-width: 0;
+    }
+
+    .journal-entry { margin-bottom: 30px; }
+
+    .journal-turn {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      color: var(--blood);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .journal-turn::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .journal-scrap {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 18px 22px;
+      box-shadow: 2px 3px 10px var(--torn-shadow);
+    }
+
+    .journal-prompt-text {
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      background: var(--tag-bg);
+      border-left: 3px solid var(--blood);
+      font-size: .88rem;
+      color: var(--ink-dim);
+      line-height: 1.5;
+    }
+
+    .journal-body { line-height: 1.8; }
+    .journal-body p { margin-bottom: 12px; }
+    .journal-body p:last-child { margin-bottom: 0; }
+    .journal-body em, .journal-body i { font-style: italic; }
+
+    /* ── Memories (right) ─────────────────────────────────── */
+
+    .memories-col {
+      border-left: 1px solid var(--border);
+      padding: 20px 16px;
+      background: var(--bg2);
+    }
+
+    .memory-block {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      font-size: .88rem;
+      line-height: 1.55;
+      box-shadow: 1px 2px 5px var(--shadow);
+    }
+    .memory-block:last-child { margin-bottom: 0; }
+
+    .memory-block.forgotten {
+      opacity: .4;
+      border-style: dashed;
+    }
+    .memory-block.forgotten .memory-title {
       text-decoration: line-through;
       text-decoration-color: var(--blood);
     }
 
-    .memory-title,
-    .char-group-title {
+    .memory-title {
       font-family: 'Cinzel', serif;
-      font-size: 10px;
-      letter-spacing: .14em;
+      font-size: 8.5px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 7px;
+    }
+
+    .memory-block p { margin-bottom: 6px; }
+    .memory-block p:last-child { margin-bottom: 0; }
+    .memory-block ol, .memory-block ul { padding-left: 16px; }
+    .memory-block li { margin-bottom: 4px; }
+
+    /* ── Diary strip ──────────────────────────────────────── */
+
+    .diary-strip {
+      border-top: 1px solid var(--border);
+      background: var(--card-bg2);
+      padding: 16px 28px;
+    }
+
+    .diary-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .18em;
       text-transform: uppercase;
       color: var(--accent-dim);
       margin-bottom: 10px;
     }
 
-    .skills-grid,
-    .resource-grid { display: grid; gap: 10px; }
-
-    .skill-row { display: flex; gap: 12px; }
-
-    .skill-check {
-      width: 18px;
-      height: 18px;
-      border: 1px solid var(--border-bright);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 4px;
-    }
-
-    .skill-row.checked .skill-check { background: var(--blood); color: white; }
-
-    .resource-card { display: flex; gap: 12px; }
-    .resource-icon { font-size: 18px; }
-
-    .char-name,
-    .resource-name,
-    .skill-name {
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .char-desc,
-    .resource-desc,
-    .skill-desc {
+    .diary-block {
+      font-size: .92rem;
+      line-height: 1.75;
       color: var(--ink-dim);
-      font-size: .95rem;
     }
-
-    /* ── Journal ──────────────────────────────────────────── */
-
-    .journal-entry { margin-bottom: 34px; }
-
-    .journal-turn {
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: .16em;
-      color: var(--blood);
-      margin-bottom: 8px;
-    }
-
-    .journal-scrap {
-      background: var(--surface2);
-      padding: 20px 24px;
-      box-shadow: 0 3px 10px var(--torn-shadow);
-    }
-
-    .journal-prompt-text {
-      margin-bottom: 16px;
-      padding: 10px 14px;
-      background: var(--tag-bg);
-      border-left: 3px solid var(--blood);
-    }
-
-    .journal-body { line-height: 1.8; }
-    .journal-body p { margin-bottom: 14px; }
-    .journal-body em,
-    .journal-body i { font-style: normal; }
-
-    .journal-changes {
-      margin-top: 16px;
-      padding: 10px 14px;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      font-size: .85rem;
-    }
-
-    .journal-changes strong {
-      text-transform: uppercase;
-      font-family: 'Cinzel', serif;
-      font-size: .8rem;
-    }
+    .diary-block p { margin-bottom: 8px; }
 
     /* ── Empty state ──────────────────────────────────────── */
 
@@ -496,56 +567,36 @@
       padding: 100px 20px;
       color: var(--ink-faint);
     }
-
     #empty-state h2 {
-      font-family: 'UnifrakturMaguntia', serif;
-      font-size: 2.4rem;
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 2.2rem;
+      font-weight: 400;
+      color: var(--blood);
       margin-bottom: 10px;
+      letter-spacing: .04em;
     }
-
-    /* ── Skin switcher ────────────────────────────────────── */
-
-    .skin-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-    }
-
-    .skin-btn.active { border-color: var(--border-bright); }
-
-    .skin-btn[data-s="book"]    { background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070); }
-    .skin-btn[data-s="dark"]    { background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410); }
-    .skin-btn[data-s="scholar"] { background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0); }
 
     /* ── Responsive ───────────────────────────────────────── */
 
-    @media (max-width: 1200px) {
-      .layout {
-        grid-template-columns: 260px minmax(0, 1fr);
-      }
-
-      .right-sidebar {
-        grid-column: 1 / -1;
-        position: static;
-        max-height: none;
+    @media (max-width: 1100px) {
+      .main-layout {
+        grid-template-columns: 200px minmax(0,1fr) 240px;
       }
     }
 
-    @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
+    @media (max-width: 860px) {
+      .dashboard-strip { grid-template-columns: 1fr; }
+      .strip-cell { border-right: none; border-bottom: 1px solid var(--border); }
+      .strip-cell:last-child { border-bottom: none; }
 
-      .sidebar {
-        position: static;
-        max-height: none;
+      .main-layout { grid-template-columns: 1fr; }
+      .chars-col, .memories-col {
+        border-right: none; border-left: none;
+        border-bottom: 1px solid var(--border);
       }
+      .journal-col { padding: 18px 16px; }
 
-      .left-sidebar  { order: 1; }
-      .main-column   { order: 2; }
-      .right-sidebar { order: 3; }
-
-      #app { padding: 14px; }
+      #app { padding: 0 12px 32px; }
     }
   </style>
 </head>
@@ -622,15 +673,8 @@
       }
     })();
 
-    /* ── Accordion panels ───────────────────────────────────── */
-    function initPanels() {
-      document.querySelectorAll('.panel-header').forEach(header => {
-        header.addEventListener('click', () => {
-          const panel = header.closest('.panel');
-          panel.classList.toggle('open');
-        });
-      });
-    }
+    /* ── Accordion panels (no-op, replaced with static layout) */
+    function initPanels() { }
 
     /* ── Data loading ───────────────────────────────────────── */
     async function loadGameList() {
@@ -719,14 +763,69 @@
     }
 
     /* ── Section renderers ──────────────────────────────────── */
-    function renderMarks(text) {
+
+    function renderMarksInline(text) {
       const items = text.match(/^[-*]\s+.+/gm) || [];
-      return '<ul class="marks-list">' +
-        items.map(i => '<li>' + i.replace(/^[-*]\s+/, '') + '</li>').join('') +
-        '</ul>';
+      if (!items.length) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
+      return '<div class="marks-inline">' +
+        items.map(i => '<span class="mark-chip">' + i.replace(/^[-*]\s+/, '') + '</span>').join('') +
+        '</div>';
     }
 
-    function renderMemories(text) {
+    function renderSkillsInline(text) {
+      const rows = text.match(/\|.+\|/g) || [];
+      if (rows.length < 3) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
+      return '<div class="skills-inline">' +
+        rows.slice(2).map(r => {
+          const cells   = r.split('|').map(c => c.trim()).filter(Boolean);
+          const name    = cells[0] || '';
+          const status  = cells[1] || '';
+          const lost    = name.includes('~~');
+          const checked = status.includes('☑');
+          return '<span class="skill-chip' + (lost ? ' lost' : checked ? ' checked' : '') + '">' +
+            '<span class="skill-box">' + (checked ? '✓' : '') + '</span>' +
+            name.replace(/~~/g, '') +
+            '</span>';
+        }).join('') +
+        '</div>';
+    }
+
+    function renderResourcesInline(text) {
+      const rows = text.match(/\|.+\|/g) || [];
+      if (rows.length < 3) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
+      return '<div class="resources-inline">' +
+        rows.slice(2).map(r => {
+          const cells = r.split('|').map(c => c.trim()).filter(Boolean);
+          const name  = cells[0] || '';
+          const type  = (cells[1] || '').toLowerCase();
+          const lost  = name.includes('~~');
+          return '<span class="resource-chip' + (lost ? ' lost' : '') + (type ? ' ' + type : '') + '">' +
+            '<span class="resource-type-dot"></span>' +
+            name.replace(/~~/g, '') +
+            '</span>';
+        }).join('') +
+        '</div>';
+    }
+
+    function renderCharactersCol(text) {
+      return text.split(/\n(?=###\s)/).map(block => {
+        const tm    = block.match(/^###\s+(.+)/);
+        const title = tm ? tm[1] : '';
+        const rest  = block.replace(/^###.+\n/, '').trim();
+        const rows  = rest.split('\n').filter(l => l.startsWith('-')).map(line => {
+          const dead  = line.includes('~~');
+          const clean = line.replace(/^-\s*/, '').replace(/~~/g, '');
+          const parts = clean.split('—');
+          return '<div class="char-row' + (dead ? ' dead' : '') + '">' +
+            '<div class="char-row-name">' + (parts[0] || '').trim() + '</div>' +
+            ((parts[1] || '').trim() ? '<div class="char-row-desc">' + parts[1].trim() + '</div>' : '') +
+            '</div>';
+        }).join('');
+        return '<div class="char-group-label">' + title + '</div>' + rows;
+      }).join('');
+    }
+
+    function renderMemoriesCol(text) {
       return text.split(/\n(?=###\s)/).map(block => {
         const tm        = block.match(/^###\s+(.+)/);
         const title     = tm ? tm[1].replace(/~~/g, '') : '';
@@ -737,10 +836,6 @@
           marked.parse(rest.replace(/~~/g, '')) +
           '</div>';
       }).join('');
-    }
-
-    function renderDiary(text) {
-      return '<div class="diary-block">' + marked.parse(text) + '</div>';
     }
 
     function renderJournal(text) {
@@ -761,88 +856,6 @@
       }).join('');
     }
 
-    function renderSkills(text) {
-      const rows = text.match(/\|.+\|/g) || [];
-      return '<div class="skills-grid">' +
-        rows.slice(2).map(r => {
-          const cells   = r.split('|').map(c => c.trim()).filter(Boolean);
-          const rn      = cells[0] || '';
-          const rs      = cells[1] || '';
-          const lost    = rn.includes('~~');
-          const checked = rs.includes('☑');
-          return '<div class="skill-row ' + (lost ? 'lost' : checked ? 'checked' : '') + '">' +
-            '<div class="skill-check">' + (checked ? '✓' : '') + '</div>' +
-            '<div>' +
-            '<div class="skill-name">' + rn.replace(/~~/g, '') + '</div>' +
-            '<div class="skill-desc">' + rs.replace(/☑/g, '') + '</div>' +
-            '</div>' +
-            '</div>';
-        }).join('') +
-        '</div>';
-    }
-
-    function renderResources(text) {
-      const rows = text.match(/\|.+\|/g) || [];
-      return '<div class="resource-grid">' +
-        rows.slice(2).map(r => {
-          const cells = r.split('|').map(c => c.trim()).filter(Boolean);
-          const rn    = cells[0] || '';
-          const rt    = cells[1] || '';
-          const lost  = rn.includes('~~');
-          return '<div class="resource-card ' + (lost ? 'lost' : '') + '">' +
-            '<div class="resource-icon">🎒</div>' +
-            '<div>' +
-            '<div class="resource-name">' + rn.replace(/~~/g, '') + '</div>' +
-            '<div class="resource-desc">' + rt + '</div>' +
-            '</div>' +
-            '</div>';
-        }).join('') +
-        '</div>';
-    }
-
-    function renderCharacters(text) {
-      return text.split(/\n(?=###\s)/).map(block => {
-        const tm    = block.match(/^###\s+(.+)/);
-        const title = tm ? tm[1] : '';
-        const rest  = block.replace(/^###.+\n/, '').trim();
-        const cards = rest.split('\n').filter(l => l.startsWith('-')).map(line => {
-          const dead  = line.includes('~~');
-          const clean = line.replace(/^-\s*/, '').replace(/~~/g, '');
-          const parts = clean.split('—');
-          return '<div class="char-card ' + (dead ? 'dead' : '') + '">' +
-            '<div class="char-name">' + parts[0] + '</div>' +
-            '<div class="char-desc">' + (parts[1] || '') + '</div>' +
-            '</div>';
-        }).join('');
-        return '<div class="char-group-title">' + title + '</div>' + cards;
-      }).join('');
-    }
-
-    /* ── Chevron SVG ────────────────────────────────────────── */
-    function chevronSVG() {
-      return `<svg class="panel-chevron" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 5.5L8 10.5L13 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>`;
-    }
-
-    /* ── Panel builder ──────────────────────────────────────── */
-    function makePanel(icon, label, content, openByDefault = false) {
-      return `
-        <div class="panel${openByDefault ? ' open' : ''}">
-          <div class="panel-header">
-            <span class="panel-header-label">${icon} ${label}</span>
-            ${chevronSVG()}
-          </div>
-          <div class="panel-body">
-            <div class="panel-inner">
-              <div class="panel-content">
-                ${content}
-              </div>
-            </div>
-          </div>
-        </div>`;
-    }
-
     /* ── Main render ────────────────────────────────────────── */
     function render(md) {
       const { meta, sections } = parseVampire(md);
@@ -851,49 +864,67 @@
       const vampName = (header.match(/^#\s+(.+)/m) || [])[1] || 'Unknown Vampire';
       const epitaph  = (header.match(/^>\s*\*?(.+?)\*?\s*$/m) || [])[1] || '';
 
-      const leftPanels =
-        makePanel('👥', 'Characters', sections['Characters'] ? renderCharacters(sections['Characters']) : '<p style="color:var(--ink-faint);font-size:.9rem;">No characters recorded.</p>', true) +
-        makePanel('⚰', 'Marks',      sections['Marks']      ? renderMarks(sections['Marks'])           : '<p style="color:var(--ink-faint);font-size:.9rem;">No marks yet.</p>') +
-        makePanel('🏚', 'Resources',  sections['Resources']  ? renderResources(sections['Resources'])   : '<p style="color:var(--ink-faint);font-size:.9rem;">No resources recorded.</p>') +
-        makePanel('⚔', 'Skills',     sections['Skills']     ? renderSkills(sections['Skills'])         : '<p style="color:var(--ink-faint);font-size:.9rem;">No skills recorded.</p>');
-
-      const rightPanels =
-        makePanel('📖', 'Diary',    sections['Diary']    ? renderDiary(sections['Diary'])       : '<p style="color:var(--ink-faint);font-size:.9rem;">No diary entries yet.</p>', true) +
-        makePanel('🧠', 'Memories', sections['Memories'] ? renderMemories(sections['Memories']) : '<p style="color:var(--ink-faint);font-size:.9rem;">No memories recorded.</p>');
+      const diaryHtml = sections['Diary']
+        ? '<div class="diary-strip"><div class="diary-label">📖 Diary</div><div class="diary-block">' + marked.parse(sections['Diary']) + '</div></div>'
+        : '';
 
       return `
-        <div class="layout">
+        <div class="vamp-header">
+          <div class="vamp-name-wrap">
+            <div class="vamp-rule"><span></span><span></span></div>
+            <div class="vamp-name">${vampName}</div>
+            <div class="vamp-rule"><span></span><span></span></div>
+          </div>
+          <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
+          ${epitaph ? `<div class="vamp-epitaph">${epitaph}</div>` : ''}
+          <div class="meta-row">
+            ${meta.current_prompt   ? `<div class="meta-pill">Prompt <span>${meta.current_prompt}</span></div>` : ''}
+            ${meta.prompts_resolved ? `<div class="meta-pill">Resolved <span>${meta.prompts_resolved}</span></div>` : ''}
+            ${meta.created          ? `<div class="meta-pill">Started <span>${meta.created}</span></div>` : ''}
+            ${meta.modified         ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
+          </div>
+        </div>
 
-          <aside class="sidebar left-sidebar">
-            ${leftPanels}
+        <div class="dashboard-strip">
+          <div class="strip-cell">
+            <div class="strip-label">⚰ Marks</div>
+            ${renderMarksInline(sections['Marks'] || '')}
+          </div>
+          <div class="strip-cell">
+            <div class="strip-label">⚔ Skills</div>
+            ${renderSkillsInline(sections['Skills'] || '')}
+          </div>
+          <div class="strip-cell">
+            <div class="strip-label">🏚 Resources</div>
+            ${renderResourcesInline(sections['Resources'] || '')}
+          </div>
+        </div>
+
+        <div class="main-layout">
+
+          <aside class="chars-col">
+            <div class="col-label">👥 Characters</div>
+            ${sections['Characters']
+              ? renderCharactersCol(sections['Characters'])
+              : '<span style="color:var(--ink-faint);font-size:.85rem;">No characters yet.</span>'}
           </aside>
 
-          <main class="main-column">
-
-            <div class="vamp-header">
-              <div class="vamp-name">${vampName}</div>
-              <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
-              ${epitaph ? `<div class="vamp-epitaph">${epitaph}</div>` : ''}
-              <div class="meta-row">
-                ${meta.current_prompt  ? `<div class="meta-pill">Prompt <span>${meta.current_prompt}</span></div>` : ''}
-                ${meta.prompts_resolved ? `<div class="meta-pill">Resolved <span>${meta.prompts_resolved}</span></div>` : ''}
-                ${meta.created         ? `<div class="meta-pill">Game Started <span>${meta.created}</span></div>` : ''}
-                ${meta.modified        ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
-              </div>
-            </div>
-
-            <div class="section">
-              <div class="section-title">📜 Journal</div>
-              ${sections['Journal'] ? renderJournal(sections['Journal']) : ''}
-            </div>
-
+          <main class="journal-col">
+            ${sections['Journal']
+              ? renderJournal(sections['Journal'])
+              : '<p style="color:var(--ink-faint);">No journal entries yet.</p>'}
           </main>
 
-          <aside class="sidebar right-sidebar">
-            ${rightPanels}
+          <aside class="memories-col">
+            <div class="col-label">🧠 Memories</div>
+            ${sections['Memories']
+              ? renderMemoriesCol(sections['Memories'])
+              : '<span style="color:var(--ink-faint);font-size:.85rem;">No memories yet.</span>'}
           </aside>
 
         </div>
+
+        ${diaryHtml}
       `;
     }
 
