@@ -9,7 +9,6 @@ game_start: 2026-05-13
 game_completed: ""
 diary_exists: false
 diary_name: ""
-show_suggestions: true
 created: 2026-05-13
 modified: 2026-05-13
 ---
@@ -23,7 +22,7 @@ modified: 2026-05-13
 
 ## ⚰ Marks
 
-*Awaiting your first encounter...*
+- Cold skin that never warms — concealed by the weight of clerical vestments, layers of wool and linen hiding the flesh. No mortal has felt it.
 
 ---
 
@@ -31,6 +30,18 @@ modified: 2026-05-13
 
 ### Memory 1 — The Scholarly Curate
 1. *I catalogued the midnight-fungus growing beside the standing stones until my fingers blackened with spores; I thought I was documenting nature, never speaking of the shapes watching from the treeline.*
+
+### Memory 2 — The Bishop's Discovery
+1. *The bishop opened my study to find not prayer books but a pressed garden of night-shade; I told him they were from the Low Countries and never spoke of the way the petals seemed to uncurl when I entered.*
+
+### Memory 3 — Sister's Shadow
+1. *Lydia traced the strange script in the Codex's margins while I poured tea, and I saw for the first time that her eyes reflected no light from the hearth; I poured her another cup and said nothing.*
+
+### Memory 4 — The Frozen Specimens
+1. *I hid the freshest specimens beneath the floorboards of the unheated vestry, where the frost would have withered them, until the soil itself began to breathe in the dark.*
+
+### Memory 5 — The Turning
+1. *The evening mass was delayed by the bishop's inspector — Thomas, who'd come to audit my accounts late. He stood by the vestry door, lantern in hand, saying the bishop wanted to see my ledgers. I told him the bishop knew I kept no ledgers, only the Codex in the margins of which lay a different kind of accounting. The air went still. Not Thomas — he shifted, blinked, exhaled. But behind him, in the door's shadow, something had no shadow at all: a woman in clothes the moor had never seen and the church had never known, and her eyes were the colour of the standing stones.*
 
 ---
 
@@ -67,7 +78,7 @@ modified: 2026-05-13
 - **Lydia Thorne** — Your younger sister, twenty years younger still in the village. She knew more than she let on — the way she'd hum when she thought you weren't listening, the way she'd sometimes trace patterns in the dirt that matched the standing stones.
 
 ### Immortals
-*Awaiting your first encounter...*
+- **An unnamed woman** — Seen once in the door's shadow, her eyes the colour of standing stones. Her nature: impossible stillness, absence of shadow, clothing unknown to moor or church.
 
 ---
 
