@@ -38,6 +38,160 @@
       --card-bg2: #ece0c4;
     }
 
+    /* Hidden key panel styles */
+    #key-panel {
+      position: fixed;
+      left: -320px;
+      top: 0;
+      width: 300px;
+      height: 100vh;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 20px;
+      z-index: 200;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 15px var(--shadow);
+    }
+
+    #key-panel.open {
+      left: 0;
+    }
+
+    #key-toggle {
+      position: fixed;
+      left: 10px;
+      top: 120px;
+      z-index: 199;
+      background: var(--blood);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: left 0.3s ease;
+    }
+
+    #key-toggle.hidden {
+      left: -40px;
+    }
+
+    .key-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .key-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 8px;
+      font-size: 12px;
+      font-family: 'EB Garamond', serif;
+      margin-bottom: 16px;
+    }
+
+    .key-input:focus {
+      outline: none;
+      border-color: var(--blood);
+      box-shadow: 0 0 4px var(--blood);
+    }
+
+    .key-info {
+      font-size: 11px;
+      color: var(--ink-faint);
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    /* Edit mode indicator */
+    #edit-mode-btn {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      color: var(--accent);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    #edit-mode-btn.active {
+      background: var(--blood);
+      color: white;
+      border-color: var(--blood);
+    }
+
+    /* Editor container */
+    #editor-container {
+      display: none;
+      padding: 24px 28px;
+      min-height: 60vh;
+    }
+
+    #editor-container.active {
+      display: block;
+    }
+
+    #editor-textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 16px;
+      font-size: 13px;
+      font-family: 'Courier New', monospace;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 500px;
+      box-sizing: border-box;
+    }
+
+    #editor-textarea:focus {
+      outline: none;
+      border-color: var(--blood);
+      box-shadow: 0 0 4px var(--blood);
+    }
+
+    .editor-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      justify-content: flex-end;
+    }
+
+    .editor-btn {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      color: var(--accent);
+      padding: 8px 16px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .editor-btn.save {
+      background: var(--blood);
+      color: white;
+      border-color: var(--blood);
+    }
+
+    .editor-btn:hover {
+      opacity: 0.9;
+    }
+
     [data-skin="dark"] {
       --bg: #1a1410;
       --bg2: #221c15;
@@ -615,6 +769,17 @@
 
 <body>
 
+  <!-- Key Panel (Hidden) -->
+  <button id="key-toggle">🔑</button>
+  <div id="key-panel">
+    <div class="key-label">🔑 Unknown Key</div>
+    <input type="password" id="unknown-key" class="key-input" placeholder="enter key">
+    <div class="key-info">
+      The random artifact you carry. Keep it safe. <br><br>
+      <a href="https://github.com/settings/tokens" target="_blank" style="color: var(--blood); display: none;">Link</a>
+    </div>
+  </div>
+
   <div id="top-bar">
     <div id="picker-row">
       <span id="picker-label">Chronicle</span>
@@ -623,6 +788,9 @@
       </select>
       <button id="back-btn" class="top-btn">← Games</button>
       <button id="refresh-btn" class="top-btn">↻ Refresh</button>
+      <button id="edit-mode-btn" class="top-btn" style="display:none;">✎ Edit</button>
+      <button id="save-btn" class="top-btn" style="display:none;">✓ Save</button>
+      <button id="cancel-btn" class="top-btn" style="display:none;">✕ Cancel</button>
 
       <div id="skin-switcher">
         <button class="skin-btn active" data-s="book"></button>
@@ -634,6 +802,15 @@
     <div id="status-row">
       <div id="status-dot"></div>
       <span id="status-text">Loading game list…</span>
+    </div>
+  </div>
+
+  <!-- Editor Container -->
+  <div id="editor-container">
+    <textarea id="editor-textarea" placeholder="Edit markdown here..."></textarea>
+    <div class="editor-buttons">
+      <button class="editor-btn" onclick="leaveEditMode()">Cancel</button>
+      <button class="editor-btn save" onclick="saveAndExit()">Save</button>
     </div>
   </div>
 
@@ -655,6 +832,9 @@
 
     let currentSha = null;
     let currentUrl = null;
+    let currentFileUrl = null;
+    let currentMd = null;
+    let editMode = false;
 
     function setStatus(state, msg) {
       document.getElementById('status-dot').className = state;
@@ -685,8 +865,122 @@
       }
     })();
 
-    /* ── Accordion panels (no-op, replaced with static layout) */
-    function initPanels() { }
+    /* ── Key panel toggle ───────────────────────────────────── */
+    (function () {
+      const panel = document.getElementById('key-panel');
+      const toggle = document.getElementById('key-toggle');
+      const artifact = localStorage.getItem('tyov-artifact') || '';
+      if (artifact) {
+        document.getElementById('unknown-key').value = artifact;
+      }
+
+      toggle.addEventListener('click', () => {
+        panel.classList.toggle('open');
+        toggle.classList.toggle('hidden');
+      });
+
+      document.getElementById('unknown-key').addEventListener('change', (e) => {
+        if (e.target.value) {
+          localStorage.setItem('tyov-artifact', e.target.value);
+        } else {
+          localStorage.removeItem('tyov-artifact');
+        }
+      });
+    })();
+
+    /* ── Edit mode (Confluence-style) ──────────────────────── */
+    function enterEditMode() {
+      editMode = true;
+      const md = currentMd;
+      document.getElementById('editor-textarea').value = md;
+      document.getElementById('content').style.display = 'none';
+      document.getElementById('editor-container').classList.add('active');
+
+      document.getElementById('edit-mode-btn').style.display = 'none';
+      document.getElementById('save-btn').style.display = 'inline-block';
+      document.getElementById('cancel-btn').style.display = 'inline-block';
+    }
+
+    function leaveEditMode() {
+      editMode = false;
+      document.getElementById('editor-container').classList.remove('active');
+      document.getElementById('content').style.display = 'block';
+
+      document.getElementById('edit-mode-btn').style.display = 'inline-block';
+      document.getElementById('save-btn').style.display = 'none';
+      document.getElementById('cancel-btn').style.display = 'none';
+    }
+
+    async function saveAndExit() {
+      const artifact = document.getElementById('unknown-key').value;
+      if (!artifact) {
+        alert('Add that random key you carry in the Unknown Key panel.');
+        return;
+      }
+
+      const newMarkdown = document.getElementById('editor-textarea').value;
+      setStatus('busy', 'Saving changes…');
+
+      try {
+        const fileName = currentUrl.split('/').pop();
+        const fileUrl = GITHUB_API + '/' + encodeURIComponent(fileName);
+        const res = await fetch(fileUrl, { headers: { Authorization: `token ${artifact}` } });
+        const fileData = await res.json();
+
+        const commit = await fetch(fileUrl, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${artifact}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Update chronicle',
+            content: btoa(unescape(encodeURIComponent(newMarkdown))),
+            sha: fileData.sha
+          })
+        });
+
+        if (commit.ok) {
+          currentMd = newMarkdown;
+          currentEtag = null;
+          await loadChronicle(currentUrl);
+          leaveEditMode();
+          setStatus('ok', 'Changes saved!');
+        } else {
+          const err = await commit.json();
+          throw new Error(err.message || 'Failed to save');
+        }
+      } catch (e) {
+        setStatus('err', 'Save failed: ' + e.message);
+      }
+    }
+
+    function reconstructMarkdown(fm, sections, meta) {
+      let md = '---\n' + fm + '\n---\n\n';
+      const order = [
+        { key: '__header__', label: '__header__' },
+        { key: 'Marks', label: '⚰ Marks' },
+        { key: 'Memories', label: '🧠 Memories' },
+        { key: 'Diary', label: '📖 Diary' },
+        { key: 'Skills', label: '⚔ Skills' },
+        { key: 'Resources', label: '🏚 Resources' },
+        { key: 'Characters', label: '👥 Characters' },
+        { key: 'Journal', label: '📜 Journal' }
+      ];
+      order.forEach(item => {
+        if (sections[item.key] && sections[item.key].trim()) {
+          if (item.key === '__header__') {
+            md += sections[item.key] + '\n\n---\n\n';
+          } else {
+            md += '## ' + item.label + '\n\n' + sections[item.key] + '\n\n---\n\n';
+          }
+        }
+      });
+      md += '*Last played: ' + new Date().toISOString().split('T')[0] + '*\n\n---\n';
+      return md;
+    }
+
+    document.getElementById('edit-mode-btn').addEventListener('click', enterEditMode);
 
     /* ── Data loading ───────────────────────────────────────── */
     async function loadGameList() {
@@ -718,6 +1012,7 @@
         const etag = res.headers.get('ETag');
         if (etag) currentEtag = etag;
         let md = await res.text();
+        currentMd = md;
 
         /* Replace "Born" with "Game Started" everywhere */
         md = md.replace(/\bBorn\b/g, 'Game Started');
@@ -727,6 +1022,7 @@
         content.innerHTML     = html;
         content.style.display = 'block';
         document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('edit-mode-btn').style.display = 'inline-block';
 
         initPanels();
         startPolling();
@@ -919,9 +1215,11 @@
 
           <aside class="chars-col">
             <div class="col-label">👥 Characters</div>
-            ${sections['Characters']
-              ? renderCharactersCol(sections['Characters'])
-              : '<span style="color:var(--ink-faint);font-size:.85rem;">No characters yet.</span>'}
+            <div>
+              ${sections['Characters']
+                ? renderCharactersCol(sections['Characters'])
+                : '<span style="color:var(--ink-faint);font-size:.85rem;">No characters yet.</span>'}
+            </div>
           </aside>
 
           <main class="journal-col">
