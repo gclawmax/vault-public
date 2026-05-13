@@ -770,7 +770,7 @@
 <body>
 
   <!-- Key Panel (Hidden) -->
-  <button id="key-toggle">🔑</button>
+  <button id="key-toggle" style="display:none;">🔑</button>
   <div id="key-panel">
     <div class="key-label">🔑 Unknown Key</div>
     <input type="password" id="unknown-key" class="key-input" placeholder="enter key">
@@ -906,6 +906,7 @@
       document.getElementById('content').style.display = 'none';
       document.getElementById('editor-container').classList.add('active');
 
+      document.getElementById('key-toggle').style.display = 'flex';
       document.getElementById('edit-mode-btn').style.display = 'none';
       document.getElementById('save-btn').style.display = 'inline-block';
       document.getElementById('cancel-btn').style.display = 'inline-block';
@@ -916,6 +917,8 @@
       document.getElementById('editor-container').classList.remove('active');
       document.getElementById('content').style.display = 'block';
 
+      document.getElementById('key-toggle').style.display = 'none';
+      document.getElementById('key-panel').classList.remove('open');
       document.getElementById('edit-mode-btn').style.display = 'inline-block';
       document.getElementById('save-btn').style.display = 'none';
       document.getElementById('cancel-btn').style.display = 'none';
