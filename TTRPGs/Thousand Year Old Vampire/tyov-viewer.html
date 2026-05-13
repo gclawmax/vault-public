@@ -7,7 +7,9 @@
   <title>Thousand Year Old Vampire — Chronicle Viewer</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=UnifrakturMaguntia&display=swap"
+    rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -244,7 +246,11 @@
       --card-bg2: #f0ebe0;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       background: var(--bg);
@@ -302,7 +308,11 @@
       font-size: 10px;
       text-transform: uppercase;
     }
-    .top-btn:hover { background: var(--blood); color: white; }
+
+    .top-btn:hover {
+      background: var(--blood);
+      color: white;
+    }
 
     #status-row {
       display: flex;
@@ -315,29 +325,60 @@
     }
 
     #status-dot {
-      width: 7px; height: 7px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--ink-faint);
     }
-    #status-dot.ok   { background: var(--status-ok); }
-    #status-dot.err  { background: var(--blood-bright); }
-    #status-dot.busy { background: var(--accent); animation: pulse 1s infinite; }
+
+    #status-dot.ok {
+      background: var(--status-ok);
+    }
+
+    #status-dot.err {
+      background: var(--blood-bright);
+    }
+
+    #status-dot.busy {
+      background: var(--accent);
+      animation: pulse 1s infinite;
+    }
 
     @keyframes pulse {
-      0%,100% { opacity: 1; }
-      50%      { opacity: .4; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .4;
+      }
     }
 
     .skin-btn {
-      width: 22px; height: 22px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       border: 2px solid transparent;
       cursor: pointer;
     }
-    .skin-btn.active { border-color: var(--border-bright); }
-    .skin-btn[data-s="book"]    { background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070); }
-    .skin-btn[data-s="dark"]    { background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410); }
-    .skin-btn[data-s="scholar"] { background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0); }
+
+    .skin-btn.active {
+      border-color: var(--border-bright);
+    }
+
+    .skin-btn[data-s="book"] {
+      background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070);
+    }
+
+    .skin-btn[data-s="dark"] {
+      background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410);
+    }
+
+    .skin-btn[data-s="scholar"] {
+      background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0);
+    }
 
     /* ── App wrapper ──────────────────────────────────────── */
 
@@ -378,8 +419,13 @@
       height: 1px;
     }
 
-    .vamp-rule span:first-child { opacity: 0.5; }
-    .vamp-rule span:last-child  { opacity: 0.3; }
+    .vamp-rule span:first-child {
+      opacity: 0.5;
+    }
+
+    .vamp-rule span:last-child {
+      opacity: 0.3;
+    }
 
     .vamp-name {
       font-family: 'Cinzel Decorative', serif;
@@ -430,7 +476,11 @@
       text-transform: uppercase;
       letter-spacing: .08em;
     }
-    .meta-pill span { color: var(--accent); font-weight: 700; }
+
+    .meta-pill span {
+      color: var(--accent);
+      font-weight: 700;
+    }
 
     /* ── Dashboard strip (stats row below header) ─────────── */
 
@@ -445,7 +495,10 @@
       padding: 14px 18px;
       border-right: 1px solid var(--border);
     }
-    .strip-cell:last-child { border-right: none; }
+
+    .strip-cell:last-child {
+      border-right: none;
+    }
 
     .strip-label {
       font-family: 'Cinzel', serif;
@@ -476,6 +529,7 @@
       position: relative;
       padding-left: 18px;
     }
+
     .mark-chip::before {
       content: '⬥';
       position: absolute;
@@ -501,16 +555,32 @@
       padding: 3px 10px;
       font-size: .85rem;
     }
-    .skill-chip.lost { opacity: .4; text-decoration: line-through; text-decoration-color: var(--blood); }
-    .skill-chip.checked { border-color: var(--blood); }
+
+    .skill-chip.lost {
+      opacity: .4;
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
+
+    .skill-chip.checked {
+      border-color: var(--blood);
+    }
 
     .skill-box {
-      width: 12px; height: 12px;
+      width: 12px;
+      height: 12px;
       border: 1px solid var(--border-bright);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 8px; flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      flex-shrink: 0;
     }
-    .skill-chip.checked .skill-box { background: var(--blood); color: white; }
+
+    .skill-chip.checked .skill-box {
+      background: var(--blood);
+      color: white;
+    }
 
     /* ── Resources inline ─────────────────────────────────── */
 
@@ -529,16 +599,28 @@
       padding: 3px 10px;
       font-size: .85rem;
     }
-    .resource-chip.lost { opacity: .4; text-decoration: line-through; text-decoration-color: var(--blood); }
+
+    .resource-chip.lost {
+      opacity: .4;
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
 
     .resource-type-dot {
-      width: 7px; height: 7px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--accent-dim);
       flex-shrink: 0;
     }
-    .resource-chip.portable .resource-type-dot { background: var(--accent); }
-    .resource-chip.stationary .resource-type-dot { background: var(--ink-faint); }
+
+    .resource-chip.portable .resource-type-dot {
+      background: var(--accent);
+    }
+
+    .resource-chip.stationary .resource-type-dot {
+      background: var(--ink-faint);
+    }
 
     /* ── Main layout: characters + journal (memories moved below) */
 
@@ -576,22 +658,36 @@
       color: var(--ink-faint);
       margin: 14px 0 6px;
     }
-    .char-group-label:first-child { margin-top: 0; }
+
+    .char-group-label:first-child {
+      margin-top: 0;
+    }
 
     .char-row {
       padding: 7px 0;
       border-bottom: 1px solid var(--border);
       font-size: .88rem;
     }
-    .char-row:last-child { border-bottom: none; }
-    .char-row.dead { opacity: .4; }
-    .char-row.dead .char-row-name { text-decoration: line-through; text-decoration-color: var(--blood); }
+
+    .char-row:last-child {
+      border-bottom: none;
+    }
+
+    .char-row.dead {
+      opacity: .4;
+    }
+
+    .char-row.dead .char-row-name {
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
 
     .char-row-name {
       font-weight: 600;
       color: var(--accent);
       font-size: .88rem;
     }
+
     .char-row-desc {
       color: var(--ink-faint);
       font-size: .8rem;
@@ -606,7 +702,9 @@
       min-width: 0;
     }
 
-    .journal-entry { margin-bottom: 30px; }
+    .journal-entry {
+      margin-bottom: 30px;
+    }
 
     .journal-turn {
       font-family: 'Cinzel', serif;
@@ -619,6 +717,7 @@
       align-items: center;
       gap: 8px;
     }
+
     .journal-turn::after {
       content: '';
       flex: 1;
@@ -643,10 +742,22 @@
       line-height: 1.5;
     }
 
-    .journal-body { line-height: 1.8; }
-    .journal-body p { margin-bottom: 12px; }
-    .journal-body p:last-child { margin-bottom: 0; }
-    .journal-body em, .journal-body i { font-style: italic; }
+    .journal-body {
+      line-height: 1.8;
+    }
+
+    .journal-body p {
+      margin-bottom: 12px;
+    }
+
+    .journal-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .journal-body em,
+    .journal-body i {
+      font-style: italic;
+    }
 
     /* ── Memories (full-width grid below journal) ─────────── */
 
@@ -686,6 +797,7 @@
       opacity: .4;
       border-style: dashed;
     }
+
     .memory-block.forgotten .memory-title {
       text-decoration: line-through;
       text-decoration-color: var(--blood);
@@ -700,10 +812,22 @@
       margin-bottom: 8px;
     }
 
-    .memory-block p { margin-bottom: 6px; }
-    .memory-block p:last-child { margin-bottom: 0; }
-    .memory-block ol, .memory-block ul { padding-left: 16px; }
-    .memory-block li { margin-bottom: 4px; }
+    .memory-block p {
+      margin-bottom: 6px;
+    }
+
+    .memory-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    .memory-block ol,
+    .memory-block ul {
+      padding-left: 16px;
+    }
+
+    .memory-block li {
+      margin-bottom: 4px;
+    }
 
     /* ── Diary strip ──────────────────────────────────────── */
 
@@ -727,7 +851,10 @@
       line-height: 1.75;
       color: var(--ink-dim);
     }
-    .diary-block p { margin-bottom: 8px; }
+
+    .diary-block p {
+      margin-bottom: 8px;
+    }
 
     /* ── Empty state ──────────────────────────────────────── */
 
@@ -736,6 +863,7 @@
       padding: 100px 20px;
       color: var(--ink-faint);
     }
+
     #empty-state h2 {
       font-family: 'Cinzel Decorative', serif;
       font-size: 2.2rem;
@@ -748,21 +876,49 @@
     /* ── Responsive ───────────────────────────────────────── */
 
     @media (max-width: 860px) {
-      .dashboard-strip { grid-template-columns: 1fr; }
-      .strip-cell { border-right: none; border-bottom: 1px solid var(--border); }
-      .strip-cell:last-child { border-bottom: none; }
+      .dashboard-strip {
+        grid-template-columns: 1fr;
+      }
 
-      .main-layout { grid-template-columns: 1fr; }
-      .chars-col { border-right: none; border-bottom: 1px solid var(--border); }
-      .journal-col { padding: 18px 16px; }
-      .memories-section { padding: 16px; }
-      .memories-grid { grid-template-columns: 1fr; }
+      .strip-cell {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
 
-      #app { padding: 0 0 32px; }
+      .strip-cell:last-child {
+        border-bottom: none;
+      }
+
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .chars-col {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .journal-col {
+        padding: 18px 16px;
+      }
+
+      .memories-section {
+        padding: 16px;
+      }
+
+      .memories-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #app {
+        padding: 0 0 32px;
+      }
     }
 
     @media (min-width: 861px) and (max-width: 1200px) {
-      .memories-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+      .memories-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      }
     }
   </style>
 </head>
@@ -828,7 +984,7 @@
   <script>
     const POLL_INTERVAL = 30;
     const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires';
-    const RAW_BASE   = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires/';
+    const RAW_BASE = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires/';
 
     let currentSha = null;
     let currentUrl = null;
@@ -882,8 +1038,8 @@
 
       document.addEventListener('click', (e) => {
         if (panel.classList.contains('open') &&
-            !panel.contains(e.target) &&
-            !toggle.contains(e.target)) {
+          !panel.contains(e.target) &&
+          !toggle.contains(e.target)) {
           panel.classList.remove('open');
           toggle.classList.remove('hidden');
         }
@@ -937,11 +1093,18 @@
       try {
         const fileName = currentUrl.split('/').pop();
         const fileUrl = GITHUB_API + '/' + encodeURIComponent(fileName);
-        const res = await fetch(fileUrl, { headers: { Authorization: `token ${artifact}` } });
+        const res = await fetch(
+          currentUrl + '?nocache=' + Date.now(),
+          {
+            method: 'HEAD',
+            cache: 'no-store'
+          }
+        );
         const fileData = await res.json();
 
         const commit = await fetch(fileUrl, {
           method: 'PUT',
+          cache: 'no-store',
           headers: {
             Authorization: `token ${artifact}`,
             'Content-Type': 'application/json'
@@ -999,14 +1162,18 @@
     async function loadGameList() {
       setStatus('busy', 'Fetching chronicle list…');
       try {
-        const res   = await fetch(GITHUB_API + '?nocache=' + Date.now());
+        const res = await fetch(GITHUB_API + '?nocache=' + Date.now(),
+          {
+            method: 'GET',
+            cache: 'no-store'
+          });
         const files = await res.json();
-        const mds   = files.filter(f => f.name.endsWith('.md'));
-        const sel   = document.getElementById('game-select');
+        const mds = files.filter(f => f.name.endsWith('.md'));
+        const sel = document.getElementById('game-select');
         sel.innerHTML = '<option value="">— Choose a chronicle —</option>';
         mds.forEach(f => {
           const opt = document.createElement('option');
-          opt.value       = RAW_BASE + encodeURIComponent(f.name);
+          opt.value = RAW_BASE + encodeURIComponent(f.name);
           opt.textContent = f.name.replace('.md', '');
           sel.appendChild(opt);
         });
@@ -1021,7 +1188,11 @@
       currentUrl = url;
       setStatus('busy', 'Loading chronicle…');
       try {
-        const res = await fetch(url + '?nocache=' + Date.now());
+        const res = await fetch(url + '?nocache=' + Date.now(),
+          {
+            method: 'GET',
+            cache: 'no-store'
+          });
         const etag = res.headers.get('ETag');
         if (etag) currentEtag = etag;
         let md = await res.text();
@@ -1030,9 +1201,9 @@
         /* Replace "Born" with "Game Started" everywhere */
         md = md.replace(/\bBorn\b/g, 'Game Started');
 
-        const html    = render(md);
+        const html = render(md);
         const content = document.getElementById('content');
-        content.innerHTML     = html;
+        content.innerHTML = html;
         content.style.display = 'block';
         document.getElementById('empty-state').style.display = 'none';
         document.getElementById('edit-mode-btn').style.display = 'inline-block';
@@ -1069,8 +1240,8 @@
       const meta = parseFrontmatter(fm);
 
       const sections = {};
-      let current    = '__header__';
-      const buf      = [];
+      let current = '__header__';
+      const buf = [];
 
       for (const line of body.split('\n')) {
         if (line.startsWith('## ')) {
@@ -1101,10 +1272,10 @@
       if (rows.length < 3) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
       return '<div class="skills-inline">' +
         rows.slice(2).map(r => {
-          const cells   = r.split('|').map(c => c.trim()).filter(Boolean);
-          const name    = cells[0] || '';
-          const status  = cells[1] || '';
-          const lost    = name.includes('~~');
+          const cells = r.split('|').map(c => c.trim()).filter(Boolean);
+          const name = cells[0] || '';
+          const status = cells[1] || '';
+          const lost = name.includes('~~');
           const checked = status.includes('☑');
           return '<span class="skill-chip' + (lost ? ' lost' : checked ? ' checked' : '') + '">' +
             '<span class="skill-box">' + (checked ? '✓' : '') + '</span>' +
@@ -1120,9 +1291,9 @@
       return '<div class="resources-inline">' +
         rows.slice(2).map(r => {
           const cells = r.split('|').map(c => c.trim()).filter(Boolean);
-          const name  = cells[0] || '';
-          const type  = (cells[1] || '').toLowerCase();
-          const lost  = name.includes('~~');
+          const name = cells[0] || '';
+          const type = (cells[1] || '').toLowerCase();
+          const lost = name.includes('~~');
           return '<span class="resource-chip' + (lost ? ' lost' : '') + (type ? ' ' + type : '') + '">' +
             '<span class="resource-type-dot"></span>' +
             name.replace(/~~/g, '') +
@@ -1133,11 +1304,11 @@
 
     function renderCharactersCol(text) {
       return text.split(/\n(?=###\s)/).map(block => {
-        const tm    = block.match(/^###\s+(.+)/);
+        const tm = block.match(/^###\s+(.+)/);
         const title = tm ? tm[1] : '';
-        const rest  = block.replace(/^###.+\n/, '').trim();
-        const rows  = rest.split('\n').filter(l => l.startsWith('-')).map(line => {
-          const dead  = line.includes('~~');
+        const rest = block.replace(/^###.+\n/, '').trim();
+        const rows = rest.split('\n').filter(l => l.startsWith('-')).map(line => {
+          const dead = line.includes('~~');
           const clean = line.replace(/^-\s*/, '').replace(/~~/g, '');
           const parts = clean.split('—');
           return '<div class="char-row' + (dead ? ' dead' : '') + '">' +
@@ -1151,10 +1322,10 @@
 
     function renderMemoriesCol(text) {
       return text.split(/\n(?=###\s)/).map(block => {
-        const tm        = block.match(/^###\s+(.+)/);
-        const title     = tm ? tm[1].replace(/~~/g, '') : '';
+        const tm = block.match(/^###\s+(.+)/);
+        const title = tm ? tm[1].replace(/~~/g, '') : '';
         const forgotten = block.includes('~~');
-        const rest      = block.replace(/^###.+\n/, '').trim();
+        const rest = block.replace(/^###.+\n/, '').trim();
         return '<div class="memory-block' + (forgotten ? ' forgotten' : '') + '">' +
           '<div class="memory-title">' + title + '</div>' +
           marked.parse(rest.replace(/~~/g, '')) +
@@ -1164,12 +1335,12 @@
 
     function renderJournal(text) {
       return text.split(/\n(?=###\s)/).map(block => {
-        const tm         = block.match(/^###\s+(.+)/);
-        const title      = tm ? tm[1] : '';
-        const rest       = block.replace(/^###.+\n/, '').trim();
-        const pm         = rest.match(/^\*(.+)\*/);
+        const tm = block.match(/^###\s+(.+)/);
+        const title = tm ? tm[1] : '';
+        const rest = block.replace(/^###.+\n/, '').trim();
+        const pm = rest.match(/^\*(.+)\*/);
         const promptText = pm ? pm[1] : '';
-        const body       = promptText ? rest.replace(/^\*.+\*\n+/, '') : rest;
+        const body = promptText ? rest.replace(/^\*.+\*\n+/, '') : rest;
         return '<div class="journal-entry">' +
           '<div class="journal-turn">' + title + '</div>' +
           '<div class="journal-scrap">' +
@@ -1184,9 +1355,9 @@
     function render(md) {
       const { meta, sections } = parseVampire(md);
 
-      const header   = sections['__header__'] || '';
+      const header = sections['__header__'] || '';
       const vampName = (header.match(/^#\s+(.+)/m) || [])[1] || 'Unknown Vampire';
-      const epitaph  = (header.match(/^>\s*\*?(.+?)\*?\s*$/m) || [])[1] || '';
+      const epitaph = (header.match(/^>\s*\*?(.+?)\*?\s*$/m) || [])[1] || '';
 
       const diaryHtml = sections['Diary']
         ? '<div class="diary-strip"><div class="diary-label">📖 Diary</div><div class="diary-block">' + marked.parse(sections['Diary']) + '</div></div>'
@@ -1202,10 +1373,10 @@
           <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
           ${epitaph ? `<div class="vamp-epitaph">${epitaph}</div>` : ''}
           <div class="meta-row">
-            ${meta.current_prompt   ? `<div class="meta-pill">Prompt <span>${meta.current_prompt}</span></div>` : ''}
+            ${meta.current_prompt ? `<div class="meta-pill">Prompt <span>${meta.current_prompt}</span></div>` : ''}
             ${meta.prompts_resolved ? `<div class="meta-pill">Resolved <span>${meta.prompts_resolved}</span></div>` : ''}
-            ${meta.created          ? `<div class="meta-pill">Started <span>${meta.created}</span></div>` : ''}
-            ${meta.modified         ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
+            ${meta.created ? `<div class="meta-pill">Started <span>${meta.created}</span></div>` : ''}
+            ${meta.modified ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
           </div>
         </div>
 
@@ -1230,15 +1401,15 @@
             <div class="col-label">👥 Characters</div>
             <div>
               ${sections['Characters']
-                ? renderCharactersCol(sections['Characters'])
-                : '<span style="color:var(--ink-faint);font-size:.85rem;">No characters yet.</span>'}
+          ? renderCharactersCol(sections['Characters'])
+          : '<span style="color:var(--ink-faint);font-size:.85rem;">No characters yet.</span>'}
             </div>
           </aside>
 
           <main class="journal-col">
             ${sections['Journal']
-              ? renderJournal(sections['Journal'])
-              : '<p style="color:var(--ink-faint);">No journal entries yet.</p>'}
+          ? renderJournal(sections['Journal'])
+          : '<p style="color:var(--ink-faint);">No journal entries yet.</p>'}
           </main>
 
         </div>
@@ -1247,8 +1418,8 @@
           <div class="memories-section-label">🧠 Memories</div>
           <div class="memories-grid">
             ${sections['Memories']
-              ? renderMemoriesCol(sections['Memories'])
-              : '<span style="color:var(--ink-faint);font-size:.85rem;">No memories yet.</span>'}
+          ? renderMemoriesCol(sections['Memories'])
+          : '<span style="color:var(--ink-faint);font-size:.85rem;">No memories yet.</span>'}
           </div>
         </div>
 
@@ -1257,19 +1428,28 @@
     }
 
     /* ── ETag polling ───────────────────────────────────────── */
-    let currentEtag   = null;
-    let pollTimer     = null;
+    let currentEtag = null;
+    let pollTimer = null;
 
     async function checkForUpdate() {
-      if (!currentUrl) return;
+      if (!currentUrl || editMode) return;
+
       try {
-        const res = await fetch(currentUrl, { method: 'HEAD' });
-        const etag = res.headers.get('ETag');
-        if (etag && etag !== currentEtag) {
-          currentEtag = etag;
-          await loadChronicle(currentUrl);
+        const res = await fetch(
+          currentUrl + '?t=' + Date.now(),
+          {
+            method: 'GET',
+            cache: 'no-store'
+          }
+        );
+
+        const md = await res.text();
+
+        if (md !== currentMd) {
+          currentMd = md;
+          loadChronicle(currentUrl);
         }
-      } catch (_) { /* silent — network blip, try again next tick */ }
+      } catch (_) { }
     }
 
     function startPolling() {
@@ -1296,4 +1476,5 @@
   </script>
 
 </body>
+
 </html>
