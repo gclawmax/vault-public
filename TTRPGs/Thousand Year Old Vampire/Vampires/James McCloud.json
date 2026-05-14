@@ -22,21 +22,27 @@
     {
       "name": "Memory 2",
       "description": "A memory in your immortal life \u2014 holds one Experience (two selected traits woven together).",
-      "experiences": [],
+      "experiences": [
+        "The banner of a rival house burned over the borderlands, and in the reek of smoke and blood your swordsmanship became the final word your enemies heard; you felt nothing but the old warmth of the blade doing what it was forged to do."
+      ],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 3",
       "description": "A memory in your immortal life \u2014 holds one Experience (two selected traits woven together).",
-      "experiences": [],
+      "experiences": [
+        "Elspeth begged you to spare the villages your raids had reduced to ghosts, and you let her have that mercy \u2014 not for her sake, but because her voice was one thread in the tapestry of cruelty you had learned to love that still held your hand."
+      ],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 4",
       "description": "A memory in your immortal life \u2014 holds one Experience (two selected traits woven together).",
-      "experiences": [],
+      "experiences": [
+        "Jack's own retinue deserted him when your tactics stripped his lands bare, and you found his last letter burning in the hearth before you had to answer his challenge; the gem in your blade drank the light one last time."
+      ],
       "status": "available",
       "in_diary": false
     },
