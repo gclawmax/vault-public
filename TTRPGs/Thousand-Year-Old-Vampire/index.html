@@ -466,18 +466,18 @@ function parseMarkdown(md) {
   };
 
   // ── Frontmatter ──
-  const fmMatch = md.match(/^---\n([\s\S]*?)\n---/);
+  const fmMatch = md.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (fmMatch) {
     data.rawFrontmatter = fmMatch[0];
-    fmMatch[1].split('\n').forEach(line => {
+    fmMatch[1].split(/\r?\n/).forEach(line => {
       const m = line.match(/^(\w+):\s*(.*)/);
       if (m) data.frontmatter[m[1]] = m[2].trim();
     });
   }
   data.gameOver = data.frontmatter.game_over === 'true';
 
-  const body = md.replace(/^---\n[\s\S]*?\n---\n?/, '');
-  const lines = body.split('\n');
+  const body = md.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
+  const lines = body.split(/\r?\n/);
 
   // ── Name / subtitle / epithet ──
   for (let i = 0; i < Math.min(20, lines.length); i++) {
@@ -488,11 +488,12 @@ function parseMarkdown(md) {
 
   // ── Section extraction helper ──
   function extractSection(heading) {
-    const re = new RegExp('##\\s+' + heading.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+    const escapedHeading = heading.replace(/[.*+?^${}()|[\]\]/g, '\$&');
+    const re = new RegExp('^##\s+' + escapedHeading + '\s*$', 'm');
     const start = body.search(re);
     if (start === -1) return '';
     const after = body.slice(start);
-    const nextH2 = after.search(/\n## /);
+    const nextH2 = after.search(/\r?\n##\s+/);
     return nextH2 === -1 ? after : after.slice(0, nextH2);
   }
 
