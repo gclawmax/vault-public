@@ -20,19 +20,25 @@
     },
     {
       "name": "Memory 2",
-      "experiences": [],
+      "experiences": [
+        "When Father Arthur died, I wound his pocket watch one final time and let it speak for the thoughts I could never bring myself to say; the ticking felt like forgiveness."
+      ],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 3",
-      "experiences": [],
+      "experiences": [
+        "Maeve left without a word one autumn morning, and I locked the shop behind her for the last time, knowing the silence of an empty room cannot hold a person anyway."
+      ],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 4",
-      "experiences": [],
+      "experiences": [
+        "When a creditor demanded what Father Thomas had borrowed and never repaid, I stood in my father's shop and collected every last penny, though the gold tasted like ash in my arms."
+      ],
       "status": "available",
       "in_diary": false
     },
@@ -46,8 +52,37 @@
   "diary": {
     "memories": []
   },
-  "skills": [],
-  "resources": [],
+  "skills": [
+    {
+      "name": "Horology",
+      "status": "available"
+    },
+    {
+      "name": "Silence",
+      "status": "available"
+    },
+    {
+      "name": "Debt Collection",
+      "status": "available"
+    }
+  ],
+  "resources": [
+    {
+      "name": "The Clockmaker's Bench",
+      "type": "stationary",
+      "status": "available"
+    },
+    {
+      "name": "A Silver Pocket Watch",
+      "type": "portable",
+      "status": "available"
+    },
+    {
+      "name": "A Keyring from the Shop",
+      "type": "portable",
+      "status": "available"
+    }
+  ],
   "characters": [
     {
       "name": "Arthur Thorne",
