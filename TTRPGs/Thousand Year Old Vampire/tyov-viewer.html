@@ -324,11 +324,11 @@ const RAW_BASE = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/T
 
 let currentSha = null;
 let currentFileUrl = null;
-let currentMd = null;       // the raw markdown string currently loaded
-let workingMd = null;       // the markdown being edited (may differ from currentMd)
+let currentJson = null;       // the raw source string currently loaded (JSON state)
+let workingJson = null;       // the source string being edited (may differ from currentJson)
 let editMode = false;
 let hasUnsaved = false;
-let parsedData = null;      // structured parse of currentMd
+let parsedData = null;      // structured parse of current source
 let currentModalConfirm = null;
 
 // ═══════════════════════════════════════════════════
@@ -382,16 +382,16 @@ async function loadGameList() {
     const resp = await fetch(GITHUB_API);
     if (!resp.ok) throw new Error('GitHub API error: ' + resp.status);
     const files = await resp.json();
-    const mdFiles = files.filter(f => f.name.endsWith('.md'));
+    const jsonFiles = files.filter(f => f.name.endsWith('.json') && f.name !== 'vampire-schema.json');
     const sel = document.getElementById('game-select');
     sel.innerHTML = '<option value="">— Select a chronicle —</option>';
-    mdFiles.forEach(f => {
+    jsonFiles.forEach(f => {
       const o = document.createElement('option');
       o.value = f.name;
-      o.textContent = f.name.replace('.md', '');
+      o.textContent = f.name.replace('.json', '');
       sel.appendChild(o);
     });
-    setStatus('ok', `${mdFiles.length} chronicle${mdFiles.length !== 1 ? 's' : ''} found`);
+    setStatus('ok', `${jsonFiles.length} chronicle${jsonFiles.length !== 1 ? 's' : ''} found`);
   } catch(e) {
     setStatus('err', 'Failed to load game list: ' + e.message);
   }
@@ -413,9 +413,9 @@ async function loadVampire(filename) {
     const data = await resp.json();
     currentSha = data.sha;
     currentFileUrl = url;
-    currentMd = atob(data.content.replace(/\n/g, ''));
-    workingMd = currentMd;
-    parsedData = parseMarkdown(currentMd);
+    currentJson = atob(data.content.replace(/\n/g, ''));
+    workingJson = currentJson;
+    parsedData = parseSource(currentJson);
     renderChronicle(parsedData);
     document.getElementById('empty-state').style.display = 'none';
     document.getElementById('content').style.display = 'block';
@@ -435,7 +435,7 @@ function resetToGameList() {
   document.getElementById('empty-state').style.display = 'block';
   document.getElementById('edit-mode-btn').style.display = 'none';
   document.getElementById('game-select').value = '';
-  currentMd = null; workingMd = null; parsedData = null;
+  currentJson = null; workingJson = null; parsedData = null;
 }
 
 async function refreshCurrent() {
@@ -445,373 +445,120 @@ async function refreshCurrent() {
 }
 
 // ═══════════════════════════════════════════════════
-// MARKDOWN PARSER  (produces structured parsedData)
+// JSON PARSER  (produces structured parsedData)
 // ═══════════════════════════════════════════════════
-function parseMarkdown(md) {
+function parseSource(source) {
+  const trimmed = source.trim();
+  if (!trimmed) throw new Error('Empty JSON source');
+  return jsonToParsedData(JSON.parse(trimmed));
+}
+
+function jsonToParsedData(json) {
   const data = {
-    frontmatter: {}, rawFrontmatter: '',
-    vampireName: '', subtitle: '', epithet: '',
-    marks: [],      // [{desc, concealment, struck}]
-    memories: [],   // [{n, theme, experiences:[{text,struck}], struck, inDiary}]
-    diary: {exists:false, memories:[]},
-    skills: [],     // [{name, status}] status: unchecked|checked|lost
-    resources: [],  // [{name, type, status}] status: active|lost
-    mortals: [],    // [{name, desc, dead}]
-    immortals: [],  // [{name, desc, dead}]
-    journal: [],    // [{turn,prompt,entry,promptText,prose,changes,awaiting}]
-    epitaph: '',
-    gameOver: false,
-    lastPlayed: '',
+    frontmatter: {},
+    vampireName: json.name || '',
+    subtitle: json.vampire_desc || '',
+    epithet: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
+    marks: (json.marks || []).map(m => ({ desc: m.description || '', concealment: m.concealment || '', struck: m.status === 'struck' })),
+    memories: (json.memories || []).map((mem, idx) => ({
+      n: mem.n || idx + 1,
+      theme: mem.name || '',
+      experiences: (mem.experiences || []).map(exp => ({ text: exp.text || exp.description || '', struck: !!exp.struck })),
+      struck: mem.status === 'struck',
+      inDiary: !!mem.in_diary
+    })),
+    diary: {
+      exists: Array.isArray(json.diary?.memories) && json.diary.memories.length > 0,
+      memories: (json.diary?.memories || []).map((mem, idx) => ({
+        n: mem.n || idx + 1,
+        theme: mem.name || '',
+        experiences: (mem.experiences || []).map(exp => ({ text: exp.text || exp.description || '' }))
+      }))
+    },
+    skills: (json.skills || []).map(sk => ({ name: sk.name || '', status: sk.status === 'available' ? 'unchecked' : sk.status === 'spent' ? 'checked' : 'lost' })),
+    resources: (json.resources || []).map(r => ({ name: r.name || '', type: r.type || 'portable', status: r.status === 'available' ? 'active' : 'lost' })),
+    mortals: [],
+    immortals: [],
+    journal: (json.journal || []).map(j => ({
+      turn: j.turn,
+      prompt: j.prompt,
+      entry: j.entry,
+      promptText: j.prompt_text || j.paraphrased_prompt || '',
+      prose: j.experience || '',
+      changes: j.changes || '',
+      awaiting: j.resolved === false
+    })),
+    epitaph: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
+    gameOver: !!json.game_over,
+    lastPlayed: json.modified || '',
     rawAfterJournal: ''
   };
 
-  // ── Frontmatter ──
-  const fmMatch = md.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (fmMatch) {
-    data.rawFrontmatter = fmMatch[0];
-    fmMatch[1].split(/\r?\n/).forEach(line => {
-      const m = line.match(/^(\w+):\s*(.*)/);
-      if (m) data.frontmatter[m[1]] = m[2].trim();
-    });
-  }
-  data.gameOver = data.frontmatter.game_over === 'true';
-
-  const body = md.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
-  const lines = body.split(/\r?\n/);
-
-  // ── Name / subtitle / epithet ──
-  for (let i = 0; i < Math.min(20, lines.length); i++) {
-    if (/^# /.test(lines[i])) data.vampireName = lines[i].replace(/^# /, '').trim();
-    if (lines[i].trim() === '*A Thousand Year Old Vampire*') data.subtitle = lines[i].trim();
-    if (/^> ?\*/.test(lines[i])) data.epithet = lines[i].replace(/^> ?\*/, '').replace(/\*$/, '').trim();
-  }
-
-  // ── Section extraction helper ──
-  function extractSection(heading) {
-    const sectionLines = [];
-    let inSection = false;
-    lines.forEach(line => {
-      const lineHeading = line.replace('## ', '').replace(/^[^\w]+/, '').trim();
-      if (lineHeading === heading) {
-        inSection = true;
-      } else if (inSection && line.startsWith('## ')) {
-        inSection = false;
-      } else if (inSection) {
-        sectionLines.push(line);
-      }
-    });
-    return sectionLines.join('\n');
-  }
-
-  // ── Marks ──
-  const marksSec = extractSection('Marks');
-  data.marks = marksSec.split('\n').map(line => {
-    line = line.trim();
-    if (!line.startsWith('- ')) return null;
-    const struck = line.includes('~~');
-    const cleanLine = line.replace(/^- /, '').replace(/~~/g, '');
-    const parts = cleanLine.split(' *(concealed: ');
-    const desc = parts[0].trim();
-    const concealment = parts[1] ? parts[1].replace(')*', '').trim() : '';
-    return { desc, concealment, struck };
-  }).filter(Boolean);
-
-  // ── Memories ──
-  const memSec = extractSection('Memories');
-  const memBlocks = memSec.split(/(?=### Memory \d+)/g).slice(1);
-  memBlocks.forEach(block => {
-    const lines = block.split('\n');
-    const headerLine = lines.find(l => l.startsWith('### Memory'));
-    if (!headerLine) return;
-    const cleanHeader = headerLine.replace('### ', '').replace(/~~/g, '');
-    const parts = cleanHeader.split(' — ');
-    const n = parseInt(parts[0].split(' ')[1]);
-    const themePart = parts[1] || '';
-    const inDiary = themePart.includes('*(in diary)*');
-    const theme = themePart.replace(' *(in diary)*', '').trim();
-    const struck = headerLine.includes('~~');
-    const exps = lines.filter(l => /^\d+\./.test(l)).map(l => {
-      const numDot = l.indexOf('. ');
-      const text = l.slice(numDot + 2).trim();
-      const expStruck = text.includes('~~');
-      const cleanText = text.replace(/~~/g, '');
-      return { text: cleanText, struck: expStruck };
-    });
-    data.memories.push({ n, theme, experiences: exps, struck, inDiary });
-  });
-
-  // ── Diary ──
-  const diarySec = extractSection('Diary');
-  data.diary.exists = data.frontmatter.diary_exists === 'true';
-  if (diarySec.includes('### Memory')) {
-    const diaryMemBlocks = diarySec.split(/(?=### Memory \d+)/g).slice(1);
-    diaryMemBlocks.forEach(block => {
-      const lines = block.split('\n');
-      const headerLine = lines.find(l => l.startsWith('### Memory'));
-      if (!headerLine) return;
-      const parts = headerLine.replace('### Memory ', '').split(' — ');
-      const n = parseInt(parts[0]);
-      const theme = parts[1] ? parts[1].trim() : '';
-      const exps = lines.filter(l => /^\d+\./.test(l)).map(l => {
-        const numDot = l.indexOf('. ');
-        return { text: l.slice(numDot + 2).trim() };
-      });
-      data.diary.memories.push({ n, theme, experiences: exps });
-    });
-  }
-
-  // ── Skills ──
-  const skillSec = extractSection('Skills');
-  skillSec.split('\n').forEach(line => {
-    if (!line.startsWith('|') || line.includes('Skill') || line.includes('---')) return;
-    const cols = line.split('|').map(c => c.trim()).filter(Boolean);
-    if (cols.length < 2) return;
-    let name = cols[0];
-    const statusRaw = cols[1];
-    const lost = name.includes('~~') || statusRaw.toLowerCase().includes('lost');
-    name = name.replace(/~~/g, '').trim();
-    let status = 'unchecked';
-    if (lost) status = 'lost';
-    else if (statusRaw.includes('☑') || statusRaw.toLowerCase().includes('checked')) status = 'checked';
-    data.skills.push({ name, status });
-  });
-
-  // ── Resources ──
-  const resSec = extractSection('Resources');
-  resSec.split('\n').forEach(line => {
-    if (!line.startsWith('|') || line.includes('Resource') || line.includes('---')) return;
-    const cols = line.split('|').map(c => c.trim()).filter(Boolean);
-    if (cols.length < 3) return;
-    let name = cols[0];
-    const typeRaw = cols[1];
-    const statusRaw = cols[2];
-    const lost = name.includes('~~') || statusRaw.toLowerCase().includes('lost');
-    name = name.replace(/~~/g, '').trim();
-    const isStationary = typeRaw.toLowerCase().includes('stationary') || typeRaw.includes('📍');
-    data.resources.push({ name, type: isStationary ? 'stationary' : 'portable', status: lost ? 'lost' : 'active' });
-  });
-
-  // ── Characters ──
-  const charSec = extractSection('Characters');
-  let charMode = null;
-  charSec.split('\n').forEach(line => {
-    if (line.includes('### Mortals')) { charMode = 'mortal'; return; }
-    if (line.includes('### Immortals')) { charMode = 'immortal'; return; }
-    if (!charMode) return;
-    const dead = line.startsWith('- ~~**');
-    const alive = line.startsWith('- **');
-    if (!dead && !alive) return;
-    const cleanLine = line.replace(/^- ~~\*\*|- \*\*/, '').replace(/\*\*~~ — ~~|\*\* — /, ' — ');
-    const parts = cleanLine.split(' — ');
-    const name = parts[0].trim();
-    const desc = parts[1] ? parts[1].replace(/\*(dust[^*]*)\*/, '').replace(/~~/g, '').trim() : '';
-    const entry = { name, desc, dead };
-    if (charMode === 'mortal') data.mortals.push(entry);
+  (json.characters || []).forEach(c => {
+    const entry = { name: c.name || '', desc: c.death_reason || '', dead: c.status === 'dead' };
+    if (c.type === 'mortal') data.mortals.push(entry);
     else data.immortals.push(entry);
   });
 
-  // ── Journal ──
-  const journalIdx = body.indexOf('## 📜 Journal');
-  if (journalIdx !== -1) {
-    const journalSec = body.slice(journalIdx);
-    const turnBlocks = journalSec.split(/(?=### Turn \d+)/g).slice(1);
-    turnBlocks.forEach(block => {
-      const lines = block.split('\n');
-      const headerLine = lines.find(l => l.startsWith('### Turn '));
-      if (!headerLine) return;
-      const headerParts = headerLine.replace('### Turn ', '').split(' — Prompt ');
-      const turn = parseInt(headerParts[0]);
-      const promptEntry = headerParts[1].split(', Entry ');
-      const prompt = parseInt(promptEntry[0]);
-      const entry = parseInt(promptEntry[1]);
-      const promptLine = lines.find(l => l.trim().startsWith('*') && !l.includes('**'));
-      const promptText = promptLine ? promptLine.replace(/^\*/, '').replace(/\*$/, '').trim() : '';
-      const awaiting = block.includes('*Awaiting resolution.*');
-      const changesLine = lines.find(l => l.startsWith('**Changes:**'));
-      const changes = changesLine ? changesLine.replace('**Changes:** ', '').trim() : '';
-      // Prose: lines between prompt and changes
-      let prose = '';
-      let inProse = false;
-      for (const l of lines) {
-        if (l === promptLine) { inProse = true; continue; }
-        if (inProse) {
-          if (l === changesLine || l.trim() === '*Awaiting resolution.*' || l.trim() === '---') break;
-          prose += l + '\n';
-        }
-      }
-      data.journal.push({ turn, prompt, entry, promptText, prose: prose.trim(), changes, awaiting });
-    });
-    data.journal.sort((a,b) => b.turn - a.turn);
-  }
-
-  // ── Last played ──
-  const lpIdx = md.indexOf('*Last played: ');
-  if (lpIdx !== -1) {
-    const lpLine = md.slice(lpIdx);
-    const dateMatch = lpLine.match(/(\d{4}-\d{2}-\d{2})/);
-    if (dateMatch) data.lastPlayed = dateMatch[1];
-  }
+  data.frontmatter = {
+    game_start: json.game_start || '',
+    modified: json.modified || '',
+    game_over: json.game_over ? 'true' : 'false',
+    game_completed: json.game_completed || '',
+    current_prompt: json.current_prompt !== undefined ? String(json.current_prompt) : '',
+    prompts_resolved: json.prompts_resolved !== undefined ? String(json.prompts_resolved) : '',
+    show_suggestions: json.show_suggestions ? 'true' : 'false',
+    vampire: data.vampireName,
+    vampire_desc: json.vampire_desc || ''
+  };
 
   return data;
 }
 
-// ═══════════════════════════════════════════════════
-// MARKDOWN SERIALIZER  (parsedData → valid markdown)
-// ═══════════════════════════════════════════════════
-function serializeMarkdown(d) {
-  const lines = [];
+function serializeJson(d) {
+  const json = {
+    name: d.vampireName || '',
+    vampire_desc: d.subtitle || '',
+    game_over: d.frontmatter.game_over === 'true',
+    game_start: d.frontmatter.game_start || '',
+    modified: new Date().toISOString().slice(0, 10),
+    game_completed: d.frontmatter.game_completed || '',
+    show_suggestions: d.frontmatter.show_suggestions === 'true',
+    marks: (d.marks || []).map(m => ({ description: m.desc || '', concealment: m.concealment || '', status: m.struck ? 'struck' : 'available' })),
+    memories: (d.memories || []).map(mem => ({
+      name: mem.theme || `Memory ${mem.n || ''}`,
+      experiences: (mem.experiences || []).map(exp => ({ text: exp.text || '', struck: !!exp.struck })),
+      status: mem.struck ? 'struck' : 'available',
+      in_diary: !!mem.inDiary
+    })),
+    diary: {
+      memories: (d.diary?.memories || []).map(mem => ({
+        name: mem.theme || `Memory ${mem.n || ''}`,
+        experiences: (mem.experiences || []).map(exp => ({ text: exp.text || '' }))
+      }))
+    },
+    skills: (d.skills || []).map(sk => ({ name: sk.name || '', status: sk.status === 'checked' ? 'spent' : sk.status === 'lost' ? 'struck' : 'available' })),
+    resources: (d.resources || []).map(r => ({ name: r.name || '', type: r.type || 'portable', status: r.status === 'active' ? 'available' : 'struck' })),
+    characters: [
+      ...(d.mortals || []).map(c => ({ name: c.name || '', type: 'mortal', status: c.dead ? 'dead' : 'alive', death_reason: c.desc || '' })),
+      ...(d.immortals || []).map(c => ({ name: c.name || '', type: 'immortal', status: c.dead ? 'dead' : 'alive', death_reason: c.desc || '' }))
+    ],
+    journal: (d.journal || []).map(j => ({
+      turn: j.turn,
+      prompt: j.prompt,
+      entry: j.entry,
+      prompt_text: j.promptText || '',
+      resolved: !j.awaiting,
+      paraphrased_prompt: j.promptText || '',
+      experience: j.prose || '',
+      changes: j.changes || ''
+    }))
+  };
 
-  // ── Frontmatter ──
-  // Update computed fields
-  const resolvedCount = d.journal.filter(j => !j.awaiting).length;
-  const topEntry = d.journal.length > 0 ? d.journal.reduce((a,b) => a.turn > b.turn ? a : b) : null;
-  const fm = { ...d.frontmatter };
-  fm.prompts_resolved = resolvedCount;
-  if (topEntry) fm.current_prompt = topEntry.prompt;
-  fm.diary_exists = d.diary.memories.length > 0 ? 'true' : 'false';
-  fm.modified = new Date().toISOString().slice(0,10);
-
-  lines.push('---');
-  const fmOrder = ['tags','vampire','current_prompt','prompts_resolved','game_over','game_over_reason','game_start','game_completed','diary_exists','diary_name','created','modified','show_suggestions'];
-  fmOrder.forEach(k => { if (fm[k] !== undefined) lines.push(`${k}: ${fm[k]}`); });
-  Object.keys(fm).forEach(k => { if (!fmOrder.includes(k)) lines.push(`${k}: ${fm[k]}`); });
-  lines.push('---');
-  lines.push('');
-
-  // ── Header ──
-  lines.push(`# ${d.vampireName}`);
-  lines.push('');
-  lines.push('*A Thousand Year Old Vampire*');
-  lines.push(`> *${d.epithet}*`);
-  lines.push('');
-  lines.push('---');
-  lines.push('');
-
-  // ── Marks ──
-  lines.push('## ⚰ Marks');
-  lines.push('');
-  d.marks.forEach(m => {
-    const desc = m.struck ? `~~${m.desc}~~` : m.desc;
-    lines.push(`- ${desc} *(concealed: ${m.concealment})*`);
-  });
-  lines.push('');
-  lines.push('---');
-  lines.push('');
-
-  // ── Memories ──
-  lines.push('## 🧠 Memories');
-  lines.push('');
-  d.memories.forEach(mem => {
-    const diaryTag = mem.inDiary ? ' *(in diary)*' : '';
-    const headerText = `Memory ${mem.n} — ${mem.theme}${diaryTag}`;
-    lines.push(mem.struck ? `### ~~${headerText}~~` : `### ${headerText}`);
-    lines.push('');
-    mem.experiences.forEach((exp, i) => {
-      // Struck experiences: ~~text~~ outside the italic markers per schema
-      if (exp.struck) {
-        lines.push(`${i+1}. ~~*${exp.text}*~~`);
-      } else {
-        lines.push(`${i+1}. *${exp.text}*`);
-      }
-    });
-    lines.push('');
-  });
-  lines.push('---');
-  lines.push('');
-
-  // ── Diary ──
-  lines.push('## 📖 Diary');
-  lines.push('');
-  if (d.diary.memories.length === 0) {
-    lines.push('*No diary yet.*');
-  } else {
-    d.diary.memories.forEach((mem, idx) => {
-      lines.push(`### Memory ${idx+1} — ${mem.theme}`);
-      lines.push('');
-      mem.experiences.forEach((exp, i) => {
-        lines.push(`${i+1}. *${exp.text}*`);
-      });
-      lines.push('');
-    });
-  }
-  lines.push('');
-  lines.push('---');
-  lines.push('');
-
-  // ── Skills ──
-  lines.push('## ⚔ Skills');
-  lines.push('');
-  lines.push('| Skill | Status |');
-  lines.push('| --- | --- |');
-  d.skills.forEach(sk => {
-    let name = sk.status === 'lost' ? `~~${sk.name}~~` : sk.name;
-    let stat = sk.status === 'unchecked' ? '✅ unchecked' : sk.status === 'checked' ? '☑ checked' : '~~lost~~';
-    lines.push(`| ${name} | ${stat} |`);
-  });
-  lines.push('');
-  lines.push('---');
-  lines.push('');
-
-  // ── Resources ──
-  lines.push('## 🏚 Resources');
-  lines.push('');
-  lines.push('| Resource | Type | Status |');
-  lines.push('| --- | --- | --- |');
-  d.resources.forEach(r => {
-    let name = r.status === 'lost' ? `~~${r.name}~~` : r.name;
-    const type = r.type === 'stationary' ? '📍 stationary' : 'portable';
-    const stat = r.status === 'lost' ? '~~lost~~' : '✅';
-    lines.push(`| ${name} | ${type} | ${stat} |`);
-  });
-  lines.push('');
-  lines.push('---');
-  lines.push('');
-
-  // ── Characters ──
-  lines.push('## 👥 Characters');
-  lines.push('');
-  lines.push('### Mortals');
-  lines.push('');
-  d.mortals.forEach(c => {
-    if (c.dead) lines.push(`- ~~**${c.name}**~~ — ~~${c.desc}~~ *(dust)*`);
-    else lines.push(`- **${c.name}** — ${c.desc}`);
-  });
-  lines.push('');
-  lines.push('### Immortals');
-  lines.push('');
-  d.immortals.forEach(c => {
-    if (c.dead) lines.push(`- ~~**${c.name}**~~ — ~~${c.desc}~~ *(dust)*`);
-    else lines.push(`- **${c.name}** — ${c.desc}`);
-  });
-  lines.push('');
-  lines.push('---');
-  lines.push('');
-
-  // ── Journal ──
-  lines.push('## 📜 Journal');
-  lines.push('');
-  const sorted = [...d.journal].sort((a,b) => b.turn - a.turn);
-  sorted.forEach(j => {
-    lines.push(`### Turn ${j.turn} — Prompt ${j.prompt}, Entry ${j.entry}`);
-    lines.push('');
-    lines.push(`*${j.promptText}*`);
-    lines.push('');
-    if (j.prose) lines.push(j.prose);
-    lines.push('');
-    if (j.awaiting) {
-      lines.push('*Awaiting resolution.*');
-    } else {
-      lines.push(`**Changes:** ${j.changes}`);
-    }
-    lines.push('');
-    lines.push('---');
-    lines.push('');
-  });
-
-  // ── Last played ──
-  lines.push(`*Last played: ${new Date().toISOString().slice(0,10)}*`);
-
-  return lines.join('\n');
+  if (d.epitaph) json.epitaph = { experience: d.epitaph };
+  if (d.frontmatter.current_prompt) json.current_prompt = parseInt(d.frontmatter.current_prompt, 10);
+  if (d.frontmatter.prompts_resolved) json.prompts_resolved = parseInt(d.frontmatter.prompts_resolved, 10);
+  return JSON.stringify(json, null, 2);
 }
 
 // ═══════════════════════════════════════════════════
@@ -986,8 +733,8 @@ function toggleEditMode() {
 function enterEditMode() {
   editMode = true;
   hasUnsaved = false;
-  workingMd = currentMd;
-  parsedData = parseMarkdown(workingMd);
+  workingJson = currentJson;
+  parsedData = parseSource(workingJson);
   document.body.classList.add('edit-mode');
   document.getElementById('edit-mode-btn').classList.add('active-edit');
   document.getElementById('edit-mode-btn').textContent = '✎ Editing';
@@ -1017,7 +764,7 @@ function leaveEditMode() {
 function cancelEditMode() {
   if (hasUnsaved && !confirm('Discard unsaved changes?')) return;
   leaveEditMode();
-  parsedData = parseMarkdown(currentMd);
+  parsedData = parseSource(currentJson);
   renderChronicle(parsedData);
   setStatus('ok', 'Edit cancelled.');
 }
@@ -1037,9 +784,8 @@ async function saveChronicle() {
   if (!currentFileUrl) { setStatus('err', 'No file URL — reload the chronicle.'); return; }
   setStatus('busy', 'Saving…');
   try {
-    const newMd = serializeMarkdown(parsedData);
-    const encoded = btoa(unescape(encodeURIComponent(newMd)));
-    const sel = document.getElementById('game-select');
+    const newJson = serializeJson(parsedData);
+    const encoded = btoa(unescape(encodeURIComponent(newJson)));
     const resp = await fetch(currentFileUrl, {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1051,8 +797,8 @@ async function saveChronicle() {
     }
     const result = await resp.json();
     currentSha = result.content.sha;
-    currentMd = newMd;
-    workingMd = newMd;
+    currentJson = newJson;
+    workingJson = newJson;
     leaveEditMode();
     renderChronicle(parsedData);
     setStatus('ok', 'Saved successfully ✓');
