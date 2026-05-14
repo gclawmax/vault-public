@@ -65,7 +65,23 @@
       "status": "available"
     }
   ],
-  "resources": [],
+  "resources": [
+    {
+      "name": "The Blackwood Seal Ring",
+      "description": "Your family's signet ring, cold iridium and heavy with history. It bears the crest of your house and has pressed into wax a thousand ledgers, proclamations, and death warrants. A sign of your standing.",
+      "stationary": false
+    },
+    {
+      "name": "Blackwood Hall",
+      "description": "The fortress of your ancestors, perched on a jagged ridge where the wind never stops its wailing. Thick stone walls, a great hall that can house your entire retinue. The heart of your power.",
+      "stationary": true
+    },
+    {
+      "name": "Wintersteel Broadsword",
+      "description": "A blade of grey steel, heavy and unyielding, brought from a campaign in the distant north. It never dulls, never chips, and its pommel is set with a dark gem that seems to draw the light from the air.",
+      "stationary": false
+    }
+  ],
   "characters": [
     {
       "name": "Elspeth",
