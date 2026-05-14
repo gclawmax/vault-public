@@ -458,21 +458,38 @@ function jsonToParsedData(json) {
     frontmatter: {},
     vampireName: json.name || '',
     subtitle: json.vampire_desc || '',
+    mortalSelf: json.mortal_self || '',
     epithet: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
     marks: (json.marks || []).map(m => ({ desc: m.description || '', concealment: m.concealment || '', struck: m.status === 'struck' })),
-    memories: (json.memories || []).map((mem, idx) => ({
-      n: mem.n || idx + 1,
-      theme: mem.name || '',
-      experiences: (mem.experiences || []).map(exp => ({ text: exp.text || exp.description || '', struck: !!exp.struck })),
-      struck: mem.status === 'struck',
-      inDiary: !!mem.in_diary
-    })),
+    memories: (json.memories || []).map((mem, idx) => {
+      // Parse experiences — schema says they are raw strings, but in practice they may be objects {text, struck}
+      const normalisedExps = [];
+      ((mem.experiences || []).map(e => {
+        if (typeof e === 'string') {
+          normalisedExps.push({ text: e, struck: false });
+        } else {
+          // e is an object like { text, struck }
+          normalisedExps.push({ text: e.text || e.description || '', struck: !!e.struck });
+        }
+      }));
+      return {
+        n: mem.n || idx + 1,
+        theme: mem.name || '',
+        experiences: normalisedExps,
+        struck: mem.status === 'struck',
+        inDiary: !!mem.in_diary,
+        description: mem.description || ''    // ← schema field, currently not rendered
+      };
+    }),
     diary: {
       exists: Array.isArray(json.diary?.memories) && json.diary.memories.length > 0,
       memories: (json.diary?.memories || []).map((mem, idx) => ({
         n: mem.n || idx + 1,
         theme: mem.name || '',
-        experiences: (mem.experiences || []).map(exp => ({ text: exp.text || exp.description || '' }))
+        experiences: (mem.experiences || []).map(e => {
+        if (typeof e === 'string') return { text: e };
+        return { text: e.text || e.description || '' };
+      })
       }))
     },
     skills: (json.skills || []).map(sk => ({ name: sk.name || '', status: sk.status === 'available' ? 'unchecked' : sk.status === 'spent' ? 'checked' : 'lost' })),
@@ -527,14 +544,20 @@ function serializeJson(d) {
     marks: (d.marks || []).map(m => ({ description: m.desc || '', concealment: m.concealment || '', status: m.struck ? 'struck' : 'available' })),
     memories: (d.memories || []).map(mem => ({
       name: mem.theme || `Memory ${mem.n || ''}`,
-      experiences: (mem.experiences || []).map(exp => ({ text: exp.text || '', struck: !!exp.struck })),
+      description: mem.description || '',
+      experiences: (mem.experiences || []).map(exp => {
+        // The schema says experiences is string[]; store pure strings on save
+        return typeof exp.text === 'string' ? exp.text : String(exp.text || '');
+      }),
       status: mem.struck ? 'struck' : 'available',
       in_diary: !!mem.inDiary
     })),
     diary: {
       memories: (d.diary?.memories || []).map(mem => ({
         name: mem.theme || `Memory ${mem.n || ''}`,
-        experiences: (mem.experiences || []).map(exp => ({ text: exp.text || '' }))
+        experiences: (mem.experiences || []).map(exp => {
+          return typeof exp.text === 'string' ? exp.text : String(exp.text || '');
+        })
       }))
     },
     skills: (d.skills || []).map(sk => ({ name: sk.name || '', status: sk.status === 'checked' ? 'spent' : sk.status === 'lost' ? 'struck' : 'available' })),
@@ -689,8 +712,10 @@ function renderChronicle(d) {
   d.memories.forEach(mem => {
     const cls = mem.struck ? 'forgotten' : '';
     const tag = mem.inDiary ? ' <span style="font-size:.75em;color:var(--blood)">(in diary)</span>' : '';
+    const descHtml = mem.description ? `<div style="font-size:.82rem;color:var(--ink-faint);font-style:italic;margin-bottom:8px;">${esc(mem.description)}</div>` : '';
     html += `<div class="memory-block ${cls}">
       <div class="memory-title">Memory ${mem.n} — ${esc(mem.theme)}${tag}</div>
+      ${descHtml}
       <ol>`;
     mem.experiences.forEach(exp => {
       html += `<li${exp.struck ? ' style="text-decoration:line-through;opacity:.5"' : ''}>${esc(exp.text)}</li>`;
