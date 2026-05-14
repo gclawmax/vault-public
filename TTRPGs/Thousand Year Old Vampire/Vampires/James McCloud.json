@@ -1,0 +1,56 @@
+{
+  "name": "James McCloud",
+  "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
+  "mortal_self": "James McCloud, born 1050 AD in Scotland. A rich noble, pampered by slaves and surrounded by sycophants. Arrogant and soft.",
+  "game_start": "2026-05-14",
+  "modified": "2026-05-14",
+  "game_over": false,
+  "game_completed": null,
+  "current_prompt": 0,
+  "prompts_resolved": 0,
+  "show_suggestions": true,
+  "memories": [
+    {
+      "name": "Memory 1",
+      "description": "Your mortal life — broad overview of who you were before the nights began.",
+      "experiences": [],
+      "status": "available",
+      "in_diary": false
+    },
+    {
+      "name": "Memory 2",
+      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "experiences": [],
+      "status": "available",
+      "in_diary": false
+    },
+    {
+      "name": "Memory 3",
+      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "experiences": [],
+      "status": "available",
+      "in_diary": false
+    },
+    {
+      "name": "Memory 4",
+      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "experiences": [],
+      "status": "available",
+      "in_diary": false
+    },
+    {
+      "name": "Memory 5",
+      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "experiences": [],
+      "status": "available",
+      "in_diary": false
+    }
+  ],
+  "skills": [],
+  "resources": [],
+  "characters": [],
+  "marks": [],
+  "immortal": null,
+  "journal": [],
+  "epitaph": null
+}
