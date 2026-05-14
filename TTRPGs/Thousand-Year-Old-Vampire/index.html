@@ -607,7 +607,6 @@ function renderChronicle(d) {
       <div class="meta-row">
         ${fm.game_start ? `<span class="meta-pill">Started <span>${fm.game_start}</span></span>` : ''}
         ${fm.game_over === 'true' ? `<span class="meta-pill" style="color:var(--blood)">Game Over</span>` : ''}
-        ${fm.modified ? `<span class="meta-pill">Modified <span>${fm.modified}</span></span>` : ''}
         ${d.lastPlayed ? `<span class="meta-pill">Last played <span>${d.lastPlayed}</span></span>` : ''}
       </div>
     </div>
