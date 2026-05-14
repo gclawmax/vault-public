@@ -7,7 +7,7 @@
   "game_over": false,
   "game_completed": null,
   "current_prompt": 0,
-  "prompts_resolved": 0,
+  "prompts_resolved": 1,
   "show_suggestions": true,
   "memories": [
     {
@@ -49,7 +49,9 @@
     {
       "name": "Memory 5",
       "description": "A memory in your immortal life \u2014 holds one Experience (two selected traits woven together).",
-      "experiences": [],
+      "experiences": [
+        "Sister Seraphina pressed the cold of the borderlands into your mouth and tasted the emptiness beneath your pride \u2014 there, where the leprosy ate her like slow fire, you found a hunger that would outlast the centuries, and you drank until the world sharpened and the wind in the highlands learned your name."
+      ],
       "status": "available",
       "in_diary": false
     }
@@ -105,8 +107,18 @@
       "status": "alive"
     }
   ],
-  "marks": [],
-  "immortal": null,
+  "marks": [
+    {
+      "name": "Vampire Bite Scars",
+      "description": "A pair of small, pinprick scars on the forearm, where James drank Seraphina's corrupted blood. On cold nights, they burn; under moonlight, they glow faintly.",
+      "concealment": "Always hidden beneath gauntlets or heavy fur cuffs."
+    }
+  ],
+  "immortal": {
+    "name": "Sister Seraphina",
+    "description": "A leper saint of the borderlands, her face pocked and hands twisted by the disease that ate her from the outside in. She ran a hospice of corpses among the ruins of a border abbey. She chose James because she saw the hunger beneath his arrogance and fed it to him.",
+    "status": "alive"
+  },
   "journal": [],
   "epitaph": null
 }
