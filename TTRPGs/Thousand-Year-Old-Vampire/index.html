@@ -491,7 +491,8 @@ function parseMarkdown(md) {
     const sectionLines = [];
     let inSection = false;
     lines.forEach(line => {
-      if (line.trim() === '## ' + heading) {
+      const lineHeading = line.replace('## ', '').replace(/^[^\w]+/, '').trim();
+      if (lineHeading === heading) {
         inSection = true;
       } else if (inSection && line.startsWith('## ')) {
         inSection = false;
@@ -503,7 +504,7 @@ function parseMarkdown(md) {
   }
 
   // ── Marks ──
-  const marksSec = extractSection('⚰ Marks');
+  const marksSec = extractSection('Marks');
   data.marks = marksSec.split('\n').map(line => {
     line = line.trim();
     if (!line.startsWith('- ')) return null;
@@ -516,7 +517,7 @@ function parseMarkdown(md) {
   }).filter(Boolean);
 
   // ── Memories ──
-  const memSec = extractSection('🧠 Memories');
+  const memSec = extractSection('Memories');
   const memBlocks = memSec.split(/(?=### Memory \d+)/g).slice(1);
   memBlocks.forEach(block => {
     const lines = block.split('\n');
@@ -540,7 +541,7 @@ function parseMarkdown(md) {
   });
 
   // ── Diary ──
-  const diarySec = extractSection('📖 Diary');
+  const diarySec = extractSection('Diary');
   data.diary.exists = data.frontmatter.diary_exists === 'true';
   if (diarySec.includes('### Memory')) {
     const diaryMemBlocks = diarySec.split(/(?=### Memory \d+)/g).slice(1);
@@ -560,7 +561,7 @@ function parseMarkdown(md) {
   }
 
   // ── Skills ──
-  const skillSec = extractSection('⚔ Skills');
+  const skillSec = extractSection('Skills');
   skillSec.split('\n').forEach(line => {
     if (!line.startsWith('|') || line.includes('Skill') || line.includes('---')) return;
     const cols = line.split('|').map(c => c.trim()).filter(Boolean);
@@ -576,7 +577,7 @@ function parseMarkdown(md) {
   });
 
   // ── Resources ──
-  const resSec = extractSection('🏚 Resources');
+  const resSec = extractSection('Resources');
   resSec.split('\n').forEach(line => {
     if (!line.startsWith('|') || line.includes('Resource') || line.includes('---')) return;
     const cols = line.split('|').map(c => c.trim()).filter(Boolean);
@@ -591,7 +592,7 @@ function parseMarkdown(md) {
   });
 
   // ── Characters ──
-  const charSec = extractSection('👥 Characters');
+  const charSec = extractSection('Characters');
   let charMode = null;
   charSec.split('\n').forEach(line => {
     if (line.includes('### Mortals')) { charMode = 'mortal'; return; }
