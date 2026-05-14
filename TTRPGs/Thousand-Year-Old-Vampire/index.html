@@ -413,7 +413,7 @@ async function loadVampire(filename) {
     const data = await resp.json();
     currentSha = data.sha;
     currentFileUrl = url;
-    currentJson = atob(data.content.replace(/\n/g, ''));
+    currentJson = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
     workingJson = currentJson;
     parsedData = parseSource(currentJson);
     renderChronicle(parsedData);
@@ -512,7 +512,7 @@ function jsonToParsedData(json) {
   };
 
   (json.characters || []).forEach(c => {
-    const entry = { name: c.name || '', desc: c.death_reason || '', dead: c.status === 'dead' };
+    const entry = { name: c.name || '', desc: c.status === 'dead' ? (c.death_reason || '') : (c.description || ''), dead: c.status === 'dead' };
     if (c.type === 'mortal') data.mortals.push(entry);
     else data.immortals.push(entry);
   });
@@ -712,10 +712,8 @@ function renderChronicle(d) {
   d.memories.forEach(mem => {
     const cls = mem.struck ? 'forgotten' : '';
     const tag = mem.inDiary ? ' <span style="font-size:.75em;color:var(--blood)">(in diary)</span>' : '';
-    const descHtml = mem.description ? `<div style="font-size:.82rem;color:var(--ink-faint);font-style:italic;margin-bottom:8px;">${esc(mem.description)}</div>` : '';
     html += `<div class="memory-block ${cls}">
       <div class="memory-title">Memory ${mem.n} — ${esc(mem.theme)}${tag}</div>
-      ${descHtml}
       <ol>`;
     mem.experiences.forEach(exp => {
       html += `<li${exp.struck ? ' style="text-decoration:line-through;opacity:.5"' : ''}>${esc(exp.text)}</li>`;
@@ -748,9 +746,7 @@ function esc(s) {
     .replace(/&/g,'&amp;')
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/—/g,'&mdash;')   // em dash (U+2014)
-    .replace(/–/g,'&mdash;');   // en dash (U+2013)
+    .replace(/"/g,'&quot;');
 }
 
 // ═══════════════════════════════════════════════════
