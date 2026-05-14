@@ -603,7 +603,7 @@ function renderChronicle(d) {
         <div class="vamp-rule"><span></span><span></span></div>
       </div>
       <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
-      <div class="vamp-epitaph">${esc(d.epithet)}</div>
+      <div class="vamp-epitaph">${esc(d.subtitle)}</div>
       <div class="meta-row">
         ${fm.game_start ? `<span class="meta-pill">Started <span>${fm.game_start}</span></span>` : ''}
         ${fm.game_over === 'true' ? `<span class="meta-pill" style="color:var(--blood)">Game Over</span>` : ''}
@@ -880,13 +880,14 @@ function editHeader() {
       <input class="form-input" id="ed-vname" value="${esc(parsedData.vampireName)}">
     </div>
     <div class="form-row">
-      <label class="form-label">Epithet</label>
-      <input class="form-input" id="ed-epithet" value="${esc(parsedData.epithet)}">
-      <div class="form-hint">The blockquote tagline beneath the subtitle.</div>
+      <label class="form-label" style="margin-top:10px;">Concept / Tagline</label>
+      <input class="form-input" id="ed-subtitle" value="${esc(parsedData.subtitle)}">
+      <div class="form-hint">The tagline displayed beneath your vampire name.</div>
     </div>
   `, () => {
     parsedData.vampireName = document.getElementById('ed-vname').value.trim();
-    parsedData.epithet = document.getElementById('ed-epithet').value.trim();
+    parsedData.subtitle = document.getElementById('ed-subtitle').value.trim();
+    parsedData.frontmatter.vampire_desc = parsedData.subtitle;
     parsedData.frontmatter.vampire = parsedData.vampireName;
     closeModal(); markUnsaved(); renderChronicle(parsedData);
   }, 'Apply');
