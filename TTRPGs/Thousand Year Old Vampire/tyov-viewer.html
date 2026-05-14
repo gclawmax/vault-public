@@ -744,7 +744,13 @@ function renderChronicle(d) {
 
 function esc(s) {
   if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/—/g,'&mdash;')   // em dash (U+2014)
+    .replace(/–/g,'&mdash;');   // en dash (U+2013)
 }
 
 // ═══════════════════════════════════════════════════
