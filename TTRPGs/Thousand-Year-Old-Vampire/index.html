@@ -488,48 +488,53 @@ function parseMarkdown(md) {
 
   // ── Section extraction helper ──
   function extractSection(heading) {
-    const escapedHeading = heading.replace(/[.*+?^${}()|[\]\]/g, '\$&');
-    const re = new RegExp('^##\s+' + escapedHeading + '\s*$', 'm');
-    const start = body.search(re);
-    if (start === -1) return '';
-    const after = body.slice(start);
-    const nextH2 = after.search(/\r?\n##\s+/);
-    return nextH2 === -1 ? after : after.slice(0, nextH2);
+    const sectionLines = [];
+    let inSection = false;
+    lines.forEach(line => {
+      if (line.trim() === '## ' + heading) {
+        inSection = true;
+      } else if (inSection && line.startsWith('## ')) {
+        inSection = false;
+      } else if (inSection) {
+        sectionLines.push(line);
+      }
+    });
+    return sectionLines.join('\n');
   }
 
   // ── Marks ──
   const marksSec = extractSection('⚰ Marks');
-  marksSec.split('\n').forEach(line => {
-    const m = line.match(/^- (~~)?(.*?)(~~)? ?\*\(concealed: (.*?)\)\*/);
-    if (m) data.marks.push({ desc: m[2].trim(), concealment: m[4].trim(), struck: !!m[1] });
-    else {
-      const m2 = line.match(/^- (~~(.+)~~|(.+)) ?\*\(concealed: (.+)\)\*/);
-      if (m2) {
-        const struck = /^~~/.test(line);
-        const desc = (m2[2]||m2[3]||'').replace(/~~/g,'').trim();
-        data.marks.push({ desc, concealment: m2[4].trim(), struck });
-      }
-    }
-  });
+  data.marks = marksSec.split('\n').map(line => {
+    line = line.trim();
+    if (!line.startsWith('- ')) return null;
+    const struck = line.includes('~~');
+    const cleanLine = line.replace(/^- /, '').replace(/~~/g, '');
+    const parts = cleanLine.split(' *(concealed: ');
+    const desc = parts[0].trim();
+    const concealment = parts[1] ? parts[1].replace(')*', '').trim() : '';
+    return { desc, concealment, struck };
+  }).filter(Boolean);
 
   // ── Memories ──
   const memSec = extractSection('🧠 Memories');
   const memBlocks = memSec.split(/(?=### Memory \d+)/g).slice(1);
   memBlocks.forEach(block => {
-    const headerMatch = block.match(/^### (~~)?Memory (\d+) — (~~)?(.+?)(~~)? ?\*(in diary\*)?/);
-    if (!headerMatch) return;
-    const struck = !!headerMatch[1];
-    const n = parseInt(headerMatch[2]);
-    const theme = headerMatch[4].replace(/~~/g,'').replace(/\*(in diary)\*/,'').trim();
-    const inDiary = block.includes('*(in diary)*');
-    const exps = [];
-    block.split('\n').forEach(l => {
-      const em = l.match(/^(\d+)\. (.+)/);
-      if (em) {
-        const expText = em[2].trim();
-        const expStruck = /^~~/.test(expText) || /~~/.test(l);
-        exps.push({ text: expText.replace(/^~~|~~$/g,'').trim(), struck: expStruck });
-      }
+    const lines = block.split('\n');
+    const headerLine = lines.find(l => l.startsWith('### Memory'));
+    if (!headerLine) return;
+    const cleanHeader = headerLine.replace('### ', '').replace(/~~/g, '');
+    const parts = cleanHeader.split(' — ');
+    const n = parseInt(parts[0].split(' ')[1]);
+    const themePart = parts[1] || '';
+    const inDiary = themePart.includes('*(in diary)*');
+    const theme = themePart.replace(' *(in diary)*', '').trim();
+    const struck = headerLine.includes('~~');
+    const exps = lines.filter(l => /^\d+\./.test(l)).map(l => {
+      const numDot = l.indexOf('. ');
+      const text = l.slice(numDot + 2).trim();
+      const expStruck = text.includes('~~');
+      const cleanText = text.replace(/~~/g, '');
+      return { text: cleanText, struck: expStruck };
     });
     data.memories.push({ n, theme, experiences: exps, struck, inDiary });
   });
@@ -540,42 +545,48 @@ function parseMarkdown(md) {
   if (diarySec.includes('### Memory')) {
     const diaryMemBlocks = diarySec.split(/(?=### Memory \d+)/g).slice(1);
     diaryMemBlocks.forEach(block => {
-      const hm = block.match(/^### Memory (\d+) — (.+)/);
-      if (!hm) return;
-      const exps = [];
-      block.split('\n').forEach(l => {
-        const em = l.match(/^(\d+)\. (.+)/);
-        if (em) exps.push({ text: em[2].trim() });
+      const lines = block.split('\n');
+      const headerLine = lines.find(l => l.startsWith('### Memory'));
+      if (!headerLine) return;
+      const parts = headerLine.replace('### Memory ', '').split(' — ');
+      const n = parseInt(parts[0]);
+      const theme = parts[1] ? parts[1].trim() : '';
+      const exps = lines.filter(l => /^\d+\./.test(l)).map(l => {
+        const numDot = l.indexOf('. ');
+        return { text: l.slice(numDot + 2).trim() };
       });
-      data.diary.memories.push({ n: parseInt(hm[1]), theme: hm[2].trim(), experiences: exps });
+      data.diary.memories.push({ n, theme, experiences: exps });
     });
   }
 
   // ── Skills ──
   const skillSec = extractSection('⚔ Skills');
   skillSec.split('\n').forEach(line => {
-    if (!/^\|/.test(line) || /Skill/.test(line) || /---/.test(line)) return;
-    const cols = line.split('|').map(c=>c.trim()).filter(Boolean);
+    if (!line.startsWith('|') || line.includes('Skill') || line.includes('---')) return;
+    const cols = line.split('|').map(c => c.trim()).filter(Boolean);
     if (cols.length < 2) return;
-    let name = cols[0]; let status = cols[1];
-    const lost = /~~/.test(name);
-    name = name.replace(/~~/g,'').trim();
-    let st = 'unchecked';
-    if (lost || /lost/.test(status)) st = 'lost';
-    else if (/☑|checked/.test(status)) st = 'checked';
-    data.skills.push({ name, status: st });
+    let name = cols[0];
+    const statusRaw = cols[1];
+    const lost = name.includes('~~') || statusRaw.toLowerCase().includes('lost');
+    name = name.replace(/~~/g, '').trim();
+    let status = 'unchecked';
+    if (lost) status = 'lost';
+    else if (statusRaw.includes('☑') || statusRaw.toLowerCase().includes('checked')) status = 'checked';
+    data.skills.push({ name, status });
   });
 
   // ── Resources ──
   const resSec = extractSection('🏚 Resources');
   resSec.split('\n').forEach(line => {
-    if (!/^\|/.test(line) || /Resource/.test(line) || /---/.test(line)) return;
-    const cols = line.split('|').map(c=>c.trim()).filter(Boolean);
+    if (!line.startsWith('|') || line.includes('Resource') || line.includes('---')) return;
+    const cols = line.split('|').map(c => c.trim()).filter(Boolean);
     if (cols.length < 3) return;
-    let name = cols[0]; const type = cols[1]; const statusRaw = cols[2];
-    const lost = /~~/.test(name) || /lost/.test(statusRaw);
-    name = name.replace(/~~/g,'').trim();
-    const isStationary = type.includes('stationary') || type.includes('📍');
+    let name = cols[0];
+    const typeRaw = cols[1];
+    const statusRaw = cols[2];
+    const lost = name.includes('~~') || statusRaw.toLowerCase().includes('lost');
+    name = name.replace(/~~/g, '').trim();
+    const isStationary = typeRaw.toLowerCase().includes('stationary') || typeRaw.includes('📍');
     data.resources.push({ name, type: isStationary ? 'stationary' : 'portable', status: lost ? 'lost' : 'active' });
   });
 
@@ -583,17 +594,17 @@ function parseMarkdown(md) {
   const charSec = extractSection('👥 Characters');
   let charMode = null;
   charSec.split('\n').forEach(line => {
-    if (/### Mortals/.test(line)) { charMode = 'mortal'; return; }
-    if (/### Immortals/.test(line)) { charMode = 'immortal'; return; }
+    if (line.includes('### Mortals')) { charMode = 'mortal'; return; }
+    if (line.includes('### Immortals')) { charMode = 'immortal'; return; }
     if (!charMode) return;
-    const dead = /^- ~~\*\*/.test(line);
-    const alive = /^- \*\*/.test(line);
+    const dead = line.startsWith('- ~~**');
+    const alive = line.startsWith('- **');
     if (!dead && !alive) return;
-    const m = dead
-      ? line.match(/^- ~~\*\*(.+?)\*\*~~ — ~~(.+?)~~/)
-      : line.match(/^- \*\*(.+?)\*\* — (.+)/);
-    if (!m) return;
-    const entry = { name: m[1].trim(), desc: m[2].replace(/\*(dust[^*]*)\*/, '').replace(/~~|~~.*?~~/g,'').trim(), dead };
+    const cleanLine = line.replace(/^- ~~\*\*|- \*\*/, '').replace(/\*\*~~ — ~~|\*\* — /, ' — ');
+    const parts = cleanLine.split(' — ');
+    const name = parts[0].trim();
+    const desc = parts[1] ? parts[1].replace(/\*(dust[^*]*)\*/, '').replace(/~~/g, '').trim() : '';
+    const entry = { name, desc, dead };
     if (charMode === 'mortal') data.mortals.push(entry);
     else data.immortals.push(entry);
   });
@@ -604,23 +615,27 @@ function parseMarkdown(md) {
     const journalSec = body.slice(journalIdx);
     const turnBlocks = journalSec.split(/(?=### Turn \d+)/g).slice(1);
     turnBlocks.forEach(block => {
-      const header = block.match(/^### Turn (\d+) — Prompt (\d+), Entry (\d+)/);
-      if (!header) return;
-      const turn = parseInt(header[1]), prompt = parseInt(header[2]), entry = parseInt(header[3]);
-      const promptLineMatch = block.match(/\n\*(.*?)\*\n/);
-      const promptText = promptLineMatch ? promptLineMatch[1] : '';
+      const lines = block.split('\n');
+      const headerLine = lines.find(l => l.startsWith('### Turn '));
+      if (!headerLine) return;
+      const headerParts = headerLine.replace('### Turn ', '').split(' — Prompt ');
+      const turn = parseInt(headerParts[0]);
+      const promptEntry = headerParts[1].split(', Entry ');
+      const prompt = parseInt(promptEntry[0]);
+      const entry = parseInt(promptEntry[1]);
+      const promptLine = lines.find(l => l.trim().startsWith('*') && !l.includes('**'));
+      const promptText = promptLine ? promptLine.replace(/^\*/, '').replace(/\*$/, '').trim() : '';
       const awaiting = block.includes('*Awaiting resolution.*');
-      const changesMatch = block.match(/\*\*Changes:\*\* (.+)/);
-      const changes = changesMatch ? changesMatch[1].trim() : '';
-      // Prose: everything between prompt line and Changes/Awaiting
+      const changesLine = lines.find(l => l.startsWith('**Changes:**'));
+      const changes = changesLine ? changesLine.replace('**Changes:** ', '').trim() : '';
+      // Prose: lines between prompt and changes
       let prose = '';
-      const bLines = block.split('\n');
       let inProse = false;
-      for (const bl of bLines) {
-        if (!inProse && /^\*[^*]/.test(bl.trim()) && bl.includes(promptText.slice(0,20))) { inProse = true; continue; }
+      for (const l of lines) {
+        if (l === promptLine) { inProse = true; continue; }
         if (inProse) {
-          if (/^\*\*Changes:/.test(bl) || bl.trim() === '*Awaiting resolution.*' || bl.trim() === '---') break;
-          prose += bl + '\n';
+          if (l === changesLine || l.trim() === '*Awaiting resolution.*' || l.trim() === '---') break;
+          prose += l + '\n';
         }
       }
       data.journal.push({ turn, prompt, entry, promptText, prose: prose.trim(), changes, awaiting });
@@ -629,8 +644,12 @@ function parseMarkdown(md) {
   }
 
   // ── Last played ──
-  const lpMatch = md.match(/\*Last played: (\d{4}-\d{2}-\d{2})\*/);
-  if (lpMatch) data.lastPlayed = lpMatch[1];
+  const lpIdx = md.indexOf('*Last played: ');
+  if (lpIdx !== -1) {
+    const lpLine = md.slice(lpIdx);
+    const dateMatch = lpLine.match(/(\d{4}-\d{2}-\d{2})/);
+    if (dateMatch) data.lastPlayed = dateMatch[1];
+  }
 
   return data;
 }
