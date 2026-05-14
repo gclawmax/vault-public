@@ -48,7 +48,23 @@
       "in_diary": false
     }
   ],
-  "skills": [],
+  "skills": [
+    {
+      "name": "Swordsmanship",
+      "description": "A master of the blade, deadly in the yard or on the battlefield.",
+      "status": "available"
+    },
+    {
+      "name": "Falconry",
+      "description": "A noble pastime and a discipline of patience and control over the wild.",
+      "status": "available"
+    },
+    {
+      "name": "Tactics and Command",
+      "description": "The art of warfare and strategy, learned in Bran's yard and your court.",
+      "status": "available"
+    }
+  ],
   "resources": [],
   "characters": [
     {
