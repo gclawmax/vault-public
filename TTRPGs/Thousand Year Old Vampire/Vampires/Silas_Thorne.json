@@ -1,0 +1,71 @@
+{
+  "name": "Silas Thorne",
+  "vampire_desc": "A solitary Manchester clockmaker, immortalised by his fear of loss and his hands, which never learned their craft in vain.",
+  "mortal_self": "Born in the autumn of 1887 in Manchester. Father, a precise clockmaker; mother died when he was twelve. Took over the shop at fifteen. Solitary by nature. Learned horology because objects cannot leave you, unlike people. Passed war service through military value. Lived alone, counted earnings, forgot how to speak to the living.",
+  "game_start": "2026-05-14",
+  "modified": "2026-05-14",
+  "game_over": false,
+  "game_completed": "",
+  "current_prompt": 0,
+  "prompts_resolved": 0,
+  "show_suggestions": true,
+  "memories": [
+    {
+      "name": "Memory 1: The Mortal",
+      "experiences": [
+        "I was born in Manchester in the autumn of 1887, the son of a clockmaker father and a mother I buried when I was twelve; I discovered early that clocks keep their promises better than people, and I learned to trust them instead."
+      ],
+      "status": "available",
+      "in_diary": false
+    },
+    {
+      "name": "Memory 2",
+      "experiences": [],
+      "status": "available",
+      "in_diary": false
+    },
+    {
+      "name": "Memory 3",
+      "experiences": [],
+      "status": "available",
+      "in_diary": false
+    },
+    {
+      "name": "Memory 4",
+      "experiences": [],
+      "status": "available",
+      "in_diary": false
+    },
+    {
+      "name": "Memory 5",
+      "experiences": [],
+      "status": "available",
+      "in_diary": false
+    }
+  ],
+  "diary": {
+    "memories": []
+  },
+  "skills": [],
+  "resources": [],
+  "characters": [],
+  "marks": [],
+  "immortal": {
+    "name": "",
+    "description": ""
+  },
+  "journal": [
+    {
+      "turn": 0,
+      "prompt": 0,
+      "entry": 0,
+      "prompt_text": "Character Creation",
+      "resolved": true,
+      "experience": "I accepted the concept of Silas Thorne and sealed my mortal life in Memory 1.",
+      "changes": ""
+    }
+  ],
+  "epitaph": {
+    "experience": ""
+  }
+}
