@@ -7,7 +7,7 @@
   "game_over": false,
   "game_completed": "",
   "current_prompt": 0,
-  "prompts_resolved": 0,
+  "prompts_resolved": 1,
   "show_suggestions": true,
   "memories": [
     {
@@ -48,7 +48,26 @@
   },
   "skills": [],
   "resources": [],
-  "characters": [],
+  "characters": [
+    {
+      "name": "Arthur Thorne",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": ""
+    },
+    {
+      "name": "Maeve O'Brien",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": ""
+    },
+    {
+      "name": "Father Thomas Kavanagh",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": ""
+    }
+  ],
   "marks": [],
   "immortal": {
     "name": "",
