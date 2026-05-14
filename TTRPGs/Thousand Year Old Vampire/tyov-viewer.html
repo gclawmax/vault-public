@@ -186,17 +186,19 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
 .resources-inline{display:flex;flex-wrap:wrap;gap:6px;}
 .resource-chip{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);padding:3px 10px;font-size:.85rem;}
 .resource-chip.lost{opacity:.4;text-decoration:line-through;text-decoration-color:var(--blood);}
-.resource-type-dot{width:7px;height:7px;border-radius:50%;background:var(--accent-dim);flex-shrink:0;}
-.resource-chip.portable .resource-type-dot{background:var(--accent);}
-.resource-chip.stationary .resource-type-dot{background:var(--ink-faint);}
+.resource-type-icon{font-size:1rem;flex-shrink:0;filter:grayscale(0);}
+/* Lost resources still get full icon, opacity on the chip */
 
 /* ── Main layout ── */
-.main-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:0;min-height:60vh;}
-.chars-col{border-right:1px solid var(--border);padding:20px 16px;background:var(--bg2);}
-.col-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.main-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:0;min-height:60vh;}
+.chars-col{display:flex;flex-direction:column;gap:0;border-right:1px solid var(--border);background:var(--bg2);}
+.char-panel{flex:1;padding:16px;overflow-y:auto;min-height:0;display:flex;flex-direction:column;}
+.char-panel:first-child{border-bottom:1px solid var(--border);}
+.panel-title{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .char-group-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:14px 0 6px;}
 .char-group-label:first-child{margin-top:0;}
-.char-row{padding:7px 0;border-bottom:1px solid var(--border);font-size:.88rem;}
+.char-list{flex:1;overflow-y:auto;min-height:0;padding-top:8px;}
+.char-row{padding:7px 0;border-bottom:1px solid var(--border);font-size:.88rem;flex-shrink:0;}
 .char-row:last-child{border-bottom:none;}
 .char-row.dead{opacity:.4;}
 .char-row.dead .char-row-name{text-decoration:line-through;text-decoration-color:var(--blood);}
@@ -648,8 +650,9 @@ function renderChronicle(d) {
     <div class="resources-inline">`;
   d.resources.forEach(r => {
     const cls = r.status === 'lost' ? 'lost' : r.type;
+    const icon = r.type === 'portable' ? '\uD83D\uDCE6' : r.type === 'stationary' ? '\uD83D\uDCCD' : '\u25CB';
     html += `<span class="resource-chip ${cls}" title="${r.type}">
-      <span class="resource-type-dot"></span>
+      <span class="resource-type-icon">${esc(icon)}</span>
       ${esc(r.name)}
     </span>`;
   });
@@ -660,25 +663,36 @@ function renderChronicle(d) {
   // ── Main layout: Characters + Journal ──
   html += `<div class="main-layout">`;
 
-  // Characters column
+  // ── Characters column (split: mortals | immortals) ──
   html += `<div class="chars-col section-editwrap" data-section="characters">
     <button class="edit-section-btn" onclick="editCharacters()">✎ Edit</button>
-    <div class="col-label">👥 Characters</div>
-    <div class="char-group-label">Mortals</div>`;
+    <div class="char-panel">
+      <div class="panel-title">🪦 Mortal Characters</div>
+      <div class="char-list">`;
+  if (d.mortals.length === 0) {
+    html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
+  }
   d.mortals.forEach(c => {
     html += `<div class="char-row ${c.dead ? 'dead' : ''}">
       <div class="char-row-name">${esc(c.name)}</div>
       <div class="char-row-desc">${esc(c.desc)}</div>
     </div>`;
   });
-  html += `<div class="char-group-label">Immortals</div>`;
+  html += `</div></div>
+    <div class="char-panel">
+      <div class="panel-title">💀 Immortal Characters</div>
+      <div class="char-list">`;
+  if (d.immortals.length === 0) {
+    html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
+  }
   d.immortals.forEach(c => {
     html += `<div class="char-row ${c.dead ? 'dead' : ''}">
       <div class="char-row-name">${esc(c.name)}</div>
       <div class="char-row-desc">${esc(c.desc)}</div>
     </div>`;
   });
-  html += `</div>`; // chars-col
+  html += `</div></div>
+  </div>`; // chars-col
 
   // Journal column
   html += `<div class="journal-col section-editwrap" data-section="journal">
