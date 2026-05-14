@@ -667,7 +667,7 @@ function renderChronicle(d) {
   html += `<div class="chars-col section-editwrap" data-section="characters">
     <button class="edit-section-btn" onclick="editCharacters()">✎ Edit</button>
     <div class="char-panel">
-      <div class="panel-title">🪦 Mortal Characters</div>
+      <div class="panel-title">👤 Mortal Characters</div>
       <div class="char-list">`;
   if (d.mortals.length === 0) {
     html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
@@ -680,7 +680,7 @@ function renderChronicle(d) {
   });
   html += `</div></div>
     <div class="char-panel">
-      <div class="panel-title">💀 Immortal Characters</div>
+      <div class="panel-title">🧛 Immortal Characters</div>
       <div class="char-list">`;
   if (d.immortals.length === 0) {
     html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
