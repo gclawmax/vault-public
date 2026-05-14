@@ -12,35 +12,37 @@
   "memories": [
     {
       "name": "Memory 1",
-      "description": "Your mortal life — broad overview of who you were before the nights began.",
-      "experiences": [],
+      "description": "Your mortal life \u2014 broad overview of who you were before the nights began.",
+      "experiences": [
+        "I was born into silk and sycophants in the misty highlands around 1050 AD \u2014 surrounded by those who flattered every whim, I grew arrogant in the knowledge that the world would bend or break for me, not the other way round."
+      ],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 2",
-      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "description": "A memory in your immortal life \u2014 holds one Experience (two selected traits woven together).",
       "experiences": [],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 3",
-      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "description": "A memory in your immortal life \u2014 holds one Experience (two selected traits woven together).",
       "experiences": [],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 4",
-      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "description": "A memory in your immortal life \u2014 holds one Experience (two selected traits woven together).",
       "experiences": [],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 5",
-      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "description": "A memory in your immortal life \u2014 holds one Experience (two selected traits woven together).",
       "experiences": [],
       "status": "available",
       "in_diary": false
