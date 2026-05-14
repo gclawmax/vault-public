@@ -190,10 +190,8 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
 /* Lost resources still get full icon, opacity on the chip */
 
 /* ── Main layout ── */
-.main-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:0;min-height:60vh;}
-.chars-col{display:flex;flex-direction:row;border-right:1px solid var(--border);background:var(--bg2);min-width:0;flex-shrink:0;}
-.char-panel{flex:1;padding:16px;overflow-y:auto;min-height:0;display:flex;flex-direction:column;}
-.char-panel:first-child{border-right:1px solid var(--border);}
+.main-layout{display:grid;grid-template-columns:1fr minmax(0,2fr) 1fr;gap:0;min-height:60vh;}.char-col{border-right:1px solid var(--border);background:var(--bg2);min-width:0;flex-shrink:0;overflow-y:auto;}
+.char-panel{flex:1;padding:16px;display:flex;flex-direction:column;min-height:0;}
 .panel-title{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .char-group-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:14px 0 6px;}
 .char-group-label:first-child{margin-top:0;}
@@ -206,7 +204,7 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
 .char-row-desc{color:var(--ink-faint);font-size:.8rem;line-height:1.3;margin-top:1px;}
 
 /* ── Journal ── */
-.journal-col{padding:24px 28px;min-width:0;}
+.journal-col{padding:24px 28px;min-width:0;overflow-y:auto;min-height:0;max-height:85vh;}
 .journal-entry{margin-bottom:30px;}
 .journal-turn{font-family:'Cinzel',serif;font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--blood);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
 .journal-turn::after{content:'';flex:1;height:1px;background:var(--border);}
@@ -660,15 +658,14 @@ function renderChronicle(d) {
 
   html += `</div>`; // dashboard-strip
 
-  // ── Main layout: Characters + Journal ──
+  // ── Main layout: Mortals | Journal | Immortals ──
   html += `<div class="main-layout">`;
 
-  // ── Characters column (split: mortals | immortals) ──
-  html += `<div class="chars-col section-editwrap" data-section="characters">
+  // ── Left: Mortal Characters ──
+  html += `<div class="char-col section-editwrap" data-section="characters-mortal">
     <button class="edit-section-btn" onclick="editCharacters()">✎ Edit</button>
-    <div class="char-panel">
-      <div class="panel-title">🧑 Mortal Characters</div>
-      <div class="char-list">`;
+    <div class="char-panel" style="height:100%;"><div class="panel-title">🧑 Mortal Characters</div>
+    <div class="char-list">`;
   if (d.mortals.length === 0) {
     html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
   }
@@ -678,23 +675,9 @@ function renderChronicle(d) {
       <div class="char-row-desc">${esc(c.desc)}</div>
     </div>`;
   });
-  html += `</div></div>
-    <div class="char-panel">
-      <div class="panel-title">🧛 Immortal Characters</div>
-      <div class="char-list">`;
-  if (d.immortals.length === 0) {
-    html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
-  }
-  d.immortals.forEach(c => {
-    html += `<div class="char-row ${c.dead ? 'dead' : ''}">
-      <div class="char-row-name">${esc(c.name)}</div>
-      <div class="char-row-desc">${esc(c.desc)}</div>
-    </div>`;
-  });
-  html += `</div></div>
-  </div>`; // chars-col
+  html += `</div></div></div>`;
 
-  // Journal column
+  // ── Middle: Journal ──
   html += `<div class="journal-col section-editwrap" data-section="journal">
     <button class="edit-section-btn" onclick="editJournal()">✎ Edit</button>`;
   if (d.journal.length === 0) {
@@ -714,7 +697,22 @@ function renderChronicle(d) {
     }
     html += `</div></div></div>`;
   });
-  html += `</div>`; // journal-col
+  html += `</div>`;
+
+  // ── Right: Immortal Characters ──
+  html += `<div class="char-col section-editwrap" data-section="characters-immortal">
+    <div class="char-panel" style="height:100%;"><div class="panel-title">🧛 Immortal Characters</div>
+    <div class="char-list">`;
+  if (d.immortals.length === 0) {
+    html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
+  }
+  d.immortals.forEach(c => {
+    html += `<div class="char-row ${c.dead ? 'dead' : ''}">
+      <div class="char-row-name">${esc(c.name)}</div>
+      <div class="char-row-desc">${esc(c.desc)}</div>
+    </div>`;
+  });
+  html += `</div></div></div>`;
 
   html += `</div>`; // main-layout
 
