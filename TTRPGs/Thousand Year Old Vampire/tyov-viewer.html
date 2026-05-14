@@ -1,1480 +1,1474 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thousand Year Old Vampire — Chronicle Viewer</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=UnifrakturMaguntia&display=swap"
-    rel="stylesheet">
-
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-  <style>
-    :root {
-      --bg: #e8dfc8;
-      --bg2: #dfd5ba;
-      --bg3: #d4c9a8;
-      --surface: #f0e8d0;
-      --surface2: #e8ddc0;
-      --ink: #1c1208;
-      --ink-dim: #3a2c18;
-      --ink-faint: #7a6040;
-      --blood: #8b1a1a;
-      --blood-bright: #c0392b;
-      --accent: #5c3a10;
-      --accent-dim: #8a6030;
-      --border: #b8a070;
-      --border-bright: #8a6030;
-      --topbar-bg: #d4c9a8f2;
-      --topbar-border: #b8a070;
-      --pill-bg: #d4c9a8;
-      --tag-bg: #c8b888;
-      --shadow: rgba(0, 0, 0, 0.18);
-      --torn-shadow: rgba(0, 0, 0, 0.14);
-      --status-ok: #3a6a2a;
-      --card-bg: #f5edd8;
-      --card-bg2: #ece0c4;
-    }
-
-    /* Hidden key panel styles */
-    #key-panel {
-      position: fixed;
-      left: -320px;
-      top: 0;
-      width: 300px;
-      height: 100vh;
-      background: var(--bg2);
-      border-right: 1px solid var(--border);
-      padding: 20px;
-      z-index: 200;
-      transition: left 0.3s ease;
-      overflow-y: auto;
-      box-shadow: 2px 0 15px var(--shadow);
-    }
-
-    #key-panel.open {
-      left: 0;
-    }
-
-    #key-toggle {
-      position: fixed;
-      left: 10px;
-      top: 120px;
-      z-index: 199;
-      background: var(--blood);
-      border: none;
-      color: white;
-      width: 32px;
-      height: 32px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: left 0.3s ease;
-    }
-
-    #key-toggle.hidden {
-      left: -40px;
-    }
-
-    .key-label {
-      font-family: 'Cinzel', serif;
-      font-size: 9px;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--accent-dim);
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .key-input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--ink);
-      padding: 8px;
-      font-size: 12px;
-      font-family: 'EB Garamond', serif;
-      margin-bottom: 16px;
-    }
-
-    .key-input:focus {
-      outline: none;
-      border-color: var(--blood);
-      box-shadow: 0 0 4px var(--blood);
-    }
-
-    .key-info {
-      font-size: 11px;
-      color: var(--ink-faint);
-      line-height: 1.4;
-      margin-bottom: 16px;
-    }
-
-    /* Edit mode indicator */
-    #edit-mode-btn {
-      background: var(--surface);
-      border: 1px solid var(--border-bright);
-      color: var(--accent);
-      padding: 6px 12px;
-      cursor: pointer;
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      text-transform: uppercase;
-    }
-
-    #edit-mode-btn.active {
-      background: var(--blood);
-      color: white;
-      border-color: var(--blood);
-    }
-
-    /* Editor container */
-    #editor-container {
-      display: none;
-      padding: 24px 28px;
-      min-height: 60vh;
-    }
-
-    #editor-container.active {
-      display: block;
-    }
-
-    #editor-textarea {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--ink);
-      padding: 16px;
-      font-size: 13px;
-      font-family: 'Courier New', monospace;
-      line-height: 1.6;
-      resize: vertical;
-      min-height: 500px;
-      box-sizing: border-box;
-    }
-
-    #editor-textarea:focus {
-      outline: none;
-      border-color: var(--blood);
-      box-shadow: 0 0 4px var(--blood);
-    }
-
-    .editor-buttons {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      justify-content: flex-end;
-    }
-
-    .editor-btn {
-      background: var(--surface);
-      border: 1px solid var(--border-bright);
-      color: var(--accent);
-      padding: 8px 16px;
-      cursor: pointer;
-      font-family: 'Cinzel', serif;
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-
-    .editor-btn.save {
-      background: var(--blood);
-      color: white;
-      border-color: var(--blood);
-    }
-
-    .editor-btn:hover {
-      opacity: 0.9;
-    }
-
-    [data-skin="dark"] {
-      --bg: #1a1410;
-      --bg2: #221c15;
-      --bg3: #2d2418;
-      --surface: #1e1710;
-      --surface2: #160f08;
-      --ink: #e8d9b8;
-      --ink-dim: #a89070;
-      --ink-faint: #6a5840;
-      --blood: #8b1a1a;
-      --blood-bright: #c0392b;
-      --accent: #c9a84c;
-      --accent-dim: #8a6e30;
-      --border: #4a3520;
-      --border-bright: #7a5530;
-      --topbar-bg: #110d08f2;
-      --topbar-border: #2a1e10;
-      --pill-bg: #2a1e10;
-      --tag-bg: #2d2418;
-      --shadow: rgba(0, 0, 0, 0.5);
-      --torn-shadow: rgba(0, 0, 0, 0.4);
-      --status-ok: #4a8a4a;
-      --card-bg: #221c14;
-      --card-bg2: #1a1510;
-    }
-
-    [data-skin="scholar"] {
-      --bg: #f5f0e8;
-      --bg2: #ede6d8;
-      --bg3: #e4dccc;
-      --surface: #faf7f0;
-      --surface2: #f0ebe0;
-      --ink: #1a1208;
-      --ink-dim: #4a3c28;
-      --ink-faint: #9a8a70;
-      --blood: #6b0f0f;
-      --blood-bright: #9b2020;
-      --accent: #2c4a6e;
-      --accent-dim: #4a6a8e;
-      --border: #c8bca0;
-      --border-bright: #a09070;
-      --topbar-bg: #ede6d8f5;
-      --topbar-border: #c8bca0;
-      --pill-bg: #e4dccc;
-      --tag-bg: #ddd4c0;
-      --shadow: rgba(0, 0, 0, 0.10);
-      --torn-shadow: rgba(0, 0, 0, 0.08);
-      --status-ok: #2a5a2a;
-      --card-bg: #faf7f0;
-      --card-bg2: #f0ebe0;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'EB Garamond', serif;
-      font-size: 17px;
-      line-height: 1.7;
-      min-height: 100vh;
-    }
-
-    /* ── Top bar ──────────────────────────────────────────── */
-
-    #top-bar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--topbar-bg);
-      border-bottom: 1px solid var(--topbar-border);
-      backdrop-filter: blur(8px);
-    }
-
-    #picker-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      padding: 10px 16px;
-      flex-wrap: wrap;
-    }
-
-    #picker-label {
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      letter-spacing: .14em;
-      color: var(--accent-dim);
-      text-transform: uppercase;
-    }
-
-    #game-select {
-      flex: 1;
-      min-width: 180px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      color: var(--ink);
-      padding: 8px 10px;
-      font-size: 15px;
-    }
-
-    .top-btn {
-      background: transparent;
-      border: 1px solid var(--border-bright);
-      color: var(--accent);
-      padding: 6px 12px;
-      cursor: pointer;
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      text-transform: uppercase;
-    }
-
-    .top-btn:hover {
-      background: var(--blood);
-      color: white;
-    }
-
-    #status-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 4px 16px 6px;
-      font-size: 12px;
-      color: var(--ink-faint);
-      border-bottom: 1px solid var(--topbar-border);
-    }
-
-    #status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--ink-faint);
-    }
-
-    #status-dot.ok {
-      background: var(--status-ok);
-    }
-
-    #status-dot.err {
-      background: var(--blood-bright);
-    }
-
-    #status-dot.busy {
-      background: var(--accent);
-      animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: .4;
-      }
-    }
-
-    .skin-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-    }
-
-    .skin-btn.active {
-      border-color: var(--border-bright);
-    }
-
-    .skin-btn[data-s="book"] {
-      background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070);
-    }
-
-    .skin-btn[data-s="dark"] {
-      background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410);
-    }
-
-    .skin-btn[data-s="scholar"] {
-      background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0);
-    }
-
-    /* ── App wrapper ──────────────────────────────────────── */
-
-    #app {
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 0 0 40px;
-    }
-
-    /* ── Vampire header ───────────────────────────────────── */
-
-    .vamp-header {
-      text-align: center;
-      padding: 36px 20px 28px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 0;
-    }
-
-    .vamp-name-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      margin: 0 auto;
-      max-width: 700px;
-    }
-
-    .vamp-rule {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .vamp-rule span {
-      display: block;
-      background: var(--blood);
-      height: 1px;
-    }
-
-    .vamp-rule span:first-child {
-      opacity: 0.5;
-    }
-
-    .vamp-rule span:last-child {
-      opacity: 0.3;
-    }
-
-    .vamp-name {
-      font-family: 'Cinzel Decorative', serif;
-      font-weight: 400;
-      font-size: clamp(1.6rem, 3.5vw, 2.8rem);
-      line-height: 1.15;
-      color: var(--blood);
-      letter-spacing: .04em;
-      white-space: nowrap;
-    }
-
-    .vamp-subtitle {
-      font-family: 'Cinzel Decorative', serif;
-      font-weight: 400;
-      font-size: clamp(0.7rem, 1.5vw, 1rem);
-      color: var(--ink-faint);
-      letter-spacing: .08em;
-      margin-top: 10px;
-    }
-
-    .vamp-epitaph {
-      margin: 14px auto 0;
-      max-width: 600px;
-      padding: 10px 16px;
-      border-left: 2px solid var(--blood);
-      text-align: left;
-      color: var(--ink-dim);
-      font-style: italic;
-      font-size: .95rem;
-      background: var(--surface2);
-    }
-
-    .meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
-      margin-top: 16px;
-    }
-
-    .meta-pill {
-      background: var(--pill-bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 3px 12px;
-      font-size: 9px;
-      font-family: 'Cinzel', serif;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    .meta-pill span {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    /* ── Dashboard strip (stats row below header) ─────────── */
-
-    .dashboard-strip {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      border-bottom: 1px solid var(--border);
-      background: var(--bg2);
-    }
-
-    .strip-cell {
-      padding: 14px 18px;
-      border-right: 1px solid var(--border);
-    }
-
-    .strip-cell:last-child {
-      border-right: none;
-    }
-
-    .strip-label {
-      font-family: 'Cinzel', serif;
-      font-size: 9px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--accent-dim);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* ── Marks inline ─────────────────────────────────────── */
-
-    .marks-inline {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .mark-chip {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 3px 10px;
-      font-size: .85rem;
-      color: var(--ink-dim);
-      position: relative;
-      padding-left: 18px;
-    }
-
-    .mark-chip::before {
-      content: '⬥';
-      position: absolute;
-      left: 6px;
-      color: var(--blood);
-      font-size: .7rem;
-    }
-
-    /* ── Skills inline ────────────────────────────────────── */
-
-    .skills-inline {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .skill-chip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 3px 10px;
-      font-size: .85rem;
-    }
-
-    .skill-chip.lost {
-      opacity: .4;
-      text-decoration: line-through;
-      text-decoration-color: var(--blood);
-    }
-
-    .skill-chip.checked {
-      border-color: var(--blood);
-    }
-
-    .skill-box {
-      width: 12px;
-      height: 12px;
-      border: 1px solid var(--border-bright);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      flex-shrink: 0;
-    }
-
-    .skill-chip.checked .skill-box {
-      background: var(--blood);
-      color: white;
-    }
-
-    /* ── Resources inline ─────────────────────────────────── */
-
-    .resources-inline {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .resource-chip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 3px 10px;
-      font-size: .85rem;
-    }
-
-    .resource-chip.lost {
-      opacity: .4;
-      text-decoration: line-through;
-      text-decoration-color: var(--blood);
-    }
-
-    .resource-type-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--accent-dim);
-      flex-shrink: 0;
-    }
-
-    .resource-chip.portable .resource-type-dot {
-      background: var(--accent);
-    }
-
-    .resource-chip.stationary .resource-type-dot {
-      background: var(--ink-faint);
-    }
-
-    /* ── Main layout: characters + journal (memories moved below) */
-
-    .main-layout {
-      display: grid;
-      grid-template-columns: 220px minmax(0, 1fr);
-      gap: 0;
-      min-height: 60vh;
-    }
-
-    /* ── Characters panel (left) ──────────────────────────── */
-
-    .chars-col {
-      border-right: 1px solid var(--border);
-      padding: 20px 16px;
-      background: var(--bg2);
-    }
-
-    .col-label {
-      font-family: 'Cinzel', serif;
-      font-size: 9px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--accent-dim);
-      margin-bottom: 14px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .char-group-label {
-      font-family: 'Cinzel', serif;
-      font-size: 8px;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      margin: 14px 0 6px;
-    }
-
-    .char-group-label:first-child {
-      margin-top: 0;
-    }
-
-    .char-row {
-      padding: 7px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: .88rem;
-    }
-
-    .char-row:last-child {
-      border-bottom: none;
-    }
-
-    .char-row.dead {
-      opacity: .4;
-    }
-
-    .char-row.dead .char-row-name {
-      text-decoration: line-through;
-      text-decoration-color: var(--blood);
-    }
-
-    .char-row-name {
-      font-weight: 600;
-      color: var(--accent);
-      font-size: .88rem;
-    }
-
-    .char-row-desc {
-      color: var(--ink-faint);
-      font-size: .8rem;
-      line-height: 1.3;
-      margin-top: 1px;
-    }
-
-    /* ── Journal (centre) ─────────────────────────────────── */
-
-    .journal-col {
-      padding: 24px 28px;
-      min-width: 0;
-    }
-
-    .journal-entry {
-      margin-bottom: 30px;
-    }
-
-    .journal-turn {
-      font-family: 'Cinzel', serif;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: .18em;
-      color: var(--blood);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .journal-turn::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .journal-scrap {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      padding: 18px 22px;
-      box-shadow: 2px 3px 10px var(--torn-shadow);
-    }
-
-    .journal-prompt-text {
-      margin-bottom: 14px;
-      padding: 8px 12px;
-      background: var(--tag-bg);
-      border-left: 3px solid var(--blood);
-      font-size: .88rem;
-      color: var(--ink-dim);
-      line-height: 1.5;
-    }
-
-    .journal-body {
-      line-height: 1.8;
-    }
-
-    .journal-body p {
-      margin-bottom: 12px;
-    }
-
-    .journal-body p:last-child {
-      margin-bottom: 0;
-    }
-
-    .journal-body em,
-    .journal-body i {
-      font-style: italic;
-    }
-
-    /* ── Memories (full-width grid below journal) ─────────── */
-
-    .memories-section {
-      border-top: 1px solid var(--border);
-      background: var(--bg2);
-      padding: 20px 28px 28px;
-    }
-
-    .memories-section-label {
-      font-family: 'Cinzel', serif;
-      font-size: 9px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--accent-dim);
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .memories-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 14px;
-    }
-
-    .memory-block {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      padding: 14px 16px;
-      font-size: .88rem;
-      line-height: 1.6;
-      box-shadow: 1px 2px 5px var(--shadow);
-    }
-
-    .memory-block.forgotten {
-      opacity: .4;
-      border-style: dashed;
-    }
-
-    .memory-block.forgotten .memory-title {
-      text-decoration: line-through;
-      text-decoration-color: var(--blood);
-    }
-
-    .memory-title {
-      font-family: 'Cinzel', serif;
-      font-size: 8.5px;
-      letter-spacing: .13em;
-      text-transform: uppercase;
-      color: var(--accent-dim);
-      margin-bottom: 8px;
-    }
-
-    .memory-block p {
-      margin-bottom: 6px;
-    }
-
-    .memory-block p:last-child {
-      margin-bottom: 0;
-    }
-
-    .memory-block ol,
-    .memory-block ul {
-      padding-left: 16px;
-    }
-
-    .memory-block li {
-      margin-bottom: 4px;
-    }
-
-    /* ── Diary strip ──────────────────────────────────────── */
-
-    .diary-strip {
-      border-top: 1px solid var(--border);
-      background: var(--card-bg2);
-      padding: 16px 28px;
-    }
-
-    .diary-label {
-      font-family: 'Cinzel', serif;
-      font-size: 9px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--accent-dim);
-      margin-bottom: 10px;
-    }
-
-    .diary-block {
-      font-size: .92rem;
-      line-height: 1.75;
-      color: var(--ink-dim);
-    }
-
-    .diary-block p {
-      margin-bottom: 8px;
-    }
-
-    /* ── Empty state ──────────────────────────────────────── */
-
-    #empty-state {
-      text-align: center;
-      padding: 100px 20px;
-      color: var(--ink-faint);
-    }
-
-    #empty-state h2 {
-      font-family: 'Cinzel Decorative', serif;
-      font-size: 2.2rem;
-      font-weight: 400;
-      color: var(--blood);
-      margin-bottom: 10px;
-      letter-spacing: .04em;
-    }
-
-    /* ── Responsive ───────────────────────────────────────── */
-
-    @media (max-width: 860px) {
-      .dashboard-strip {
-        grid-template-columns: 1fr;
-      }
-
-      .strip-cell {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .strip-cell:last-child {
-        border-bottom: none;
-      }
-
-      .main-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .chars-col {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .journal-col {
-        padding: 18px 16px;
-      }
-
-      .memories-section {
-        padding: 16px;
-      }
-
-      .memories-grid {
-        grid-template-columns: 1fr;
-      }
-
-      #app {
-        padding: 0 0 32px;
-      }
-    }
-
-    @media (min-width: 861px) and (max-width: 1200px) {
-      .memories-grid {
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thousand Year Old Vampire — Chronicle Viewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root {
+  --bg: #e8dfc8; --bg2: #dfd5ba; --bg3: #d4c9a8; --surface: #f0e8d0; --surface2: #e8ddc0;
+  --ink: #1c1208; --ink-dim: #3a2c18; --ink-faint: #7a6040;
+  --blood: #8b1a1a; --blood-bright: #c0392b; --accent: #5c3a10; --accent-dim: #8a6030;
+  --border: #b8a070; --border-bright: #8a6030;
+  --topbar-bg: #d4c9a8f2; --topbar-border: #b8a070;
+  --pill-bg: #d4c9a8; --tag-bg: #c8b888; --shadow: rgba(0,0,0,.18); --torn-shadow: rgba(0,0,0,.14);
+  --status-ok: #3a6a2a; --card-bg: #f5edd8; --card-bg2: #ece0c4;
+  --edit-ring: #8b1a1a44;
+}
+[data-skin="dark"] {
+  --bg: #1a1410; --bg2: #221c15; --bg3: #2d2418; --surface: #1e1710; --surface2: #160f08;
+  --ink: #e8d9b8; --ink-dim: #a89070; --ink-faint: #6a5840;
+  --blood: #8b1a1a; --blood-bright: #c0392b; --accent: #c9a84c; --accent-dim: #8a6e30;
+  --border: #4a3520; --border-bright: #7a5530;
+  --topbar-bg: #110d08f2; --topbar-border: #2a1e10;
+  --pill-bg: #2a1e10; --tag-bg: #2d2418; --shadow: rgba(0,0,0,.5); --torn-shadow: rgba(0,0,0,.4);
+  --status-ok: #4a8a4a; --card-bg: #221c14; --card-bg2: #1a1510;
+  --edit-ring: #c0392b55;
+}
+[data-skin="scholar"] {
+  --bg: #f5f0e8; --bg2: #ede6d8; --bg3: #e4dccc; --surface: #faf7f0; --surface2: #f0ebe0;
+  --ink: #1a1208; --ink-dim: #4a3c28; --ink-faint: #9a8a70;
+  --blood: #6b0f0f; --blood-bright: #9b2020; --accent: #2c4a6e; --accent-dim: #4a6a8e;
+  --border: #c8bca0; --border-bright: #a09070;
+  --topbar-bg: #ede6d8f5; --topbar-border: #c8bca0;
+  --pill-bg: #e4dccc; --tag-bg: #ddd4c0; --shadow: rgba(0,0,0,.10); --torn-shadow: rgba(0,0,0,.08);
+  --status-ok: #2a5a2a; --card-bg: #faf7f0; --card-bg2: #f0ebe0;
+  --edit-ring: #6b0f0f44;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:'EB Garamond',serif;font-size:17px;line-height:1.7;min-height:100vh;}
+
+/* ── Key Panel ── */
+#key-panel{position:fixed;left:-320px;top:0;width:300px;height:100vh;background:var(--bg2);border-right:1px solid var(--border);padding:20px;z-index:200;transition:left .3s ease;overflow-y:auto;box-shadow:2px 0 15px var(--shadow);}
+#key-panel.open{left:0;}
+#key-toggle{position:fixed;left:10px;top:120px;z-index:199;background:var(--blood);border:none;color:white;width:32px;height:32px;border-radius:4px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:left .3s ease;}
+#key-toggle.hidden{display:none;}
+.key-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:8px;display:block;}
+.key-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--ink);padding:8px;font-size:12px;font-family:'EB Garamond',serif;margin-bottom:16px;}
+.key-input:focus{outline:none;border-color:var(--blood);box-shadow:0 0 4px var(--blood);}
+.key-info{font-size:11px;color:var(--ink-faint);line-height:1.4;margin-bottom:16px;}
+
+/* ── Top bar ── */
+#top-bar{position:sticky;top:0;z-index:100;background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);backdrop-filter:blur(8px);}
+#picker-row{display:flex;gap:8px;align-items:center;padding:10px 16px;flex-wrap:wrap;}
+#picker-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.14em;color:var(--accent-dim);text-transform:uppercase;}
+#game-select{flex:1;min-width:180px;background:var(--bg2);border:1px solid var(--border);color:var(--ink);padding:8px 10px;font-size:15px;}
+#game-select:disabled{opacity:.5;cursor:not-allowed;}
+.top-btn{background:transparent;border:1px solid var(--border-bright);color:var(--accent);padding:6px 12px;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;text-transform:uppercase;}
+.top-btn:hover{background:var(--blood);color:white;border-color:var(--blood);}
+.top-btn.active-edit{background:var(--blood);color:white;border-color:var(--blood);}
+#status-row{display:flex;align-items:center;gap:10px;padding:4px 16px 6px;font-size:12px;color:var(--ink-faint);border-bottom:1px solid var(--topbar-border);}
+#status-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-faint);}
+#status-dot.ok{background:var(--status-ok);}
+#status-dot.err{background:var(--blood-bright);}
+#status-dot.busy{background:var(--accent);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.skin-btn{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;}
+.skin-btn.active{border-color:var(--border-bright);}
+.skin-btn[data-s="book"]{background:radial-gradient(circle at 35% 35%,#f0e8d0,#b8a070);}
+.skin-btn[data-s="dark"]{background:radial-gradient(circle at 35% 35%,#4a3520,#1a1410);}
+.skin-btn[data-s="scholar"]{background:radial-gradient(circle at 35% 35%,#faf7f0,#c8bca0);}
+
+/* ── Edit mode indicator bar ── */
+#edit-mode-banner{display:none;background:var(--blood);color:white;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding:5px 16px;text-align:center;}
+#edit-mode-banner.visible{display:block;}
+
+/* ── App ── */
+#app{max-width:1600px;margin:0 auto;padding:0 0 40px;}
+
+/* ── Section edit wrapper ── */
+.section-editwrap{position:relative;}
+.section-editwrap .edit-section-btn{
+  position:absolute;top:8px;right:10px;
+  display:none;
+  background:var(--blood);color:white;border:none;
+  padding:3px 10px;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  z-index:10;opacity:.85;
+}
+.section-editwrap .edit-section-btn:hover{opacity:1;}
+body.edit-mode .section-editwrap .edit-section-btn{display:block;}
+body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-offset:-2px;}
+
+/* ── Modal overlay ── */
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;}
+#modal-overlay.open{display:flex;}
+.modal-box{background:var(--bg2);border:1px solid var(--border-bright);max-width:660px;width:90vw;max-height:88vh;overflow-y:auto;box-shadow:0 8px 40px var(--shadow);display:flex;flex-direction:column;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg3);}
+.modal-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--ink-faint);font-size:20px;line-height:1;padding:2px 6px;}
+.modal-close:hover{color:var(--blood);}
+.modal-body{padding:20px 22px;flex:1;}
+.modal-footer{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:var(--bg3);}
+.modal-btn{background:var(--surface);border:1px solid var(--border-bright);color:var(--accent);padding:7px 18px;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;text-transform:uppercase;}
+.modal-btn.primary{background:var(--blood);color:white;border-color:var(--blood);}
+.modal-btn:hover{opacity:.9;}
+
+/* ── Form elements inside modal ── */
+.form-row{margin-bottom:16px;}
+.form-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:6px;display:block;}
+.form-input,.form-textarea,.form-select{
+  width:100%;background:var(--surface);border:1px solid var(--border);color:var(--ink);
+  padding:8px 10px;font-family:'EB Garamond',serif;font-size:15px;
+}
+.form-input:focus,.form-textarea:focus,.form-select:focus{outline:none;border-color:var(--blood);}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.6;}
+.form-select{cursor:pointer;}
+.form-hint{font-size:11px;color:var(--ink-faint);margin-top:4px;line-height:1.4;}
+.form-row-inline{display:flex;gap:10px;align-items:flex-end;}
+.form-row-inline .form-row{flex:1;margin-bottom:0;}
+
+/* ── Strike button style ── */
+.strike-btn{background:none;border:1px solid var(--border);color:var(--ink-faint);padding:3px 8px;cursor:pointer;font-size:11px;font-family:'Cinzel',serif;letter-spacing:.08em;text-transform:uppercase;}
+.strike-btn.struck{background:var(--blood);color:white;border-color:var(--blood);opacity:.7;}
+.strike-btn:hover{border-color:var(--blood);color:var(--blood);}
+.strike-btn.struck:hover{opacity:1;}
+
+/* ── List items in edit modal (existing entries) ── */
+.edit-list-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 10px;background:var(--surface);border:1px solid var(--border);margin-bottom:6px;
+}
+.edit-list-item.struck-item{opacity:.5;}
+.edit-list-item-text{flex:1;font-size:.92rem;line-height:1.5;}
+.edit-list-item-text.struck-text{text-decoration:line-through;text-decoration-color:var(--blood);}
+.edit-list-actions{display:flex;gap:6px;flex-shrink:0;align-items:center;}
+.edit-divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
+.edit-section-title{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:10px;}
+
+/* ── Skill / resource status chips ── */
+.status-radio-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.status-radio{cursor:pointer;display:flex;align-items:center;gap:5px;font-size:.88rem;}
+.status-radio input{cursor:pointer;}
+
+/* ── Save bar (shown in edit mode) ── */
+#save-bar{display:none;position:sticky;bottom:0;z-index:90;background:var(--bg3);border-top:2px solid var(--blood);padding:10px 20px;display:flex;gap:10px;justify-content:flex-end;align-items:center;}
+#save-bar.visible{display:flex;}
+#save-bar .unsaved-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--blood);margin-right:auto;}
+
+/* ── Vampire header ── */
+.vamp-header{text-align:center;padding:36px 20px 28px;border-bottom:1px solid var(--border);margin-bottom:0;}
+.vamp-name-wrap{display:flex;align-items:center;justify-content:center;gap:18px;margin:0 auto;max-width:700px;}
+.vamp-rule{flex:1;display:flex;flex-direction:column;gap:4px;}
+.vamp-rule span{display:block;background:var(--blood);height:1px;}
+.vamp-rule span:first-child{opacity:.5;}
+.vamp-rule span:last-child{opacity:.3;}
+.vamp-name{font-family:'Cinzel Decorative',serif;font-weight:400;font-size:clamp(1.6rem,3.5vw,2.8rem);line-height:1.15;color:var(--blood);letter-spacing:.04em;white-space:nowrap;}
+.vamp-subtitle{font-family:'Cinzel Decorative',serif;font-weight:400;font-size:clamp(.7rem,1.5vw,1rem);color:var(--ink-faint);letter-spacing:.08em;margin-top:10px;}
+.vamp-epitaph{margin:14px auto 0;max-width:600px;padding:10px 16px;border-left:2px solid var(--blood);text-align:left;color:var(--ink-dim);font-style:italic;font-size:.95rem;background:var(--surface2);}
+.meta-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:16px;}
+.meta-pill{background:var(--pill-bg);border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-size:9px;font-family:'Cinzel',serif;text-transform:uppercase;letter-spacing:.08em;}
+.meta-pill span{color:var(--accent);font-weight:700;}
+
+/* ── Dashboard strip ── */
+.dashboard-strip{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border);background:var(--bg2);}
+.strip-cell{padding:14px 18px;border-right:1px solid var(--border);}
+.strip-cell:last-child{border-right:none;}
+.strip-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+
+/* ── Marks ── */
+.marks-inline{display:flex;flex-wrap:wrap;gap:6px;}
+.mark-chip{background:var(--surface);border:1px solid var(--border);padding:3px 10px;font-size:.85rem;color:var(--ink-dim);position:relative;padding-left:18px;}
+.mark-chip::before{content:'⬥';position:absolute;left:6px;color:var(--blood);font-size:.7rem;}
+
+/* ── Skills ── */
+.skills-inline{display:flex;flex-wrap:wrap;gap:6px;}
+.skill-chip{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);padding:3px 10px;font-size:.85rem;}
+.skill-chip.lost{opacity:.4;text-decoration:line-through;text-decoration-color:var(--blood);}
+.skill-chip.checked{border-color:var(--blood);}
+.skill-box{width:12px;height:12px;border:1px solid var(--border-bright);display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;}
+.skill-chip.checked .skill-box{background:var(--blood);color:white;}
+
+/* ── Resources ── */
+.resources-inline{display:flex;flex-wrap:wrap;gap:6px;}
+.resource-chip{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);padding:3px 10px;font-size:.85rem;}
+.resource-chip.lost{opacity:.4;text-decoration:line-through;text-decoration-color:var(--blood);}
+.resource-type-dot{width:7px;height:7px;border-radius:50%;background:var(--accent-dim);flex-shrink:0;}
+.resource-chip.portable .resource-type-dot{background:var(--accent);}
+.resource-chip.stationary .resource-type-dot{background:var(--ink-faint);}
+
+/* ── Main layout ── */
+.main-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:0;min-height:60vh;}
+.chars-col{border-right:1px solid var(--border);padding:20px 16px;background:var(--bg2);}
+.col-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.char-group-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:14px 0 6px;}
+.char-group-label:first-child{margin-top:0;}
+.char-row{padding:7px 0;border-bottom:1px solid var(--border);font-size:.88rem;}
+.char-row:last-child{border-bottom:none;}
+.char-row.dead{opacity:.4;}
+.char-row.dead .char-row-name{text-decoration:line-through;text-decoration-color:var(--blood);}
+.char-row-name{font-weight:600;color:var(--accent);font-size:.88rem;}
+.char-row-desc{color:var(--ink-faint);font-size:.8rem;line-height:1.3;margin-top:1px;}
+
+/* ── Journal ── */
+.journal-col{padding:24px 28px;min-width:0;}
+.journal-entry{margin-bottom:30px;}
+.journal-turn{font-family:'Cinzel',serif;font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--blood);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.journal-turn::after{content:'';flex:1;height:1px;background:var(--border);}
+.journal-scrap{background:var(--card-bg);border:1px solid var(--border);padding:18px 22px;box-shadow:2px 3px 10px var(--torn-shadow);}
+.journal-prompt-text{margin-bottom:14px;padding:8px 12px;background:var(--tag-bg);border-left:3px solid var(--blood);font-size:.88rem;color:var(--ink-dim);line-height:1.5;}
+.journal-body{line-height:1.8;}
+.journal-body p{margin-bottom:12px;}
+.journal-body p:last-child{margin-bottom:0;}
+.journal-body em,.journal-body i{font-style:italic;}
+.journal-awaiting{font-style:italic;color:var(--ink-faint);font-size:.9rem;}
+
+/* ── Memories ── */
+.memories-section{border-top:1px solid var(--border);background:var(--bg2);padding:20px 28px 28px;}
+.memories-section-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.memories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.memory-block{background:var(--card-bg);border:1px solid var(--border);padding:14px 16px;font-size:.88rem;line-height:1.6;box-shadow:1px 2px 5px var(--shadow);}
+.memory-block.forgotten{opacity:.4;border-style:dashed;}
+.memory-block.forgotten .memory-title{text-decoration:line-through;text-decoration-color:var(--blood);}
+.memory-title{font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:8px;}
+.memory-block p,.memory-block li{margin-bottom:6px;}
+.memory-block ol,.memory-block ul{padding-left:16px;}
+
+/* ── Diary ── */
+.diary-strip{border-top:1px solid var(--border);background:var(--card-bg2);padding:16px 28px;}
+.diary-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:10px;}
+.diary-block{font-size:.92rem;line-height:1.75;color:var(--ink-dim);}
+.diary-block p{margin-bottom:8px;}
+
+/* ── Empty state ── */
+#empty-state{text-align:center;padding:100px 20px;color:var(--ink-faint);}
+#empty-state h2{font-family:'Cinzel Decorative',serif;font-size:2.2rem;font-weight:400;color:var(--blood);margin-bottom:10px;letter-spacing:.04em;}
+
+/* ── Responsive ── */
+@media(max-width:860px){
+  .dashboard-strip{grid-template-columns:1fr;}
+  .strip-cell{border-right:none;border-bottom:1px solid var(--border);}
+  .strip-cell:last-child{border-bottom:none;}
+  .main-layout{grid-template-columns:1fr;}
+  .chars-col{border-right:none;border-bottom:1px solid var(--border);}
+  .journal-col{padding:18px 16px;}
+  .memories-section{padding:16px;}
+  .memories-grid{grid-template-columns:1fr;}
+}
+</style>
 </head>
-
 <body>
 
-  <!-- Key Panel (Hidden) -->
-  <button id="key-toggle" style="display:none;">🔑</button>
-  <div id="key-panel">
-    <div class="key-label">🔑 Unknown Key</div>
-    <input type="password" id="unknown-key" class="key-input" placeholder="enter key">
-    <div class="key-info">
-      The random artifact you carry. Keep it safe. <br><br>
-      <a href="https://github.com/settings/tokens" target="_blank" style="color: var(--blood); display: none;">Link</a>
+<!-- Key Panel -->
+<button id="key-toggle" style="display:none;">🔑</button>
+<div id="key-panel">
+  <div class="key-label">🔑 GitHub Token</div>
+  <input type="password" id="unknown-key" class="key-input" placeholder="ghp_...">
+  <div class="key-info">Your GitHub personal access token with <code>contents:write</code> permission. Required to save edits back to the repository.</div>
+  <button class="modal-btn primary" onclick="closeKeyPanel()" style="width:100%">Done</button>
+</div>
+
+<!-- Edit Mode Banner -->
+<div id="edit-mode-banner">✎ Edit Mode Active — Changes are local until you save</div>
+
+<div id="top-bar">
+  <div id="picker-row">
+    <span id="picker-label">Chronicle</span>
+    <select id="game-select"><option value="">— Loading games… —</option></select>
+    <button id="back-btn" class="top-btn" onclick="resetToGameList()">← Games</button>
+    <button id="refresh-btn" class="top-btn" onclick="refreshCurrent()">↻ Refresh</button>
+    <button id="edit-mode-btn" class="top-btn" style="display:none;" onclick="toggleEditMode()">✎ Edit</button>
+    <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
+    <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
+    <div id="skin-switcher">
+      <button class="skin-btn active" data-s="book"></button>
+      <button class="skin-btn" data-s="dark"></button>
+      <button class="skin-btn" data-s="scholar"></button>
     </div>
   </div>
+  <div id="status-row">
+    <div id="status-dot"></div>
+    <span id="status-text">Loading game list…</span>
+  </div>
+</div>
 
-  <div id="top-bar">
-    <div id="picker-row">
-      <span id="picker-label">Chronicle</span>
-      <select id="game-select">
-        <option value="">— Loading games… —</option>
-      </select>
-      <button id="back-btn" class="top-btn">← Games</button>
-      <button id="refresh-btn" class="top-btn">↻ Refresh</button>
-      <button id="edit-mode-btn" class="top-btn" style="display:none;">✎ Edit</button>
-      <button id="save-btn" class="top-btn" style="display:none;">✓ Save</button>
-      <button id="cancel-btn" class="top-btn" style="display:none;">✕ Cancel</button>
+<div id="app">
+  <div id="empty-state">
+    <h2>Thousand Year Old Vampire</h2>
+    <p>Select a chronicle to begin.</p>
+  </div>
+  <div id="content" style="display:none;"></div>
+</div>
 
-      <div id="skin-switcher">
-        <button class="skin-btn active" data-s="book"></button>
-        <button class="skin-btn" data-s="dark"></button>
-        <button class="skin-btn" data-s="scholar"></button>
+<!-- Save Bar (sticky bottom in edit mode) -->
+<div id="save-bar">
+  <span class="unsaved-label">⚠ Unsaved changes</span>
+  <button class="modal-btn" onclick="cancelEditMode()">✕ Cancel</button>
+  <button class="modal-btn primary" onclick="saveChronicle()">✓ Save to GitHub</button>
+</div>
+
+<!-- Modal Overlay -->
+<div id="modal-overlay">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Edit</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="modal-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn primary" id="modal-confirm-btn" onclick="modalConfirm()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONFIG & STATE
+// ═══════════════════════════════════════════════════
+const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires';
+const RAW_BASE = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires/';
+
+let currentSha = null;
+let currentFileUrl = null;
+let currentMd = null;       // the raw markdown string currently loaded
+let workingMd = null;       // the markdown being edited (may differ from currentMd)
+let editMode = false;
+let hasUnsaved = false;
+let parsedData = null;      // structured parse of currentMd
+let currentModalConfirm = null;
+
+// ═══════════════════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════════════════
+function setStatus(state, msg) {
+  document.getElementById('status-dot').className = state;
+  document.getElementById('status-text').textContent = msg;
+}
+function getToken() { return document.getElementById('unknown-key').value.trim(); }
+
+// ═══════════════════════════════════════════════════
+// SKIN SWITCHER
+// ═══════════════════════════════════════════════════
+document.querySelectorAll('.skin-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.body.removeAttribute('data-skin');
+    if (btn.dataset.s !== 'book') document.body.setAttribute('data-skin', btn.dataset.s);
+    document.querySelectorAll('.skin-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    localStorage.setItem('tyov-skin', btn.dataset.s);
+  });
+});
+(function(){
+  const s = localStorage.getItem('tyov-skin') || 'book';
+  if (s !== 'book') document.body.setAttribute('data-skin', s);
+  document.querySelectorAll('.skin-btn').forEach(b => { if (b.dataset.s === s) b.classList.add('active'); else b.classList.remove('active'); });
+})();
+
+// ═══════════════════════════════════════════════════
+// KEY PANEL
+// ═══════════════════════════════════════════════════
+function openKeyPanel() { document.getElementById('key-panel').classList.add('open'); }
+function closeKeyPanel() { document.getElementById('key-panel').classList.remove('open'); }
+document.getElementById('key-toggle').addEventListener('click', () => {
+  document.getElementById('key-panel').classList.toggle('open');
+});
+// Restore saved token
+const savedToken = localStorage.getItem('tyov-token');
+if (savedToken) document.getElementById('unknown-key').value = savedToken;
+document.getElementById('unknown-key').addEventListener('change', () => {
+  localStorage.setItem('tyov-token', document.getElementById('unknown-key').value.trim());
+});
+
+// ═══════════════════════════════════════════════════
+// GAME LIST LOADING
+// ═══════════════════════════════════════════════════
+async function loadGameList() {
+  setStatus('busy', 'Loading chronicles…');
+  try {
+    const resp = await fetch(GITHUB_API);
+    if (!resp.ok) throw new Error('GitHub API error: ' + resp.status);
+    const files = await resp.json();
+    const mdFiles = files.filter(f => f.name.endsWith('.md'));
+    const sel = document.getElementById('game-select');
+    sel.innerHTML = '<option value="">— Select a chronicle —</option>';
+    mdFiles.forEach(f => {
+      const o = document.createElement('option');
+      o.value = f.name;
+      o.textContent = f.name.replace('.md', '');
+      sel.appendChild(o);
+    });
+    setStatus('ok', `${mdFiles.length} chronicle${mdFiles.length !== 1 ? 's' : ''} found`);
+  } catch(e) {
+    setStatus('err', 'Failed to load game list: ' + e.message);
+  }
+}
+
+document.getElementById('game-select').addEventListener('change', async (e) => {
+  if (!e.target.value) return;
+  await loadVampire(e.target.value);
+});
+
+async function loadVampire(filename) {
+  setStatus('busy', `Loading ${filename}…`);
+  try {
+    const url = GITHUB_API + '/' + encodeURIComponent(filename);
+    const resp = await fetch(url + (getToken() ? '' : ''), {
+      headers: getToken() ? { Authorization: 'token ' + getToken() } : {}
+    });
+    if (!resp.ok) throw new Error(resp.status);
+    const data = await resp.json();
+    currentSha = data.sha;
+    currentFileUrl = url;
+    currentMd = atob(data.content.replace(/\n/g, ''));
+    workingMd = currentMd;
+    parsedData = parseMarkdown(currentMd);
+    renderChronicle(parsedData);
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    document.getElementById('edit-mode-btn').style.display = '';
+    setStatus('ok', `Loaded: ${filename}`);
+  } catch(e) {
+    setStatus('err', 'Load failed: ' + e.message);
+  }
+}
+
+function resetToGameList() {
+  if (editMode && hasUnsaved) {
+    if (!confirm('You have unsaved changes. Discard them?')) return;
+  }
+  leaveEditMode();
+  document.getElementById('content').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'block';
+  document.getElementById('edit-mode-btn').style.display = 'none';
+  document.getElementById('game-select').value = '';
+  currentMd = null; workingMd = null; parsedData = null;
+}
+
+async function refreshCurrent() {
+  const sel = document.getElementById('game-select');
+  if (sel.value) await loadVampire(sel.value);
+  else await loadGameList();
+}
+
+// ═══════════════════════════════════════════════════
+// MARKDOWN PARSER  (produces structured parsedData)
+// ═══════════════════════════════════════════════════
+function parseMarkdown(md) {
+  const data = {
+    frontmatter: {}, rawFrontmatter: '',
+    vampireName: '', subtitle: '', epithet: '',
+    marks: [],      // [{desc, concealment, struck}]
+    memories: [],   // [{n, theme, experiences:[{text,struck}], struck, inDiary}]
+    diary: {exists:false, memories:[]},
+    skills: [],     // [{name, status}] status: unchecked|checked|lost
+    resources: [],  // [{name, type, status}] status: active|lost
+    mortals: [],    // [{name, desc, dead}]
+    immortals: [],  // [{name, desc, dead}]
+    journal: [],    // [{turn,prompt,entry,promptText,prose,changes,awaiting}]
+    epitaph: '',
+    gameOver: false,
+    lastPlayed: '',
+    rawAfterJournal: ''
+  };
+
+  // ── Frontmatter ──
+  const fmMatch = md.match(/^---\n([\s\S]*?)\n---/);
+  if (fmMatch) {
+    data.rawFrontmatter = fmMatch[0];
+    fmMatch[1].split('\n').forEach(line => {
+      const m = line.match(/^(\w+):\s*(.*)/);
+      if (m) data.frontmatter[m[1]] = m[2].trim();
+    });
+  }
+  data.gameOver = data.frontmatter.game_over === 'true';
+
+  const body = md.replace(/^---\n[\s\S]*?\n---\n?/, '');
+  const lines = body.split('\n');
+
+  // ── Name / subtitle / epithet ──
+  for (let i = 0; i < Math.min(20, lines.length); i++) {
+    if (/^# /.test(lines[i])) data.vampireName = lines[i].replace(/^# /, '').trim();
+    if (lines[i].trim() === '*A Thousand Year Old Vampire*') data.subtitle = lines[i].trim();
+    if (/^> ?\*/.test(lines[i])) data.epithet = lines[i].replace(/^> ?\*/, '').replace(/\*$/, '').trim();
+  }
+
+  // ── Section extraction helper ──
+  function extractSection(heading) {
+    const re = new RegExp('##\\s+' + heading.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+    const start = body.search(re);
+    if (start === -1) return '';
+    const after = body.slice(start);
+    const nextH2 = after.search(/\n## /);
+    return nextH2 === -1 ? after : after.slice(0, nextH2);
+  }
+
+  // ── Marks ──
+  const marksSec = extractSection('⚰ Marks');
+  marksSec.split('\n').forEach(line => {
+    const m = line.match(/^- (~~)?(.*?)(~~)? ?\*\(concealed: (.*?)\)\*/);
+    if (m) data.marks.push({ desc: m[2].trim(), concealment: m[4].trim(), struck: !!m[1] });
+    else {
+      const m2 = line.match(/^- (~~(.+)~~|(.+)) ?\*\(concealed: (.+)\)\*/);
+      if (m2) {
+        const struck = /^~~/.test(line);
+        const desc = (m2[2]||m2[3]||'').replace(/~~/g,'').trim();
+        data.marks.push({ desc, concealment: m2[4].trim(), struck });
+      }
+    }
+  });
+
+  // ── Memories ──
+  const memSec = extractSection('🧠 Memories');
+  const memBlocks = memSec.split(/(?=### Memory \d+)/g).slice(1);
+  memBlocks.forEach(block => {
+    const headerMatch = block.match(/^### (~~)?Memory (\d+) — (~~)?(.+?)(~~)? ?\*(in diary\*)?/);
+    if (!headerMatch) return;
+    const struck = !!headerMatch[1];
+    const n = parseInt(headerMatch[2]);
+    const theme = headerMatch[4].replace(/~~/g,'').replace(/\*(in diary)\*/,'').trim();
+    const inDiary = block.includes('*(in diary)*');
+    const exps = [];
+    block.split('\n').forEach(l => {
+      const em = l.match(/^(\d+)\. (.+)/);
+      if (em) {
+        const expText = em[2].trim();
+        const expStruck = /^~~/.test(expText) || /~~/.test(l);
+        exps.push({ text: expText.replace(/^~~|~~$/g,'').trim(), struck: expStruck });
+      }
+    });
+    data.memories.push({ n, theme, experiences: exps, struck, inDiary });
+  });
+
+  // ── Diary ──
+  const diarySec = extractSection('📖 Diary');
+  data.diary.exists = data.frontmatter.diary_exists === 'true';
+  if (diarySec.includes('### Memory')) {
+    const diaryMemBlocks = diarySec.split(/(?=### Memory \d+)/g).slice(1);
+    diaryMemBlocks.forEach(block => {
+      const hm = block.match(/^### Memory (\d+) — (.+)/);
+      if (!hm) return;
+      const exps = [];
+      block.split('\n').forEach(l => {
+        const em = l.match(/^(\d+)\. (.+)/);
+        if (em) exps.push({ text: em[2].trim() });
+      });
+      data.diary.memories.push({ n: parseInt(hm[1]), theme: hm[2].trim(), experiences: exps });
+    });
+  }
+
+  // ── Skills ──
+  const skillSec = extractSection('⚔ Skills');
+  skillSec.split('\n').forEach(line => {
+    if (!/^\|/.test(line) || /Skill/.test(line) || /---/.test(line)) return;
+    const cols = line.split('|').map(c=>c.trim()).filter(Boolean);
+    if (cols.length < 2) return;
+    let name = cols[0]; let status = cols[1];
+    const lost = /~~/.test(name);
+    name = name.replace(/~~/g,'').trim();
+    let st = 'unchecked';
+    if (lost || /lost/.test(status)) st = 'lost';
+    else if (/☑|checked/.test(status)) st = 'checked';
+    data.skills.push({ name, status: st });
+  });
+
+  // ── Resources ──
+  const resSec = extractSection('🏚 Resources');
+  resSec.split('\n').forEach(line => {
+    if (!/^\|/.test(line) || /Resource/.test(line) || /---/.test(line)) return;
+    const cols = line.split('|').map(c=>c.trim()).filter(Boolean);
+    if (cols.length < 3) return;
+    let name = cols[0]; const type = cols[1]; const statusRaw = cols[2];
+    const lost = /~~/.test(name) || /lost/.test(statusRaw);
+    name = name.replace(/~~/g,'').trim();
+    const isStationary = type.includes('stationary') || type.includes('📍');
+    data.resources.push({ name, type: isStationary ? 'stationary' : 'portable', status: lost ? 'lost' : 'active' });
+  });
+
+  // ── Characters ──
+  const charSec = extractSection('👥 Characters');
+  let charMode = null;
+  charSec.split('\n').forEach(line => {
+    if (/### Mortals/.test(line)) { charMode = 'mortal'; return; }
+    if (/### Immortals/.test(line)) { charMode = 'immortal'; return; }
+    if (!charMode) return;
+    const dead = /^- ~~\*\*/.test(line);
+    const alive = /^- \*\*/.test(line);
+    if (!dead && !alive) return;
+    const m = dead
+      ? line.match(/^- ~~\*\*(.+?)\*\*~~ — ~~(.+?)~~/)
+      : line.match(/^- \*\*(.+?)\*\* — (.+)/);
+    if (!m) return;
+    const entry = { name: m[1].trim(), desc: m[2].replace(/\*(dust[^*]*)\*/, '').replace(/~~|~~.*?~~/g,'').trim(), dead };
+    if (charMode === 'mortal') data.mortals.push(entry);
+    else data.immortals.push(entry);
+  });
+
+  // ── Journal ──
+  const journalIdx = body.indexOf('## 📜 Journal');
+  if (journalIdx !== -1) {
+    const journalSec = body.slice(journalIdx);
+    const turnBlocks = journalSec.split(/(?=### Turn \d+)/g).slice(1);
+    turnBlocks.forEach(block => {
+      const header = block.match(/^### Turn (\d+) — Prompt (\d+), Entry (\d+)/);
+      if (!header) return;
+      const turn = parseInt(header[1]), prompt = parseInt(header[2]), entry = parseInt(header[3]);
+      const promptLineMatch = block.match(/\n\*(.*?)\*\n/);
+      const promptText = promptLineMatch ? promptLineMatch[1] : '';
+      const awaiting = block.includes('*Awaiting resolution.*');
+      const changesMatch = block.match(/\*\*Changes:\*\* (.+)/);
+      const changes = changesMatch ? changesMatch[1].trim() : '';
+      // Prose: everything between prompt line and Changes/Awaiting
+      let prose = '';
+      const bLines = block.split('\n');
+      let inProse = false;
+      for (const bl of bLines) {
+        if (!inProse && /^\*[^*]/.test(bl.trim()) && bl.includes(promptText.slice(0,20))) { inProse = true; continue; }
+        if (inProse) {
+          if (/^\*\*Changes:/.test(bl) || bl.trim() === '*Awaiting resolution.*' || bl.trim() === '---') break;
+          prose += bl + '\n';
+        }
+      }
+      data.journal.push({ turn, prompt, entry, promptText, prose: prose.trim(), changes, awaiting });
+    });
+    data.journal.sort((a,b) => b.turn - a.turn);
+  }
+
+  // ── Last played ──
+  const lpMatch = md.match(/\*Last played: (\d{4}-\d{2}-\d{2})\*/);
+  if (lpMatch) data.lastPlayed = lpMatch[1];
+
+  return data;
+}
+
+// ═══════════════════════════════════════════════════
+// MARKDOWN SERIALIZER  (parsedData → valid markdown)
+// ═══════════════════════════════════════════════════
+function serializeMarkdown(d) {
+  const lines = [];
+
+  // ── Frontmatter ──
+  // Update computed fields
+  const resolvedCount = d.journal.filter(j => !j.awaiting).length;
+  const topEntry = d.journal.length > 0 ? d.journal.reduce((a,b) => a.turn > b.turn ? a : b) : null;
+  const fm = { ...d.frontmatter };
+  fm.prompts_resolved = resolvedCount;
+  if (topEntry) fm.current_prompt = topEntry.prompt;
+  fm.diary_exists = d.diary.memories.length > 0 ? 'true' : 'false';
+  fm.modified = new Date().toISOString().slice(0,10);
+
+  lines.push('---');
+  const fmOrder = ['tags','vampire','current_prompt','prompts_resolved','game_over','game_over_reason','game_start','game_completed','diary_exists','diary_name','created','modified','show_suggestions'];
+  fmOrder.forEach(k => { if (fm[k] !== undefined) lines.push(`${k}: ${fm[k]}`); });
+  Object.keys(fm).forEach(k => { if (!fmOrder.includes(k)) lines.push(`${k}: ${fm[k]}`); });
+  lines.push('---');
+  lines.push('');
+
+  // ── Header ──
+  lines.push(`# ${d.vampireName}`);
+  lines.push('');
+  lines.push('*A Thousand Year Old Vampire*');
+  lines.push(`> *${d.epithet}*`);
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // ── Marks ──
+  lines.push('## ⚰ Marks');
+  lines.push('');
+  d.marks.forEach(m => {
+    const desc = m.struck ? `~~${m.desc}~~` : m.desc;
+    lines.push(`- ${desc} *(concealed: ${m.concealment})*`);
+  });
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // ── Memories ──
+  lines.push('## 🧠 Memories');
+  lines.push('');
+  d.memories.forEach(mem => {
+    const diaryTag = mem.inDiary ? ' *(in diary)*' : '';
+    const headerText = `Memory ${mem.n} — ${mem.theme}${diaryTag}`;
+    lines.push(mem.struck ? `### ~~${headerText}~~` : `### ${headerText}`);
+    lines.push('');
+    mem.experiences.forEach((exp, i) => {
+      // Struck experiences: ~~text~~ outside the italic markers per schema
+      if (exp.struck) {
+        lines.push(`${i+1}. ~~*${exp.text}*~~`);
+      } else {
+        lines.push(`${i+1}. *${exp.text}*`);
+      }
+    });
+    lines.push('');
+  });
+  lines.push('---');
+  lines.push('');
+
+  // ── Diary ──
+  lines.push('## 📖 Diary');
+  lines.push('');
+  if (d.diary.memories.length === 0) {
+    lines.push('*No diary yet.*');
+  } else {
+    d.diary.memories.forEach((mem, idx) => {
+      lines.push(`### Memory ${idx+1} — ${mem.theme}`);
+      lines.push('');
+      mem.experiences.forEach((exp, i) => {
+        lines.push(`${i+1}. *${exp.text}*`);
+      });
+      lines.push('');
+    });
+  }
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // ── Skills ──
+  lines.push('## ⚔ Skills');
+  lines.push('');
+  lines.push('| Skill | Status |');
+  lines.push('| --- | --- |');
+  d.skills.forEach(sk => {
+    let name = sk.status === 'lost' ? `~~${sk.name}~~` : sk.name;
+    let stat = sk.status === 'unchecked' ? '✅ unchecked' : sk.status === 'checked' ? '☑ checked' : '~~lost~~';
+    lines.push(`| ${name} | ${stat} |`);
+  });
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // ── Resources ──
+  lines.push('## 🏚 Resources');
+  lines.push('');
+  lines.push('| Resource | Type | Status |');
+  lines.push('| --- | --- | --- |');
+  d.resources.forEach(r => {
+    let name = r.status === 'lost' ? `~~${r.name}~~` : r.name;
+    const type = r.type === 'stationary' ? '📍 stationary' : 'portable';
+    const stat = r.status === 'lost' ? '~~lost~~' : '✅';
+    lines.push(`| ${name} | ${type} | ${stat} |`);
+  });
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // ── Characters ──
+  lines.push('## 👥 Characters');
+  lines.push('');
+  lines.push('### Mortals');
+  lines.push('');
+  d.mortals.forEach(c => {
+    if (c.dead) lines.push(`- ~~**${c.name}**~~ — ~~${c.desc}~~ *(dust)*`);
+    else lines.push(`- **${c.name}** — ${c.desc}`);
+  });
+  lines.push('');
+  lines.push('### Immortals');
+  lines.push('');
+  d.immortals.forEach(c => {
+    if (c.dead) lines.push(`- ~~**${c.name}**~~ — ~~${c.desc}~~ *(dust)*`);
+    else lines.push(`- **${c.name}** — ${c.desc}`);
+  });
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // ── Journal ──
+  lines.push('## 📜 Journal');
+  lines.push('');
+  const sorted = [...d.journal].sort((a,b) => b.turn - a.turn);
+  sorted.forEach(j => {
+    lines.push(`### Turn ${j.turn} — Prompt ${j.prompt}, Entry ${j.entry}`);
+    lines.push('');
+    lines.push(`*${j.promptText}*`);
+    lines.push('');
+    if (j.prose) lines.push(j.prose);
+    lines.push('');
+    if (j.awaiting) {
+      lines.push('*Awaiting resolution.*');
+    } else {
+      lines.push(`**Changes:** ${j.changes}`);
+    }
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+  });
+
+  // ── Last played ──
+  lines.push(`*Last played: ${new Date().toISOString().slice(0,10)}*`);
+
+  return lines.join('\n');
+}
+
+// ═══════════════════════════════════════════════════
+// RENDERER
+// ═══════════════════════════════════════════════════
+function renderChronicle(d) {
+  const el = document.getElementById('content');
+  const fm = d.frontmatter;
+
+  let html = '';
+
+  // ── Header ──
+  html += `<div class="section-editwrap" data-section="header">
+    <button class="edit-section-btn" onclick="editHeader()">✎ Edit</button>
+    <div class="vamp-header">
+      <div class="vamp-name-wrap">
+        <div class="vamp-rule"><span></span><span></span></div>
+        <div class="vamp-name">${esc(d.vampireName)}</div>
+        <div class="vamp-rule"><span></span><span></span></div>
+      </div>
+      <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
+      <div class="vamp-epitaph">${esc(d.epithet)}</div>
+      <div class="meta-row">
+        ${fm.game_start ? `<span class="meta-pill">Started <span>${fm.game_start}</span></span>` : ''}
+        ${fm.game_over === 'true' ? `<span class="meta-pill" style="color:var(--blood)">Game Over</span>` : ''}
+        ${fm.modified ? `<span class="meta-pill">Modified <span>${fm.modified}</span></span>` : ''}
+        ${d.lastPlayed ? `<span class="meta-pill">Last played <span>${d.lastPlayed}</span></span>` : ''}
       </div>
     </div>
+  </div>`;
 
-    <div id="status-row">
-      <div id="status-dot"></div>
-      <span id="status-text">Loading game list…</span>
-    </div>
-  </div>
+  // ── Dashboard (Marks / Skills / Resources) ──
+  html += `<div class="dashboard-strip">`;
 
-  <!-- Editor Container -->
-  <div id="editor-container">
-    <textarea id="editor-textarea" placeholder="Edit markdown here..."></textarea>
-    <div class="editor-buttons">
-      <button class="editor-btn" onclick="leaveEditMode()">Cancel</button>
-      <button class="editor-btn save" onclick="saveAndExit()">Save</button>
-    </div>
-  </div>
+  // Marks cell
+  html += `<div class="strip-cell section-editwrap" data-section="marks">
+    <button class="edit-section-btn" onclick="editMarks()">✎ Edit</button>
+    <div class="strip-label">⚰ Marks</div>
+    <div class="marks-inline">`;
+  d.marks.filter(m=>!m.struck).forEach(m => {
+    html += `<span class="mark-chip" title="Concealed: ${esc(m.concealment)}">${esc(m.desc)}</span>`;
+  });
+  if (d.marks.filter(m=>!m.struck).length === 0) html += `<span style="color:var(--ink-faint);font-size:.85rem;">None</span>`;
+  html += `</div></div>`;
 
-  <div id="app">
+  // Skills cell
+  html += `<div class="strip-cell section-editwrap" data-section="skills">
+    <button class="edit-section-btn" onclick="editSkills()">✎ Edit</button>
+    <div class="strip-label">⚔ Skills</div>
+    <div class="skills-inline">`;
+  d.skills.forEach(sk => {
+    const cls = sk.status === 'lost' ? 'lost' : sk.status === 'checked' ? 'checked' : '';
+    html += `<span class="skill-chip ${cls}">
+      <span class="skill-box">${sk.status === 'checked' ? '✓' : ''}</span>
+      ${esc(sk.name)}
+    </span>`;
+  });
+  html += `</div></div>`;
 
-    <div id="empty-state">
-      <h2>Thousand Year Old Vampire</h2>
-      <p>Select a chronicle to begin.</p>
-    </div>
+  // Resources cell
+  html += `<div class="strip-cell section-editwrap" data-section="resources">
+    <button class="edit-section-btn" onclick="editResources()">✎ Edit</button>
+    <div class="strip-label">🏚 Resources</div>
+    <div class="resources-inline">`;
+  d.resources.forEach(r => {
+    const cls = r.status === 'lost' ? 'lost' : r.type;
+    html += `<span class="resource-chip ${cls}" title="${r.type}">
+      <span class="resource-type-dot"></span>
+      ${esc(r.name)}
+    </span>`;
+  });
+  html += `</div></div>`;
 
-    <div id="content" style="display:none"></div>
+  html += `</div>`; // dashboard-strip
 
-  </div>
+  // ── Main layout: Characters + Journal ──
+  html += `<div class="main-layout">`;
 
-  <script>
-    const POLL_INTERVAL = 30;
-    const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires';
-    const RAW_BASE = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires/';
+  // Characters column
+  html += `<div class="chars-col section-editwrap" data-section="characters">
+    <button class="edit-section-btn" onclick="editCharacters()">✎ Edit</button>
+    <div class="col-label">👥 Characters</div>
+    <div class="char-group-label">Mortals</div>`;
+  d.mortals.forEach(c => {
+    html += `<div class="char-row ${c.dead ? 'dead' : ''}">
+      <div class="char-row-name">${esc(c.name)}</div>
+      <div class="char-row-desc">${esc(c.desc)}</div>
+    </div>`;
+  });
+  html += `<div class="char-group-label">Immortals</div>`;
+  d.immortals.forEach(c => {
+    html += `<div class="char-row ${c.dead ? 'dead' : ''}">
+      <div class="char-row-name">${esc(c.name)}</div>
+      <div class="char-row-desc">${esc(c.desc)}</div>
+    </div>`;
+  });
+  html += `</div>`; // chars-col
 
-    let currentSha = null;
-    let currentUrl = null;
-    let currentFileUrl = null;
-    let currentMd = null;
-    let editMode = false;
-
-    function setStatus(state, msg) {
-      document.getElementById('status-dot').className = state;
-      document.getElementById('status-text').textContent = msg;
+  // Journal column
+  html += `<div class="journal-col section-editwrap" data-section="journal">
+    <button class="edit-section-btn" onclick="editJournal()">✎ Edit</button>`;
+  if (d.journal.length === 0) {
+    html += `<p style="color:var(--ink-faint);font-style:italic;">No journal entries yet.</p>`;
+  }
+  d.journal.forEach(j => {
+    html += `<div class="journal-entry">
+      <div class="journal-turn">Turn ${j.turn} — Prompt ${j.prompt}, Entry ${j.entry}</div>
+      <div class="journal-scrap">
+        <div class="journal-prompt-text">${esc(j.promptText)}</div>
+        <div class="journal-body">`;
+    if (j.prose) html += `<p>${esc(j.prose)}</p>`;
+    if (j.awaiting) {
+      html += `<p class="journal-awaiting">Awaiting resolution…</p>`;
+    } else if (j.changes) {
+      html += `<p style="font-size:.85rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:10px;margin-top:10px;"><strong>Changes:</strong> ${esc(j.changes)}</p>`;
     }
+    html += `</div></div></div>`;
+  });
+  html += `</div>`; // journal-col
 
-    /* ── Skin switcher ──────────────────────────────────────── */
-    (function () {
-      const saved = localStorage.getItem('tyov-skin') || 'book';
-      applySkin(saved);
+  html += `</div>`; // main-layout
 
-      document.querySelectorAll('.skin-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          applySkin(btn.dataset.s);
-          localStorage.setItem('tyov-skin', btn.dataset.s);
-        });
-      });
-
-      function applySkin(skin) {
-        if (skin === 'book') {
-          document.documentElement.removeAttribute('data-skin');
-        } else {
-          document.documentElement.setAttribute('data-skin', skin);
-        }
-        document.querySelectorAll('.skin-btn').forEach(b => {
-          b.classList.toggle('active', b.dataset.s === skin);
-        });
-      }
-    })();
-
-    /* ── Key panel toggle ───────────────────────────────────── */
-    (function () {
-      const panel = document.getElementById('key-panel');
-      const toggle = document.getElementById('key-toggle');
-      const artifact = localStorage.getItem('tyov-artifact') || '';
-      if (artifact) {
-        document.getElementById('unknown-key').value = artifact;
-      }
-
-      toggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        panel.classList.toggle('open');
-        toggle.classList.toggle('hidden');
-      });
-
-      document.addEventListener('click', (e) => {
-        if (panel.classList.contains('open') &&
-          !panel.contains(e.target) &&
-          !toggle.contains(e.target)) {
-          panel.classList.remove('open');
-          toggle.classList.remove('hidden');
-        }
-      });
-
-      document.getElementById('unknown-key').addEventListener('change', (e) => {
-        if (e.target.value) {
-          localStorage.setItem('tyov-artifact', e.target.value);
-        } else {
-          localStorage.removeItem('tyov-artifact');
-        }
-      });
-    })();
-
-    /* ── Edit mode (Confluence-style) ──────────────────────── */
-    function enterEditMode() {
-      editMode = true;
-      const md = currentMd;
-      document.getElementById('editor-textarea').value = md;
-      document.getElementById('content').style.display = 'none';
-      document.getElementById('editor-container').classList.add('active');
-
-      document.getElementById('key-toggle').style.display = 'flex';
-      document.getElementById('edit-mode-btn').style.display = 'none';
-      document.getElementById('save-btn').style.display = 'inline-block';
-      document.getElementById('cancel-btn').style.display = 'inline-block';
-    }
-
-    function leaveEditMode() {
-      editMode = false;
-      document.getElementById('editor-container').classList.remove('active');
-      document.getElementById('content').style.display = 'block';
-
-      document.getElementById('key-toggle').style.display = 'none';
-      document.getElementById('key-panel').classList.remove('open');
-      document.getElementById('edit-mode-btn').style.display = 'inline-block';
-      document.getElementById('save-btn').style.display = 'none';
-      document.getElementById('cancel-btn').style.display = 'none';
-    }
-
-    async function saveAndExit() {
-      const artifact = document.getElementById('unknown-key').value;
-      if (!artifact) {
-        alert('Add that random key you carry in the Unknown Key panel.');
-        return;
-      }
-
-      const newMarkdown = document.getElementById('editor-textarea').value;
-      setStatus('busy', 'Saving changes…');
-
-      try {
-        const fileName = currentUrl.split('/').pop();
-        const fileUrl = GITHUB_API + '/' + encodeURIComponent(fileName);
-        const res = await fetch(
-          currentUrl + '?nocache=' + Date.now(),
-          {
-            method: 'HEAD',
-            cache: 'no-store'
-          }
-        );
-        const fileData = await res.json();
-
-        const commit = await fetch(fileUrl, {
-          method: 'PUT',
-          cache: 'no-store',
-          headers: {
-            Authorization: `token ${artifact}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: 'Update chronicle',
-            content: btoa(unescape(encodeURIComponent(newMarkdown))),
-            sha: fileData.sha
-          })
-        });
-
-        if (commit.ok) {
-          currentMd = newMarkdown;
-          currentEtag = null;
-          await loadChronicle(currentUrl);
-          leaveEditMode();
-          setStatus('ok', 'Changes saved!');
-        } else {
-          const err = await commit.json();
-          throw new Error(err.message || 'Failed to save');
-        }
-      } catch (e) {
-        setStatus('err', 'Save failed: ' + e.message);
-      }
-    }
-
-    function reconstructMarkdown(fm, sections, meta) {
-      let md = '---\n' + fm + '\n---\n\n';
-      const order = [
-        { key: '__header__', label: '__header__' },
-        { key: 'Marks', label: '⚰ Marks' },
-        { key: 'Memories', label: '🧠 Memories' },
-        { key: 'Diary', label: '📖 Diary' },
-        { key: 'Skills', label: '⚔ Skills' },
-        { key: 'Resources', label: '🏚 Resources' },
-        { key: 'Characters', label: '👥 Characters' },
-        { key: 'Journal', label: '📜 Journal' }
-      ];
-      order.forEach(item => {
-        if (sections[item.key] && sections[item.key].trim()) {
-          if (item.key === '__header__') {
-            md += sections[item.key] + '\n\n---\n\n';
-          } else {
-            md += '## ' + item.label + '\n\n' + sections[item.key] + '\n\n---\n\n';
-          }
-        }
-      });
-      md += '*Last played: ' + new Date().toISOString().split('T')[0] + '*\n\n---\n';
-      return md;
-    }
-
-    document.getElementById('edit-mode-btn').addEventListener('click', enterEditMode);
-
-    /* ── Data loading ───────────────────────────────────────── */
-    async function loadGameList() {
-      setStatus('busy', 'Fetching chronicle list…');
-      try {
-        const res = await fetch(GITHUB_API + '?nocache=' + Date.now(),
-          {
-            method: 'GET',
-            cache: 'no-store'
-          });
-        const files = await res.json();
-        const mds = files.filter(f => f.name.endsWith('.md'));
-        const sel = document.getElementById('game-select');
-        sel.innerHTML = '<option value="">— Choose a chronicle —</option>';
-        mds.forEach(f => {
-          const opt = document.createElement('option');
-          opt.value = RAW_BASE + encodeURIComponent(f.name);
-          opt.textContent = f.name.replace('.md', '');
-          sel.appendChild(opt);
-        });
-        setStatus('ok', 'Chronicles loaded');
-      } catch (e) {
-        setStatus('err', e.message);
-      }
-    }
-
-    async function loadChronicle(url) {
-      if (!url) return;
-      currentUrl = url;
-      setStatus('busy', 'Loading chronicle…');
-      try {
-        const res = await fetch(url + '?nocache=' + Date.now(),
-          {
-            method: 'GET',
-            cache: 'no-store'
-          });
-        const etag = res.headers.get('ETag');
-        if (etag) currentEtag = etag;
-        let md = await res.text();
-        currentMd = md;
-
-        /* Replace "Born" with "Game Started" everywhere */
-        md = md.replace(/\bBorn\b/g, 'Game Started');
-
-        const html = render(md);
-        const content = document.getElementById('content');
-        content.innerHTML = html;
-        content.style.display = 'block';
-        document.getElementById('empty-state').style.display = 'none';
-        document.getElementById('edit-mode-btn').style.display = 'inline-block';
-
-        initPanels();
-        startPolling();
-
-        setStatus('ok', 'Chronicle loaded');
-      } catch (e) {
-        setStatus('err', e.message);
-      }
-    }
-
-    /* ── Markdown / frontmatter parsing ────────────────────── */
-    function stripFrontmatter(md) {
-      if (md.startsWith('---')) {
-        const end = md.indexOf('---', 3);
-        if (end !== -1) return { fm: md.slice(3, end).trim(), body: md.slice(end + 3).trim() };
-      }
-      return { fm: '', body: md };
-    }
-
-    function parseFrontmatter(fm) {
-      const meta = {};
-      fm.split('\n').forEach(line => {
-        const m = line.match(/^(\w+):\s*(.+)$/);
-        if (m) meta[m[1]] = m[2].replace(/^["']|["']$/g, '');
-      });
-      return meta;
-    }
-
-    function parseVampire(md) {
-      const { fm, body } = stripFrontmatter(md);
-      const meta = parseFrontmatter(fm);
-
-      const sections = {};
-      let current = '__header__';
-      const buf = [];
-
-      for (const line of body.split('\n')) {
-        if (line.startsWith('## ')) {
-          sections[current] = buf.join('\n').trim();
-          buf.length = 0;
-          current = line.replace('## ', '').replace(/^[^\w]+/, '').trim();
-        } else {
-          buf.push(line);
-        }
-      }
-      sections[current] = buf.join('\n').trim();
-
-      return { meta, sections };
-    }
-
-    /* ── Section renderers ──────────────────────────────────── */
-
-    function renderMarksInline(text) {
-      const items = text.match(/^[-*]\s+.+/gm) || [];
-      if (!items.length) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
-      return '<div class="marks-inline">' +
-        items.map(i => '<span class="mark-chip">' + i.replace(/^[-*]\s+/, '') + '</span>').join('') +
-        '</div>';
-    }
-
-    function renderSkillsInline(text) {
-      const rows = text.match(/\|.+\|/g) || [];
-      if (rows.length < 3) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
-      return '<div class="skills-inline">' +
-        rows.slice(2).map(r => {
-          const cells = r.split('|').map(c => c.trim()).filter(Boolean);
-          const name = cells[0] || '';
-          const status = cells[1] || '';
-          const lost = name.includes('~~');
-          const checked = status.includes('☑');
-          return '<span class="skill-chip' + (lost ? ' lost' : checked ? ' checked' : '') + '">' +
-            '<span class="skill-box">' + (checked ? '✓' : '') + '</span>' +
-            name.replace(/~~/g, '') +
-            '</span>';
-        }).join('') +
-        '</div>';
-    }
-
-    function renderResourcesInline(text) {
-      const rows = text.match(/\|.+\|/g) || [];
-      if (rows.length < 3) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
-      return '<div class="resources-inline">' +
-        rows.slice(2).map(r => {
-          const cells = r.split('|').map(c => c.trim()).filter(Boolean);
-          const name = cells[0] || '';
-          const type = (cells[1] || '').toLowerCase();
-          const lost = name.includes('~~');
-          return '<span class="resource-chip' + (lost ? ' lost' : '') + (type ? ' ' + type : '') + '">' +
-            '<span class="resource-type-dot"></span>' +
-            name.replace(/~~/g, '') +
-            '</span>';
-        }).join('') +
-        '</div>';
-    }
-
-    function renderCharactersCol(text) {
-      return text.split(/\n(?=###\s)/).map(block => {
-        const tm = block.match(/^###\s+(.+)/);
-        const title = tm ? tm[1] : '';
-        const rest = block.replace(/^###.+\n/, '').trim();
-        const rows = rest.split('\n').filter(l => l.startsWith('-')).map(line => {
-          const dead = line.includes('~~');
-          const clean = line.replace(/^-\s*/, '').replace(/~~/g, '');
-          const parts = clean.split('—');
-          return '<div class="char-row' + (dead ? ' dead' : '') + '">' +
-            '<div class="char-row-name">' + (parts[0] || '').trim() + '</div>' +
-            ((parts[1] || '').trim() ? '<div class="char-row-desc">' + parts[1].trim() + '</div>' : '') +
-            '</div>';
-        }).join('');
-        return '<div class="char-group-label">' + title + '</div>' + rows;
-      }).join('');
-    }
-
-    function renderMemoriesCol(text) {
-      return text.split(/\n(?=###\s)/).map(block => {
-        const tm = block.match(/^###\s+(.+)/);
-        const title = tm ? tm[1].replace(/~~/g, '') : '';
-        const forgotten = block.includes('~~');
-        const rest = block.replace(/^###.+\n/, '').trim();
-        return '<div class="memory-block' + (forgotten ? ' forgotten' : '') + '">' +
-          '<div class="memory-title">' + title + '</div>' +
-          marked.parse(rest.replace(/~~/g, '')) +
-          '</div>';
-      }).join('');
-    }
-
-    function renderJournal(text) {
-      return text.split(/\n(?=###\s)/).map(block => {
-        const tm = block.match(/^###\s+(.+)/);
-        const title = tm ? tm[1] : '';
-        const rest = block.replace(/^###.+\n/, '').trim();
-        const pm = rest.match(/^\*(.+)\*/);
-        const promptText = pm ? pm[1] : '';
-        const body = promptText ? rest.replace(/^\*.+\*\n+/, '') : rest;
-        return '<div class="journal-entry">' +
-          '<div class="journal-turn">' + title + '</div>' +
-          '<div class="journal-scrap">' +
-          (promptText ? '<div class="journal-prompt-text">' + promptText + '</div>' : '') +
-          '<div class="journal-body">' + marked.parse(body) + '</div>' +
-          '</div>' +
-          '</div>';
-      }).join('');
-    }
-
-    /* ── Main render ────────────────────────────────────────── */
-    function render(md) {
-      const { meta, sections } = parseVampire(md);
-
-      const header = sections['__header__'] || '';
-      const vampName = (header.match(/^#\s+(.+)/m) || [])[1] || 'Unknown Vampire';
-      const epitaph = (header.match(/^>\s*\*?(.+?)\*?\s*$/m) || [])[1] || '';
-
-      const diaryHtml = sections['Diary']
-        ? '<div class="diary-strip"><div class="diary-label">📖 Diary</div><div class="diary-block">' + marked.parse(sections['Diary']) + '</div></div>'
-        : '';
-
-      return `
-        <div class="vamp-header">
-          <div class="vamp-name-wrap">
-            <div class="vamp-rule"><span></span><span></span></div>
-            <div class="vamp-name">${vampName}</div>
-            <div class="vamp-rule"><span></span><span></span></div>
-          </div>
-          <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
-          ${epitaph ? `<div class="vamp-epitaph">${epitaph}</div>` : ''}
-          <div class="meta-row">
-            ${meta.current_prompt ? `<div class="meta-pill">Prompt <span>${meta.current_prompt}</span></div>` : ''}
-            ${meta.prompts_resolved ? `<div class="meta-pill">Resolved <span>${meta.prompts_resolved}</span></div>` : ''}
-            ${meta.created ? `<div class="meta-pill">Started <span>${meta.created}</span></div>` : ''}
-            ${meta.modified ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
-          </div>
-        </div>
-
-        <div class="dashboard-strip">
-          <div class="strip-cell">
-            <div class="strip-label">⚰ Marks</div>
-            ${renderMarksInline(sections['Marks'] || '')}
-          </div>
-          <div class="strip-cell">
-            <div class="strip-label">⚔ Skills</div>
-            ${renderSkillsInline(sections['Skills'] || '')}
-          </div>
-          <div class="strip-cell">
-            <div class="strip-label">🏚 Resources</div>
-            ${renderResourcesInline(sections['Resources'] || '')}
-          </div>
-        </div>
-
-        <div class="main-layout">
-
-          <aside class="chars-col">
-            <div class="col-label">👥 Characters</div>
-            <div>
-              ${sections['Characters']
-          ? renderCharactersCol(sections['Characters'])
-          : '<span style="color:var(--ink-faint);font-size:.85rem;">No characters yet.</span>'}
-            </div>
-          </aside>
-
-          <main class="journal-col">
-            ${sections['Journal']
-          ? renderJournal(sections['Journal'])
-          : '<p style="color:var(--ink-faint);">No journal entries yet.</p>'}
-          </main>
-
-        </div>
-
-        <div class="memories-section">
-          <div class="memories-section-label">🧠 Memories</div>
-          <div class="memories-grid">
-            ${sections['Memories']
-          ? renderMemoriesCol(sections['Memories'])
-          : '<span style="color:var(--ink-faint);font-size:.85rem;">No memories yet.</span>'}
-          </div>
-        </div>
-
-        ${diaryHtml}
-      `;
-    }
-
-    /* ── ETag polling ───────────────────────────────────────── */
-    let currentEtag = null;
-    let pollTimer = null;
-
-    async function checkForUpdate() {
-      if (!currentUrl || editMode) return;
-
-      try {
-        const res = await fetch(
-          currentUrl + '?t=' + Date.now(),
-          {
-            method: 'GET',
-            cache: 'no-store'
-          }
-        );
-
-        const md = await res.text();
-
-        if (md !== currentMd) {
-          currentMd = md;
-          loadChronicle(currentUrl);
-        }
-      } catch (_) { }
-    }
-
-    function startPolling() {
-      stopPolling();
-      pollTimer = setInterval(checkForUpdate, POLL_INTERVAL * 1000);
-    }
-
-    function stopPolling() {
-      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-    }
-
-    /* ── Event listeners ────────────────────────────────────── */
-    document.getElementById('game-select').addEventListener('change', e => {
-      currentEtag = null; // reset so next poll always sees it as fresh
-      loadChronicle(e.target.value);
+  // ── Memories ──
+  html += `<div class="memories-section section-editwrap" data-section="memories">
+    <button class="edit-section-btn" onclick="editMemories()">✎ Edit</button>
+    <div class="memories-section-label">🧠 Memories</div>
+    <div class="memories-grid">`;
+  d.memories.forEach(mem => {
+    const cls = mem.struck ? 'forgotten' : '';
+    const tag = mem.inDiary ? ' <span style="font-size:.75em;color:var(--blood)">(in diary)</span>' : '';
+    html += `<div class="memory-block ${cls}">
+      <div class="memory-title">Memory ${mem.n} — ${esc(mem.theme)}${tag}</div>
+      <ol>`;
+    mem.experiences.forEach(exp => {
+      html += `<li${exp.struck ? ' style="text-decoration:line-through;opacity:.5"' : ''}>${esc(exp.text)}</li>`;
     });
+    html += `</ol></div>`;
+  });
+  html += `</div></div>`;
 
-    document.getElementById('refresh-btn').addEventListener('click', () => {
-      if (currentUrl) loadChronicle(currentUrl);
+  // ── Diary ──
+  html += `<div class="diary-strip section-editwrap" data-section="diary">
+    <button class="edit-section-btn" onclick="editDiary()">✎ Edit</button>
+    <div class="diary-label">📖 Diary</div>
+    <div class="diary-block">`;
+  if (!d.diary.exists || d.diary.memories.length === 0) {
+    html += `<p style="font-style:italic;color:var(--ink-faint)">No diary yet.</p>`;
+  } else {
+    d.diary.memories.forEach(mem => {
+      html += `<p><strong>${esc(mem.theme)}</strong></p>`;
+      mem.experiences.forEach(e => html += `<p style="padding-left:1em">— ${esc(e.text)}</p>`);
     });
+  }
+  html += `</div></div>`;
 
-    window.addEventListener('load', loadGameList);
-    window.addEventListener('focus', checkForUpdate); // catch up after tab was hidden
-  </script>
+  el.innerHTML = html;
+}
 
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════
+// EDIT MODE TOGGLE
+// ═══════════════════════════════════════════════════
+function toggleEditMode() {
+  if (!editMode) enterEditMode();
+  else cancelEditMode();
+}
+
+function enterEditMode() {
+  editMode = true;
+  hasUnsaved = false;
+  workingMd = currentMd;
+  parsedData = parseMarkdown(workingMd);
+  document.body.classList.add('edit-mode');
+  document.getElementById('edit-mode-btn').classList.add('active-edit');
+  document.getElementById('edit-mode-btn').textContent = '✎ Editing';
+  document.getElementById('save-btn').style.display = '';
+  document.getElementById('cancel-btn').style.display = '';
+  document.getElementById('edit-mode-banner').classList.add('visible');
+  document.getElementById('game-select').disabled = true;
+  document.getElementById('key-toggle').style.display = 'flex';
+  setStatus('busy', 'Edit mode — changes not yet saved');
+}
+
+function leaveEditMode() {
+  editMode = false;
+  hasUnsaved = false;
+  document.body.classList.remove('edit-mode');
+  document.getElementById('edit-mode-btn').classList.remove('active-edit');
+  document.getElementById('edit-mode-btn').textContent = '✎ Edit';
+  document.getElementById('save-btn').style.display = 'none';
+  document.getElementById('cancel-btn').style.display = 'none';
+  document.getElementById('save-bar').classList.remove('visible');
+  document.getElementById('edit-mode-banner').classList.remove('visible');
+  document.getElementById('game-select').disabled = false;
+  document.getElementById('key-toggle').style.display = 'none';
+  document.getElementById('key-panel').classList.remove('open');
+}
+
+function cancelEditMode() {
+  if (hasUnsaved && !confirm('Discard unsaved changes?')) return;
+  leaveEditMode();
+  parsedData = parseMarkdown(currentMd);
+  renderChronicle(parsedData);
+  setStatus('ok', 'Edit cancelled.');
+}
+
+function markUnsaved() {
+  hasUnsaved = true;
+  document.getElementById('save-bar').classList.add('visible');
+  setStatus('busy', 'Unsaved changes');
+}
+
+// ═══════════════════════════════════════════════════
+// SAVE TO GITHUB
+// ═══════════════════════════════════════════════════
+async function saveChronicle() {
+  const token = getToken();
+  if (!token) { openKeyPanel(); alert('Please enter your GitHub token first (🔑 key panel).'); return; }
+  if (!currentFileUrl) { setStatus('err', 'No file URL — reload the chronicle.'); return; }
+  setStatus('busy', 'Saving…');
+  try {
+    const newMd = serializeMarkdown(parsedData);
+    const encoded = btoa(unescape(encodeURIComponent(newMd)));
+    const sel = document.getElementById('game-select');
+    const resp = await fetch(currentFileUrl, {
+      method: 'PUT',
+      headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Chronicle update via TYOV viewer', content: encoded, sha: currentSha })
+    });
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.message || resp.status);
+    }
+    const result = await resp.json();
+    currentSha = result.content.sha;
+    currentMd = newMd;
+    workingMd = newMd;
+    leaveEditMode();
+    renderChronicle(parsedData);
+    setStatus('ok', 'Saved successfully ✓');
+  } catch(e) {
+    setStatus('err', 'Save failed: ' + e.message);
+    alert('Save failed: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════════════════
+function openModal(title, bodyHtml, confirmFn, confirmLabel = 'Apply') {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-confirm-btn').textContent = confirmLabel;
+  currentModalConfirm = confirmFn;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  currentModalConfirm = null;
+}
+function modalConfirm() {
+  if (currentModalConfirm) currentModalConfirm();
+}
+document.getElementById('modal-overlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+
+// ═══════════════════════════════════════════════════
+// SECTION EDITORS
+// ═══════════════════════════════════════════════════
+
+// ── Header / Epithet ──────────────────────────────
+function editHeader() {
+  if (!editMode) return;
+  openModal('Edit Header', `
+    <div class="form-row">
+      <label class="form-label">Vampire Name</label>
+      <input class="form-input" id="ed-vname" value="${esc(parsedData.vampireName)}">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Epithet</label>
+      <input class="form-input" id="ed-epithet" value="${esc(parsedData.epithet)}">
+      <div class="form-hint">The blockquote tagline beneath the subtitle.</div>
+    </div>
+  `, () => {
+    parsedData.vampireName = document.getElementById('ed-vname').value.trim();
+    parsedData.epithet = document.getElementById('ed-epithet').value.trim();
+    parsedData.frontmatter.vampire = parsedData.vampireName;
+    closeModal(); markUnsaved(); renderChronicle(parsedData);
+  }, 'Apply');
+}
+
+// ── Marks ─────────────────────────────────────────
+function editMarks() {
+  if (!editMode) return;
+  let bodyHtml = `<div class="edit-section-title">Existing Marks</div>`;
+  parsedData.marks.forEach((m, i) => {
+    bodyHtml += `<div class="edit-list-item ${m.struck ? 'struck-item' : ''}">
+      <div class="edit-list-item-text ${m.struck ? 'struck-text' : ''}">${esc(m.desc)} <span style="color:var(--ink-faint);font-size:.8rem">(${esc(m.concealment)})</span></div>
+      <div class="edit-list-actions">
+        <button class="strike-btn ${m.struck ? 'struck' : ''}" onclick="toggleMarkStruck(${i})">${m.struck ? 'Restore' : 'Remove'}</button>
+      </div>
+    </div>`;
+  });
+  bodyHtml += `<hr class="edit-divider">
+    <div class="edit-section-title">Add New Mark</div>
+    <div class="form-row">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="ed-mark-desc" placeholder="e.g. Cold skin that never warms">
+    </div>
+    <div class="form-row">
+      <label class="form-label">How is it concealed?</label>
+      <input class="form-input" id="ed-mark-conc" placeholder="e.g. hidden under heavy vestments">
+    </div>`;
+  openModal('Edit Marks', bodyHtml, () => {
+    const desc = document.getElementById('ed-mark-desc').value.trim();
+    const conc = document.getElementById('ed-mark-conc').value.trim();
+    if (desc && conc) {
+      parsedData.marks.push({ desc, concealment: conc, struck: false });
+    }
+    closeModal(); markUnsaved(); renderChronicle(parsedData);
+  }, 'Add Mark');
+}
+
+function toggleMarkStruck(i) {
+  parsedData.marks[i].struck = !parsedData.marks[i].struck;
+  // Re-render the modal in place
+  editMarks();
+}
+
+// ── Skills ────────────────────────────────────────
+function editSkills() {
+  if (!editMode) return;
+  let bodyHtml = `<div class="edit-section-title">Existing Skills</div>`;
+  parsedData.skills.forEach((sk, i) => {
+    bodyHtml += `<div class="edit-list-item">
+      <div class="edit-list-item-text">${esc(sk.name)}</div>
+      <div class="edit-list-actions">
+        <select class="form-select" id="sk-status-${i}" style="width:130px;font-size:13px;" onchange="updateSkillStatus(${i}, this.value)">
+          <option value="unchecked" ${sk.status==='unchecked'?'selected':''}>✅ Unchecked</option>
+          <option value="checked" ${sk.status==='checked'?'selected':''}>☑ Checked</option>
+          <option value="lost" ${sk.status==='lost'?'selected':''}>~~lost~~</option>
+        </select>
+      </div>
+    </div>`;
+  });
+  bodyHtml += `<hr class="edit-divider">
+    <div class="edit-section-title">Add New Skill</div>
+    <div class="form-row">
+      <label class="form-label">Skill Name</label>
+      <input class="form-input" id="ed-skill-name" placeholder="e.g. Herbalism">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Initial Status</label>
+      <select class="form-select" id="ed-skill-status">
+        <option value="unchecked">✅ Unchecked</option>
+        <option value="checked">☑ Checked</option>
+      </select>
+    </div>`;
+  openModal('Edit Skills', bodyHtml, () => {
+    const name = document.getElementById('ed-skill-name').value.trim();
+    const status = document.getElementById('ed-skill-status').value;
+    if (name) parsedData.skills.push({ name, status });
+    closeModal(); markUnsaved(); renderChronicle(parsedData);
+  }, 'Add Skill');
+}
+
+function updateSkillStatus(i, val) {
+  parsedData.skills[i].status = val;
+  markUnsaved();
+}
+
+// ── Resources ─────────────────────────────────────
+function editResources() {
+  if (!editMode) return;
+  let bodyHtml = `<div class="edit-section-title">Existing Resources</div>`;
+  parsedData.resources.forEach((r, i) => {
+    bodyHtml += `<div class="edit-list-item">
+      <div class="edit-list-item-text">${esc(r.name)} <span style="color:var(--ink-faint);font-size:.8rem">(${r.type})</span></div>
+      <div class="edit-list-actions">
+        <select class="form-select" id="res-status-${i}" style="width:110px;font-size:13px;" onchange="updateResourceStatus(${i}, this.value)">
+          <option value="active" ${r.status==='active'?'selected':''}>✅ Active</option>
+          <option value="lost" ${r.status==='lost'?'selected':''}>~~Lost~~</option>
+        </select>
+      </div>
+    </div>`;
+  });
+  bodyHtml += `<hr class="edit-divider">
+    <div class="edit-section-title">Add New Resource</div>
+    <div class="form-row">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="ed-res-name" placeholder="e.g. The Herbarium">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Type</label>
+      <select class="form-select" id="ed-res-type">
+        <option value="portable">Portable</option>
+        <option value="stationary">📍 Stationary</option>
+      </select>
+    </div>`;
+  openModal('Edit Resources', bodyHtml, () => {
+    const name = document.getElementById('ed-res-name').value.trim();
+    const type = document.getElementById('ed-res-type').value;
+    if (name) parsedData.resources.push({ name, type, status: 'active' });
+    closeModal(); markUnsaved(); renderChronicle(parsedData);
+  }, 'Add Resource');
+}
+
+function updateResourceStatus(i, val) {
+  parsedData.resources[i].status = val;
+  markUnsaved();
+}
+
+// ── Characters ────────────────────────────────────
+function editCharacters() {
+  if (!editMode) return;
+  let bodyHtml = `<div class="edit-section-title">Mortals</div>`;
+  parsedData.mortals.forEach((c, i) => {
+    bodyHtml += `<div class="edit-list-item ${c.dead ? 'struck-item' : ''}">
+      <div class="edit-list-item-text ${c.dead ? 'struck-text' : ''}"><strong>${esc(c.name)}</strong> — ${esc(c.desc)}</div>
+      <div class="edit-list-actions">
+        <button class="strike-btn ${c.dead ? 'struck' : ''}" onclick="toggleCharDead('mortal',${i})">${c.dead ? 'Revive' : 'Kill'}</button>
+      </div>
+    </div>`;
+  });
+  bodyHtml += `<div class="edit-section-title" style="margin-top:14px;">Immortals</div>`;
+  parsedData.immortals.forEach((c, i) => {
+    bodyHtml += `<div class="edit-list-item ${c.dead ? 'struck-item' : ''}">
+      <div class="edit-list-item-text ${c.dead ? 'struck-text' : ''}"><strong>${esc(c.name)}</strong> — ${esc(c.desc)}</div>
+      <div class="edit-list-actions">
+        <button class="strike-btn ${c.dead ? 'struck' : ''}" onclick="toggleCharDead('immortal',${i})">${c.dead ? 'Revive' : 'Kill'}</button>
+      </div>
+    </div>`;
+  });
+  bodyHtml += `<hr class="edit-divider">
+    <div class="edit-section-title">Add Character</div>
+    <div class="form-row">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="ed-char-name" placeholder="Character name">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Type</label>
+      <select class="form-select" id="ed-char-type">
+        <option value="mortal">Mortal</option>
+        <option value="immortal">Immortal</option>
+      </select>
+    </div>`;
+  openModal('Edit Characters', bodyHtml, () => {
+    const name = document.getElementById('ed-char-name').value.trim();
+    const desc = document.getElementById('ed-char-desc').value.trim();
+    const type = document.getElementById('ed-char-type').value;
+    if (name && desc) {
+      if (type === 'mortal') parsedData.mortals.push({ name, desc, dead: false });
+      else parsedData.immortals.push({ name, desc, dead: false });
+    }
+    closeModal(); markUnsaved(); renderChronicle(parsedData);
+  }, 'Add Character');
+}
+
+function toggleCharDead(type, i) {
+  if (type === 'mortal') parsedData.mortals[i].dead = !parsedData.mortals[i].dead;
+  else parsedData.immortals[i].dead = !parsedData.immortals[i].dead;
+  editCharacters(); // re-open modal refreshed
+}
+
+// ── Memories ──────────────────────────────────────
+function editMemories() {
+  if (!editMode) return;
+  let bodyHtml = `<div class="edit-section-title">Memories (max 5 active)</div>`;
+  parsedData.memories.forEach((mem, i) => {
+    bodyHtml += `<div class="edit-list-item ${mem.struck ? 'struck-item' : ''}" style="flex-direction:column;align-items:stretch;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong class="${mem.struck ? 'struck-text' : ''}">Memory ${mem.n} — ${esc(mem.theme)}</strong>
+        <div style="display:flex;gap:6px;">
+          <button class="strike-btn ${mem.struck ? 'struck' : ''}" onclick="toggleMemStruck(${i})">${mem.struck ? 'Restore' : 'Forget'}</button>
+          <button class="strike-btn" onclick="addMemExp(${i})" ${mem.experiences.length >= 3 ? 'disabled style="opacity:.4"' : ''}>+ Exp</button>
+        </div>
+      </div>`;
+    mem.experiences.forEach((exp, j) => {
+      bodyHtml += `<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;padding-left:12px;">
+        <span class="${exp.struck ? 'struck-text' : ''}" style="flex:1;font-size:.88rem;">${j+1}. ${esc(exp.text)}</span>
+        <button class="strike-btn ${exp.struck ? 'struck' : ''}" onclick="toggleExpStruck(${i},${j})">${exp.struck ? 'Restore' : 'Cross out'}</button>
+      </div>`;
+    });
+    bodyHtml += `</div>`;
+  });
+
+  const activeCount = parsedData.memories.filter(m => !m.struck).length;
+  if (activeCount < 5) {
+    bodyHtml += `<hr class="edit-divider">
+      <div class="edit-section-title">Add Memory (${activeCount}/5 active)</div>
+      <div class="form-row">
+        <label class="form-label">Theme</label>
+        <input class="form-input" id="ed-mem-theme" placeholder="e.g. The Scholarly Curate">
+      </div>
+      <div class="form-row">
+        <label class="form-label">First Experience</label>
+        <textarea class="form-textarea" id="ed-mem-exp" style="min-height:60px;" placeholder="First memory experience…"></textarea>
+      </div>`;
+  } else {
+    bodyHtml += `<p style="margin-top:12px;color:var(--blood);font-size:.85rem;font-style:italic;">Memory cap reached (5/5). Forget or move a memory to diary first.</p>`;
+  }
+
+  openModal('Edit Memories', bodyHtml, () => {
+    const theme = document.getElementById('ed-mem-theme') ? document.getElementById('ed-mem-theme').value.trim() : '';
+    const expText = document.getElementById('ed-mem-exp') ? document.getElementById('ed-mem-exp').value.trim() : '';
+    if (theme && expText) {
+      const newN = (parsedData.memories.length > 0 ? Math.max(...parsedData.memories.map(m=>m.n)) : 0) + 1;
+      parsedData.memories.push({ n: newN, theme, experiences: [{ text: expText, struck: false }], struck: false, inDiary: false });
+    }
+    closeModal(); markUnsaved(); renderChronicle(parsedData);
+  }, 'Add Memory');
+}
+
+function toggleMemStruck(i) {
+  parsedData.memories[i].struck = !parsedData.memories[i].struck;
+  editMemories();
+}
+function toggleExpStruck(i, j) {
+  parsedData.memories[i].experiences[j].struck = !parsedData.memories[i].experiences[j].struck;
+  editMemories();
+}
+function addMemExp(i) {
+  const text = prompt('New experience text:');
+  if (text && text.trim()) {
+    parsedData.memories[i].experiences.push({ text: text.trim(), struck: false });
+    markUnsaved(); editMemories();
+  }
+}
+
+// ── Diary ─────────────────────────────────────────
+function editDiary() {
+  if (!editMode) return;
+  let bodyHtml = `<div class="edit-section-title">Diary Memories (max 4)</div>`;
+  if (parsedData.diary.memories.length === 0) {
+    bodyHtml += `<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No diary memories yet.</p>`;
+  }
+  parsedData.diary.memories.forEach((mem, i) => {
+    bodyHtml += `<div class="edit-list-item">
+      <div class="edit-list-item-text"><strong>${esc(mem.theme)}</strong> — ${mem.experiences.map(e=>esc(e.text)).join('; ')}</div>
+      <div class="edit-list-actions">
+        <button class="strike-btn struck" onclick="removeDiaryMem(${i})">Remove</button>
+      </div>
+    </div>`;
+  });
+
+  const activeMemsNotInDiary = parsedData.memories.filter(m => !m.struck && !m.inDiary);
+  if (parsedData.diary.memories.length < 4 && activeMemsNotInDiary.length > 0) {
+    bodyHtml += `<hr class="edit-divider">
+      <div class="edit-section-title">Move Active Memory to Diary</div>
+      <div class="form-row">
+        <label class="form-label">Memory</label>
+        <select class="form-select" id="ed-diary-mem">
+          ${activeMemsNotInDiary.map((m, i) => `<option value="${m.n}">Memory ${m.n} — ${esc(m.theme)}</option>`).join('')}
+        </select>
+      </div>`;
+  } else if (parsedData.diary.memories.length >= 4) {
+    bodyHtml += `<p style="margin-top:12px;color:var(--blood);font-size:.85rem;font-style:italic;">Diary is full (4/4 memories).</p>`;
+  }
+
+  openModal('Edit Diary', bodyHtml, () => {
+    const sel = document.getElementById('ed-diary-mem');
+    if (sel) {
+      const memN = parseInt(sel.value);
+      const mem = parsedData.memories.find(m => m.n === memN);
+      if (mem) {
+        // Move to diary: mark inDiary on active, add copy to diary section
+        mem.inDiary = true;
+        const newDiaryN = parsedData.diary.memories.length + 1;
+        parsedData.diary.memories.push({ n: newDiaryN, theme: mem.theme, experiences: mem.experiences.filter(e=>!e.struck).map(e=>({text:e.text})) });
+        parsedData.frontmatter.diary_exists = 'true';
+        parsedData.frontmatter.diary_name = parsedData.frontmatter.diary_name || 'Diary';
+        parsedData.diary.exists = true;
+      }
+    }
+    closeModal(); markUnsaved(); renderChronicle(parsedData);
+  }, 'Move to Diary');
+}
+
+function removeDiaryMem(i) {
+  const removed = parsedData.diary.memories[i];
+  // Unmark inDiary on the active memory
+  const activeMem = parsedData.memories.find(m => m.theme === removed.theme);
+  if (activeMem) activeMem.inDiary = false;
+  parsedData.diary.memories.splice(i, 1);
+  // Re-number
+  parsedData.diary.memories.forEach((m, idx) => m.n = idx + 1);
+  if (parsedData.diary.memories.length === 0) {
+    parsedData.diary.exists = false;
+    parsedData.frontmatter.diary_exists = 'false';
+  }
+  markUnsaved(); editDiary();
+}
+
+// ── Journal ───────────────────────────────────────
+function editJournal() {
+  if (!editMode) return;
+  const topEntry = parsedData.journal.length > 0 ? parsedData.journal.reduce((a,b) => a.turn > b.turn ? a : b) : null;
+
+  let bodyHtml = '';
+
+  if (topEntry && topEntry.awaiting) {
+    // Resolve current prompt
+    bodyHtml += `<div class="edit-section-title" style="color:var(--blood);">Resolve Current Prompt — Turn ${topEntry.turn}</div>
+      <div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:14px;font-size:.88rem;color:var(--ink-dim);">${esc(topEntry.promptText)}</div>
+      <div class="form-row">
+        <label class="form-label">Journal Prose</label>
+        <textarea class="form-textarea" id="ed-j-prose" style="min-height:100px;">${esc(topEntry.prose)}</textarea>
+        <div class="form-hint">Your character's experience resolving this prompt.</div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Changes (mechanical summary)</label>
+        <input class="form-input" id="ed-j-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty.">
+        <div class="form-hint">Required. Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>
+      </div>
+      <hr class="edit-divider">`;
+  }
+
+  // Add new prompt entry
+  bodyHtml += `<div class="edit-section-title">Add New Journal Entry</div>
+    <div class="form-row">
+      <label class="form-label">Prompt Number (1–80)</label>
+      <input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Entry Number</label>
+      <input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1">
+      <div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Prompt Text (exact, from prompts.json)</label>
+      <textarea class="form-textarea" id="ed-j-ptext" style="min-height:60px;" placeholder="Paste the exact prompt text here…"></textarea>
+    </div>`;
+
+  openModal('Edit Journal', bodyHtml, () => {
+    // Resolve current if awaiting
+    if (topEntry && topEntry.awaiting) {
+      const prose = document.getElementById('ed-j-prose') ? document.getElementById('ed-j-prose').value.trim() : '';
+      const changes = document.getElementById('ed-j-changes') ? document.getElementById('ed-j-changes').value.trim() : '';
+      if (changes) {
+        topEntry.prose = prose;
+        topEntry.changes = changes;
+        topEntry.awaiting = false;
+      }
+    }
+    // Add new entry
+    const promptNum = parseInt(document.getElementById('ed-j-prompt').value || '0');
+    const entryNum = parseInt(document.getElementById('ed-j-entry').value || '1');
+    const pText = document.getElementById('ed-j-ptext').value.trim();
+    if (promptNum >= 1 && pText) {
+      const maxTurn = parsedData.journal.length > 0 ? Math.max(...parsedData.journal.map(j=>j.turn)) : 0;
+      parsedData.journal.push({
+        turn: maxTurn + 1,
+        prompt: promptNum,
+        entry: entryNum,
+        promptText: pText,
+        prose: '',
+        changes: '',
+        awaiting: true
+      });
+      parsedData.frontmatter.current_prompt = promptNum;
+    }
+    closeModal(); markUnsaved(); renderChronicle(parsedData);
+  }, topEntry && topEntry.awaiting ? 'Resolve & Save' : 'Add Entry');
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+loadGameList();
+</script>
 </body>
-
 </html>

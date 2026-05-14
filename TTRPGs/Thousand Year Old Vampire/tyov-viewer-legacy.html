@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thousand Year Old Vampire — Chronicle Viewer</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=UnifrakturMaguntia&display=swap"
+    rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #e8dfc8;
+      --bg2: #dfd5ba;
+      --bg3: #d4c9a8;
+      --surface: #f0e8d0;
+      --surface2: #e8ddc0;
+      --ink: #1c1208;
+      --ink-dim: #3a2c18;
+      --ink-faint: #7a6040;
+      --blood: #8b1a1a;
+      --blood-bright: #c0392b;
+      --accent: #5c3a10;
+      --accent-dim: #8a6030;
+      --border: #b8a070;
+      --border-bright: #8a6030;
+      --topbar-bg: #d4c9a8f2;
+      --topbar-border: #b8a070;
+      --pill-bg: #d4c9a8;
+      --tag-bg: #c8b888;
+      --shadow: rgba(0, 0, 0, 0.18);
+      --torn-shadow: rgba(0, 0, 0, 0.14);
+      --status-ok: #3a6a2a;
+      --card-bg: #f5edd8;
+      --card-bg2: #ece0c4;
+    }
+
+    /* Hidden key panel styles */
+    #key-panel {
+      position: fixed;
+      left: -320px;
+      top: 0;
+      width: 300px;
+      height: 100vh;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 20px;
+      z-index: 200;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 15px var(--shadow);
+    }
+
+    #key-panel.open {
+      left: 0;
+    }
+
+    #key-toggle {
+      position: fixed;
+      left: 10px;
+      top: 120px;
+      z-index: 199;
+      background: var(--blood);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: left 0.3s ease;
+    }
+
+    #key-toggle.hidden {
+      left: -40px;
+    }
+
+    .key-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .key-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 8px;
+      font-size: 12px;
+      font-family: 'EB Garamond', serif;
+      margin-bottom: 16px;
+    }
+
+    .key-input:focus {
+      outline: none;
+      border-color: var(--blood);
+      box-shadow: 0 0 4px var(--blood);
+    }
+
+    .key-info {
+      font-size: 11px;
+      color: var(--ink-faint);
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    /* Edit mode indicator */
+    #edit-mode-btn {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      color: var(--accent);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    #edit-mode-btn.active {
+      background: var(--blood);
+      color: white;
+      border-color: var(--blood);
+    }
+
+    /* Editor container */
+    #editor-container {
+      display: none;
+      padding: 24px 28px;
+      min-height: 60vh;
+    }
+
+    #editor-container.active {
+      display: block;
+    }
+
+    #editor-textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 16px;
+      font-size: 13px;
+      font-family: 'Courier New', monospace;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 500px;
+      box-sizing: border-box;
+    }
+
+    #editor-textarea:focus {
+      outline: none;
+      border-color: var(--blood);
+      box-shadow: 0 0 4px var(--blood);
+    }
+
+    .editor-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      justify-content: flex-end;
+    }
+
+    .editor-btn {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      color: var(--accent);
+      padding: 8px 16px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .editor-btn.save {
+      background: var(--blood);
+      color: white;
+      border-color: var(--blood);
+    }
+
+    .editor-btn:hover {
+      opacity: 0.9;
+    }
+
+    [data-skin="dark"] {
+      --bg: #1a1410;
+      --bg2: #221c15;
+      --bg3: #2d2418;
+      --surface: #1e1710;
+      --surface2: #160f08;
+      --ink: #e8d9b8;
+      --ink-dim: #a89070;
+      --ink-faint: #6a5840;
+      --blood: #8b1a1a;
+      --blood-bright: #c0392b;
+      --accent: #c9a84c;
+      --accent-dim: #8a6e30;
+      --border: #4a3520;
+      --border-bright: #7a5530;
+      --topbar-bg: #110d08f2;
+      --topbar-border: #2a1e10;
+      --pill-bg: #2a1e10;
+      --tag-bg: #2d2418;
+      --shadow: rgba(0, 0, 0, 0.5);
+      --torn-shadow: rgba(0, 0, 0, 0.4);
+      --status-ok: #4a8a4a;
+      --card-bg: #221c14;
+      --card-bg2: #1a1510;
+    }
+
+    [data-skin="scholar"] {
+      --bg: #f5f0e8;
+      --bg2: #ede6d8;
+      --bg3: #e4dccc;
+      --surface: #faf7f0;
+      --surface2: #f0ebe0;
+      --ink: #1a1208;
+      --ink-dim: #4a3c28;
+      --ink-faint: #9a8a70;
+      --blood: #6b0f0f;
+      --blood-bright: #9b2020;
+      --accent: #2c4a6e;
+      --accent-dim: #4a6a8e;
+      --border: #c8bca0;
+      --border-bright: #a09070;
+      --topbar-bg: #ede6d8f5;
+      --topbar-border: #c8bca0;
+      --pill-bg: #e4dccc;
+      --tag-bg: #ddd4c0;
+      --shadow: rgba(0, 0, 0, 0.10);
+      --torn-shadow: rgba(0, 0, 0, 0.08);
+      --status-ok: #2a5a2a;
+      --card-bg: #faf7f0;
+      --card-bg2: #f0ebe0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'EB Garamond', serif;
+      font-size: 17px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── Top bar ──────────────────────────────────────────── */
+
+    #top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--topbar-bg);
+      border-bottom: 1px solid var(--topbar-border);
+      backdrop-filter: blur(8px);
+    }
+
+    #picker-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 16px;
+      flex-wrap: wrap;
+    }
+
+    #picker-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: .14em;
+      color: var(--accent-dim);
+      text-transform: uppercase;
+    }
+
+    #game-select {
+      flex: 1;
+      min-width: 180px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 8px 10px;
+      font-size: 15px;
+    }
+
+    .top-btn {
+      background: transparent;
+      border: 1px solid var(--border-bright);
+      color: var(--accent);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .top-btn:hover {
+      background: var(--blood);
+      color: white;
+    }
+
+    #status-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 16px 6px;
+      font-size: 12px;
+      color: var(--ink-faint);
+      border-bottom: 1px solid var(--topbar-border);
+    }
+
+    #status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ink-faint);
+    }
+
+    #status-dot.ok {
+      background: var(--status-ok);
+    }
+
+    #status-dot.err {
+      background: var(--blood-bright);
+    }
+
+    #status-dot.busy {
+      background: var(--accent);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .4;
+      }
+    }
+
+    .skin-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .skin-btn.active {
+      border-color: var(--border-bright);
+    }
+
+    .skin-btn[data-s="book"] {
+      background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070);
+    }
+
+    .skin-btn[data-s="dark"] {
+      background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410);
+    }
+
+    .skin-btn[data-s="scholar"] {
+      background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0);
+    }
+
+    /* ── App wrapper ──────────────────────────────────────── */
+
+    #app {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 0 40px;
+    }
+
+    /* ── Vampire header ───────────────────────────────────── */
+
+    .vamp-header {
+      text-align: center;
+      padding: 36px 20px 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0;
+    }
+
+    .vamp-name-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin: 0 auto;
+      max-width: 700px;
+    }
+
+    .vamp-rule {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .vamp-rule span {
+      display: block;
+      background: var(--blood);
+      height: 1px;
+    }
+
+    .vamp-rule span:first-child {
+      opacity: 0.5;
+    }
+
+    .vamp-rule span:last-child {
+      opacity: 0.3;
+    }
+
+    .vamp-name {
+      font-family: 'Cinzel Decorative', serif;
+      font-weight: 400;
+      font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+      line-height: 1.15;
+      color: var(--blood);
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+
+    .vamp-subtitle {
+      font-family: 'Cinzel Decorative', serif;
+      font-weight: 400;
+      font-size: clamp(0.7rem, 1.5vw, 1rem);
+      color: var(--ink-faint);
+      letter-spacing: .08em;
+      margin-top: 10px;
+    }
+
+    .vamp-epitaph {
+      margin: 14px auto 0;
+      max-width: 600px;
+      padding: 10px 16px;
+      border-left: 2px solid var(--blood);
+      text-align: left;
+      color: var(--ink-dim);
+      font-style: italic;
+      font-size: .95rem;
+      background: var(--surface2);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .meta-pill {
+      background: var(--pill-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 9px;
+      font-family: 'Cinzel', serif;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .meta-pill span {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* ── Dashboard strip (stats row below header) ─────────── */
+
+    .dashboard-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+
+    .strip-cell {
+      padding: 14px 18px;
+      border-right: 1px solid var(--border);
+    }
+
+    .strip-cell:last-child {
+      border-right: none;
+    }
+
+    .strip-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── Marks inline ─────────────────────────────────────── */
+
+    .marks-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mark-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      font-size: .85rem;
+      color: var(--ink-dim);
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .mark-chip::before {
+      content: '⬥';
+      position: absolute;
+      left: 6px;
+      color: var(--blood);
+      font-size: .7rem;
+    }
+
+    /* ── Skills inline ────────────────────────────────────── */
+
+    .skills-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .skill-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      font-size: .85rem;
+    }
+
+    .skill-chip.lost {
+      opacity: .4;
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
+
+    .skill-chip.checked {
+      border-color: var(--blood);
+    }
+
+    .skill-box {
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--border-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      flex-shrink: 0;
+    }
+
+    .skill-chip.checked .skill-box {
+      background: var(--blood);
+      color: white;
+    }
+
+    /* ── Resources inline ─────────────────────────────────── */
+
+    .resources-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .resource-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      font-size: .85rem;
+    }
+
+    .resource-chip.lost {
+      opacity: .4;
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
+
+    .resource-type-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      flex-shrink: 0;
+    }
+
+    .resource-chip.portable .resource-type-dot {
+      background: var(--accent);
+    }
+
+    .resource-chip.stationary .resource-type-dot {
+      background: var(--ink-faint);
+    }
+
+    /* ── Main layout: characters + journal (memories moved below) */
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      min-height: 60vh;
+    }
+
+    /* ── Characters panel (left) ──────────────────────────── */
+
+    .chars-col {
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+      background: var(--bg2);
+    }
+
+    .col-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .char-group-label {
+      font-family: 'Cinzel', serif;
+      font-size: 8px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin: 14px 0 6px;
+    }
+
+    .char-group-label:first-child {
+      margin-top: 0;
+    }
+
+    .char-row {
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .88rem;
+    }
+
+    .char-row:last-child {
+      border-bottom: none;
+    }
+
+    .char-row.dead {
+      opacity: .4;
+    }
+
+    .char-row.dead .char-row-name {
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
+
+    .char-row-name {
+      font-weight: 600;
+      color: var(--accent);
+      font-size: .88rem;
+    }
+
+    .char-row-desc {
+      color: var(--ink-faint);
+      font-size: .8rem;
+      line-height: 1.3;
+      margin-top: 1px;
+    }
+
+    /* ── Journal (centre) ─────────────────────────────────── */
+
+    .journal-col {
+      padding: 24px 28px;
+      min-width: 0;
+    }
+
+    .journal-entry {
+      margin-bottom: 30px;
+    }
+
+    .journal-turn {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      color: var(--blood);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .journal-turn::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .journal-scrap {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 18px 22px;
+      box-shadow: 2px 3px 10px var(--torn-shadow);
+    }
+
+    .journal-prompt-text {
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      background: var(--tag-bg);
+      border-left: 3px solid var(--blood);
+      font-size: .88rem;
+      color: var(--ink-dim);
+      line-height: 1.5;
+    }
+
+    .journal-body {
+      line-height: 1.8;
+    }
+
+    .journal-body p {
+      margin-bottom: 12px;
+    }
+
+    .journal-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .journal-body em,
+    .journal-body i {
+      font-style: italic;
+    }
+
+    /* ── Memories (full-width grid below journal) ─────────── */
+
+    .memories-section {
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 20px 28px 28px;
+    }
+
+    .memories-section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .memories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .memory-block {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      font-size: .88rem;
+      line-height: 1.6;
+      box-shadow: 1px 2px 5px var(--shadow);
+    }
+
+    .memory-block.forgotten {
+      opacity: .4;
+      border-style: dashed;
+    }
+
+    .memory-block.forgotten .memory-title {
+      text-decoration: line-through;
+      text-decoration-color: var(--blood);
+    }
+
+    .memory-title {
+      font-family: 'Cinzel', serif;
+      font-size: 8.5px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 8px;
+    }
+
+    .memory-block p {
+      margin-bottom: 6px;
+    }
+
+    .memory-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    .memory-block ol,
+    .memory-block ul {
+      padding-left: 16px;
+    }
+
+    .memory-block li {
+      margin-bottom: 4px;
+    }
+
+    /* ── Diary strip ──────────────────────────────────────── */
+
+    .diary-strip {
+      border-top: 1px solid var(--border);
+      background: var(--card-bg2);
+      padding: 16px 28px;
+    }
+
+    .diary-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 10px;
+    }
+
+    .diary-block {
+      font-size: .92rem;
+      line-height: 1.75;
+      color: var(--ink-dim);
+    }
+
+    .diary-block p {
+      margin-bottom: 8px;
+    }
+
+    /* ── Empty state ──────────────────────────────────────── */
+
+    #empty-state {
+      text-align: center;
+      padding: 100px 20px;
+      color: var(--ink-faint);
+    }
+
+    #empty-state h2 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 2.2rem;
+      font-weight: 400;
+      color: var(--blood);
+      margin-bottom: 10px;
+      letter-spacing: .04em;
+    }
+
+    /* ── Responsive ───────────────────────────────────────── */
+
+    @media (max-width: 860px) {
+      .dashboard-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .strip-cell {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .strip-cell:last-child {
+        border-bottom: none;
+      }
+
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .chars-col {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .journal-col {
+        padding: 18px 16px;
+      }
+
+      .memories-section {
+        padding: 16px;
+      }
+
+      .memories-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #app {
+        padding: 0 0 32px;
+      }
+    }
+
+    @media (min-width: 861px) and (max-width: 1200px) {
+      .memories-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Key Panel (Hidden) -->
+  <button id="key-toggle" style="display:none;">🔑</button>
+  <div id="key-panel">
+    <div class="key-label">🔑 Unknown Key</div>
+    <input type="password" id="unknown-key" class="key-input" placeholder="enter key">
+    <div class="key-info">
+      The random artifact you carry. Keep it safe. <br><br>
+      <a href="https://github.com/settings/tokens" target="_blank" style="color: var(--blood); display: none;">Link</a>
+    </div>
+  </div>
+
+  <div id="top-bar">
+    <div id="picker-row">
+      <span id="picker-label">Chronicle</span>
+      <select id="game-select">
+        <option value="">— Loading games… —</option>
+      </select>
+      <button id="back-btn" class="top-btn">← Games</button>
+      <button id="refresh-btn" class="top-btn">↻ Refresh</button>
+      <button id="edit-mode-btn" class="top-btn" style="display:none;">✎ Edit</button>
+      <button id="save-btn" class="top-btn" style="display:none;">✓ Save</button>
+      <button id="cancel-btn" class="top-btn" style="display:none;">✕ Cancel</button>
+
+      <div id="skin-switcher">
+        <button class="skin-btn active" data-s="book"></button>
+        <button class="skin-btn" data-s="dark"></button>
+        <button class="skin-btn" data-s="scholar"></button>
+      </div>
+    </div>
+
+    <div id="status-row">
+      <div id="status-dot"></div>
+      <span id="status-text">Loading game list…</span>
+    </div>
+  </div>
+
+  <!-- Editor Container -->
+  <div id="editor-container">
+    <textarea id="editor-textarea" placeholder="Edit markdown here..."></textarea>
+    <div class="editor-buttons">
+      <button class="editor-btn" onclick="leaveEditMode()">Cancel</button>
+      <button class="editor-btn save" onclick="saveAndExit()">Save</button>
+    </div>
+  </div>
+
+  <div id="app">
+
+    <div id="empty-state">
+      <h2>Thousand Year Old Vampire</h2>
+      <p>Select a chronicle to begin.</p>
+    </div>
+
+    <div id="content" style="display:none"></div>
+
+  </div>
+
+  <script>
+    const POLL_INTERVAL = 30;
+    const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires';
+    const RAW_BASE = 'https://raw.githubusercontent.com/gclawmax/vault-public/main/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires/';
+
+    let currentSha = null;
+    let currentUrl = null;
+    let currentFileUrl = null;
+    let currentMd = null;
+    let editMode = false;
+
+    function setStatus(state, msg) {
+      document.getElementById('status-dot').className = state;
+      document.getElementById('status-text').textContent = msg;
+    }
+
+    /* ── Skin switcher ──────────────────────────────────────── */
+    (function () {
+      const saved = localStorage.getItem('tyov-skin') || 'book';
+      applySkin(saved);
+
+      document.querySelectorAll('.skin-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          applySkin(btn.dataset.s);
+          localStorage.setItem('tyov-skin', btn.dataset.s);
+        });
+      });
+
+      function applySkin(skin) {
+        if (skin === 'book') {
+          document.documentElement.removeAttribute('data-skin');
+        } else {
+          document.documentElement.setAttribute('data-skin', skin);
+        }
+        document.querySelectorAll('.skin-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.s === skin);
+        });
+      }
+    })();
+
+    /* ── Key panel toggle ───────────────────────────────────── */
+    (function () {
+      const panel = document.getElementById('key-panel');
+      const toggle = document.getElementById('key-toggle');
+      const artifact = localStorage.getItem('tyov-artifact') || '';
+      if (artifact) {
+        document.getElementById('unknown-key').value = artifact;
+      }
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.classList.toggle('open');
+        toggle.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (panel.classList.contains('open') &&
+          !panel.contains(e.target) &&
+          !toggle.contains(e.target)) {
+          panel.classList.remove('open');
+          toggle.classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('unknown-key').addEventListener('change', (e) => {
+        if (e.target.value) {
+          localStorage.setItem('tyov-artifact', e.target.value);
+        } else {
+          localStorage.removeItem('tyov-artifact');
+        }
+      });
+    })();
+
+    /* ── Edit mode (Confluence-style) ──────────────────────── */
+    function enterEditMode() {
+      editMode = true;
+      const md = currentMd;
+      document.getElementById('editor-textarea').value = md;
+      document.getElementById('content').style.display = 'none';
+      document.getElementById('editor-container').classList.add('active');
+
+      document.getElementById('key-toggle').style.display = 'flex';
+      document.getElementById('edit-mode-btn').style.display = 'none';
+      document.getElementById('save-btn').style.display = 'inline-block';
+      document.getElementById('cancel-btn').style.display = 'inline-block';
+    }
+
+    function leaveEditMode() {
+      editMode = false;
+      document.getElementById('editor-container').classList.remove('active');
+      document.getElementById('content').style.display = 'block';
+
+      document.getElementById('key-toggle').style.display = 'none';
+      document.getElementById('key-panel').classList.remove('open');
+      document.getElementById('edit-mode-btn').style.display = 'inline-block';
+      document.getElementById('save-btn').style.display = 'none';
+      document.getElementById('cancel-btn').style.display = 'none';
+    }
+
+    async function saveAndExit() {
+      const artifact = document.getElementById('unknown-key').value;
+      if (!artifact) {
+        alert('Add that random key you carry in the Unknown Key panel.');
+        return;
+      }
+
+      const newMarkdown = document.getElementById('editor-textarea').value;
+      setStatus('busy', 'Saving changes…');
+
+      try {
+        const fileName = currentUrl.split('/').pop();
+        const fileUrl = GITHUB_API + '/' + encodeURIComponent(fileName);
+        const res = await fetch(
+          currentUrl + '?nocache=' + Date.now(),
+          {
+            method: 'HEAD',
+            cache: 'no-store'
+          }
+        );
+        const fileData = await res.json();
+
+        const commit = await fetch(fileUrl, {
+          method: 'PUT',
+          cache: 'no-store',
+          headers: {
+            Authorization: `token ${artifact}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Update chronicle',
+            content: btoa(unescape(encodeURIComponent(newMarkdown))),
+            sha: fileData.sha
+          })
+        });
+
+        if (commit.ok) {
+          currentMd = newMarkdown;
+          currentEtag = null;
+          await loadChronicle(currentUrl);
+          leaveEditMode();
+          setStatus('ok', 'Changes saved!');
+        } else {
+          const err = await commit.json();
+          throw new Error(err.message || 'Failed to save');
+        }
+      } catch (e) {
+        setStatus('err', 'Save failed: ' + e.message);
+      }
+    }
+
+    function reconstructMarkdown(fm, sections, meta) {
+      let md = '---\n' + fm + '\n---\n\n';
+      const order = [
+        { key: '__header__', label: '__header__' },
+        { key: 'Marks', label: '⚰ Marks' },
+        { key: 'Memories', label: '🧠 Memories' },
+        { key: 'Diary', label: '📖 Diary' },
+        { key: 'Skills', label: '⚔ Skills' },
+        { key: 'Resources', label: '🏚 Resources' },
+        { key: 'Characters', label: '👥 Characters' },
+        { key: 'Journal', label: '📜 Journal' }
+      ];
+      order.forEach(item => {
+        if (sections[item.key] && sections[item.key].trim()) {
+          if (item.key === '__header__') {
+            md += sections[item.key] + '\n\n---\n\n';
+          } else {
+            md += '## ' + item.label + '\n\n' + sections[item.key] + '\n\n---\n\n';
+          }
+        }
+      });
+      md += '*Last played: ' + new Date().toISOString().split('T')[0] + '*\n\n---\n';
+      return md;
+    }
+
+    document.getElementById('edit-mode-btn').addEventListener('click', enterEditMode);
+
+    /* ── Data loading ───────────────────────────────────────── */
+    async function loadGameList() {
+      setStatus('busy', 'Fetching chronicle list…');
+      try {
+        const res = await fetch(GITHUB_API + '?nocache=' + Date.now(),
+          {
+            method: 'GET',
+            cache: 'no-store'
+          });
+        const files = await res.json();
+        const mds = files.filter(f => f.name.endsWith('.md'));
+        const sel = document.getElementById('game-select');
+        sel.innerHTML = '<option value="">— Choose a chronicle —</option>';
+        mds.forEach(f => {
+          const opt = document.createElement('option');
+          opt.value = RAW_BASE + encodeURIComponent(f.name);
+          opt.textContent = f.name.replace('.md', '');
+          sel.appendChild(opt);
+        });
+        setStatus('ok', 'Chronicles loaded');
+      } catch (e) {
+        setStatus('err', e.message);
+      }
+    }
+
+    async function loadChronicle(url) {
+      if (!url) return;
+      currentUrl = url;
+      setStatus('busy', 'Loading chronicle…');
+      try {
+        const res = await fetch(url + '?nocache=' + Date.now(),
+          {
+            method: 'GET',
+            cache: 'no-store'
+          });
+        const etag = res.headers.get('ETag');
+        if (etag) currentEtag = etag;
+        let md = await res.text();
+        currentMd = md;
+
+        /* Replace "Born" with "Game Started" everywhere */
+        md = md.replace(/\bBorn\b/g, 'Game Started');
+
+        const html = render(md);
+        const content = document.getElementById('content');
+        content.innerHTML = html;
+        content.style.display = 'block';
+        document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('edit-mode-btn').style.display = 'inline-block';
+
+        initPanels();
+        startPolling();
+
+        setStatus('ok', 'Chronicle loaded');
+      } catch (e) {
+        setStatus('err', e.message);
+      }
+    }
+
+    /* ── Markdown / frontmatter parsing ────────────────────── */
+    function stripFrontmatter(md) {
+      if (md.startsWith('---')) {
+        const end = md.indexOf('---', 3);
+        if (end !== -1) return { fm: md.slice(3, end).trim(), body: md.slice(end + 3).trim() };
+      }
+      return { fm: '', body: md };
+    }
+
+    function parseFrontmatter(fm) {
+      const meta = {};
+      fm.split('\n').forEach(line => {
+        const m = line.match(/^(\w+):\s*(.+)$/);
+        if (m) meta[m[1]] = m[2].replace(/^["']|["']$/g, '');
+      });
+      return meta;
+    }
+
+    function parseVampire(md) {
+      const { fm, body } = stripFrontmatter(md);
+      const meta = parseFrontmatter(fm);
+
+      const sections = {};
+      let current = '__header__';
+      const buf = [];
+
+      for (const line of body.split('\n')) {
+        if (line.startsWith('## ')) {
+          sections[current] = buf.join('\n').trim();
+          buf.length = 0;
+          current = line.replace('## ', '').replace(/^[^\w]+/, '').trim();
+        } else {
+          buf.push(line);
+        }
+      }
+      sections[current] = buf.join('\n').trim();
+
+      return { meta, sections };
+    }
+
+    /* ── Section renderers ──────────────────────────────────── */
+
+    function renderMarksInline(text) {
+      const items = text.match(/^[-*]\s+.+/gm) || [];
+      if (!items.length) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
+      return '<div class="marks-inline">' +
+        items.map(i => '<span class="mark-chip">' + i.replace(/^[-*]\s+/, '') + '</span>').join('') +
+        '</div>';
+    }
+
+    function renderSkillsInline(text) {
+      const rows = text.match(/\|.+\|/g) || [];
+      if (rows.length < 3) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
+      return '<div class="skills-inline">' +
+        rows.slice(2).map(r => {
+          const cells = r.split('|').map(c => c.trim()).filter(Boolean);
+          const name = cells[0] || '';
+          const status = cells[1] || '';
+          const lost = name.includes('~~');
+          const checked = status.includes('☑');
+          return '<span class="skill-chip' + (lost ? ' lost' : checked ? ' checked' : '') + '">' +
+            '<span class="skill-box">' + (checked ? '✓' : '') + '</span>' +
+            name.replace(/~~/g, '') +
+            '</span>';
+        }).join('') +
+        '</div>';
+    }
+
+    function renderResourcesInline(text) {
+      const rows = text.match(/\|.+\|/g) || [];
+      if (rows.length < 3) return '<span style="color:var(--ink-faint);font-size:.85rem;">None yet.</span>';
+      return '<div class="resources-inline">' +
+        rows.slice(2).map(r => {
+          const cells = r.split('|').map(c => c.trim()).filter(Boolean);
+          const name = cells[0] || '';
+          const type = (cells[1] || '').toLowerCase();
+          const lost = name.includes('~~');
+          return '<span class="resource-chip' + (lost ? ' lost' : '') + (type ? ' ' + type : '') + '">' +
+            '<span class="resource-type-dot"></span>' +
+            name.replace(/~~/g, '') +
+            '</span>';
+        }).join('') +
+        '</div>';
+    }
+
+    function renderCharactersCol(text) {
+      return text.split(/\n(?=###\s)/).map(block => {
+        const tm = block.match(/^###\s+(.+)/);
+        const title = tm ? tm[1] : '';
+        const rest = block.replace(/^###.+\n/, '').trim();
+        const rows = rest.split('\n').filter(l => l.startsWith('-')).map(line => {
+          const dead = line.includes('~~');
+          const clean = line.replace(/^-\s*/, '').replace(/~~/g, '');
+          const parts = clean.split('—');
+          return '<div class="char-row' + (dead ? ' dead' : '') + '">' +
+            '<div class="char-row-name">' + (parts[0] || '').trim() + '</div>' +
+            ((parts[1] || '').trim() ? '<div class="char-row-desc">' + parts[1].trim() + '</div>' : '') +
+            '</div>';
+        }).join('');
+        return '<div class="char-group-label">' + title + '</div>' + rows;
+      }).join('');
+    }
+
+    function renderMemoriesCol(text) {
+      return text.split(/\n(?=###\s)/).map(block => {
+        const tm = block.match(/^###\s+(.+)/);
+        const title = tm ? tm[1].replace(/~~/g, '') : '';
+        const forgotten = block.includes('~~');
+        const rest = block.replace(/^###.+\n/, '').trim();
+        return '<div class="memory-block' + (forgotten ? ' forgotten' : '') + '">' +
+          '<div class="memory-title">' + title + '</div>' +
+          marked.parse(rest.replace(/~~/g, '')) +
+          '</div>';
+      }).join('');
+    }
+
+    function renderJournal(text) {
+      return text.split(/\n(?=###\s)/).map(block => {
+        const tm = block.match(/^###\s+(.+)/);
+        const title = tm ? tm[1] : '';
+        const rest = block.replace(/^###.+\n/, '').trim();
+        const pm = rest.match(/^\*(.+)\*/);
+        const promptText = pm ? pm[1] : '';
+        const body = promptText ? rest.replace(/^\*.+\*\n+/, '') : rest;
+        return '<div class="journal-entry">' +
+          '<div class="journal-turn">' + title + '</div>' +
+          '<div class="journal-scrap">' +
+          (promptText ? '<div class="journal-prompt-text">' + promptText + '</div>' : '') +
+          '<div class="journal-body">' + marked.parse(body) + '</div>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    /* ── Main render ────────────────────────────────────────── */
+    function render(md) {
+      const { meta, sections } = parseVampire(md);
+
+      const header = sections['__header__'] || '';
+      const vampName = (header.match(/^#\s+(.+)/m) || [])[1] || 'Unknown Vampire';
+      const epitaph = (header.match(/^>\s*\*?(.+?)\*?\s*$/m) || [])[1] || '';
+
+      const diaryHtml = sections['Diary']
+        ? '<div class="diary-strip"><div class="diary-label">📖 Diary</div><div class="diary-block">' + marked.parse(sections['Diary']) + '</div></div>'
+        : '';
+
+      return `
+        <div class="vamp-header">
+          <div class="vamp-name-wrap">
+            <div class="vamp-rule"><span></span><span></span></div>
+            <div class="vamp-name">${vampName}</div>
+            <div class="vamp-rule"><span></span><span></span></div>
+          </div>
+          <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
+          ${epitaph ? `<div class="vamp-epitaph">${epitaph}</div>` : ''}
+          <div class="meta-row">
+            ${meta.current_prompt ? `<div class="meta-pill">Prompt <span>${meta.current_prompt}</span></div>` : ''}
+            ${meta.prompts_resolved ? `<div class="meta-pill">Resolved <span>${meta.prompts_resolved}</span></div>` : ''}
+            ${meta.created ? `<div class="meta-pill">Started <span>${meta.created}</span></div>` : ''}
+            ${meta.modified ? `<div class="meta-pill">Updated <span>${meta.modified}</span></div>` : ''}
+          </div>
+        </div>
+
+        <div class="dashboard-strip">
+          <div class="strip-cell">
+            <div class="strip-label">⚰ Marks</div>
+            ${renderMarksInline(sections['Marks'] || '')}
+          </div>
+          <div class="strip-cell">
+            <div class="strip-label">⚔ Skills</div>
+            ${renderSkillsInline(sections['Skills'] || '')}
+          </div>
+          <div class="strip-cell">
+            <div class="strip-label">🏚 Resources</div>
+            ${renderResourcesInline(sections['Resources'] || '')}
+          </div>
+        </div>
+
+        <div class="main-layout">
+
+          <aside class="chars-col">
+            <div class="col-label">👥 Characters</div>
+            <div>
+              ${sections['Characters']
+          ? renderCharactersCol(sections['Characters'])
+          : '<span style="color:var(--ink-faint);font-size:.85rem;">No characters yet.</span>'}
+            </div>
+          </aside>
+
+          <main class="journal-col">
+            ${sections['Journal']
+          ? renderJournal(sections['Journal'])
+          : '<p style="color:var(--ink-faint);">No journal entries yet.</p>'}
+          </main>
+
+        </div>
+
+        <div class="memories-section">
+          <div class="memories-section-label">🧠 Memories</div>
+          <div class="memories-grid">
+            ${sections['Memories']
+          ? renderMemoriesCol(sections['Memories'])
+          : '<span style="color:var(--ink-faint);font-size:.85rem;">No memories yet.</span>'}
+          </div>
+        </div>
+
+        ${diaryHtml}
+      `;
+    }
+
+    /* ── ETag polling ───────────────────────────────────────── */
+    let currentEtag = null;
+    let pollTimer = null;
+
+    async function checkForUpdate() {
+      if (!currentUrl || editMode) return;
+
+      try {
+        const res = await fetch(
+          currentUrl + '?t=' + Date.now(),
+          {
+            method: 'GET',
+            cache: 'no-store'
+          }
+        );
+
+        const md = await res.text();
+
+        if (md !== currentMd) {
+          currentMd = md;
+          loadChronicle(currentUrl);
+        }
+      } catch (_) { }
+    }
+
+    function startPolling() {
+      stopPolling();
+      pollTimer = setInterval(checkForUpdate, POLL_INTERVAL * 1000);
+    }
+
+    function stopPolling() {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+
+    /* ── Event listeners ────────────────────────────────────── */
+    document.getElementById('game-select').addEventListener('change', e => {
+      currentEtag = null; // reset so next poll always sees it as fresh
+      loadChronicle(e.target.value);
+    });
+
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+      if (currentUrl) loadChronicle(currentUrl);
+    });
+
+    window.addEventListener('load', loadGameList);
+    window.addEventListener('focus', checkForUpdate); // catch up after tab was hidden
+  </script>
+
+</body>
+
+</html>
