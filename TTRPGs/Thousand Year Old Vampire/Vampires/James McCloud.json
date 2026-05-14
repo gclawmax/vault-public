@@ -7,7 +7,7 @@
   "game_over": false,
   "game_completed": null,
   "current_prompt": 0,
-  "prompts_resolved": 1,
+  "prompts_resolved": 0,
   "show_suggestions": true,
   "memories": [
     {
