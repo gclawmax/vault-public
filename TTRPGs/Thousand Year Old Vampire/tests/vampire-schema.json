@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Thousand Year Old Vampire — Vampire State",
+  "description": "Schema for per-vampire game state files. All per-vampire data lives in ~/Documents/Vault/Public/TTRPGs/Thousand Year Old Vampire/Vampires/{VampireName}.json",
+  "type": "object",
+  "required": ["name", "game_start", "current_prompt", "prompts_resolved", "game_over", "memories", "skills", "resources", "characters"],
+  "properties": {
+    "name": { "type": "string", "description": "Vampire name" },
+    "vampire_desc": { "type": "string", "description": "Vampire description/concept" },
+    "mortal_self": { "type": "string", "description": "The mortal life summary" },
+    "game_start": { "type": "string", "format": "date", "description": "ISO date when the game started" },
+    "modified": { "type": "string", "format": "date", "description": "ISO date of last modification" },
+    "game_over": { "type": "boolean", "description": "Whether the game has ended" },
+    "game_completed": { "type": ["string", "null"], "format": "date", "description": "ISO date when the game completed, or null if still playing" },
+    "current_prompt": { "type": "integer", "minimum": 0, "maximum": 80, "description": "Current prompt number (0 = not yet rolled, 1-80 = active)" },
+    "prompts_resolved": { "type": "integer", "minimum": 0, "maximum": 80, "description": "Number of prompts resolved" },
+    "memories": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["name", "experiences"],
+        "properties": {
+          "name": { "type": "string" },
+          "experiences": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 3,
+            "items": { "type": "string" }
+          },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["available", "struck"] },
+          "in_diary": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "diary": {
+      "type": "object",
+      "properties": {
+        "memories": {
+          "type": "array",
+          "maxItems": 4,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["available", "spent", "struck"] }
+        }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "type": { "type": "string", "enum": ["portable", "stationary"] },
+          "status": { "type": "string", "enum": ["available", "struck"] }
+        }
+      }
+    },
+    "characters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["mortal", "immortal"] },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["alive", "dead"] },
+          "death_reason": { "type": "string" }
+        }
+      }
+    },
+    "marks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "concealment": { "type": "string" }
+        }
+      }
+    },
+    "journal": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["turn", "prompt", "entry", "prompt_text", "resolved"],
+        "properties": {
+          "turn": { "type": "integer" },
+          "prompt": { "type": "integer", "minimum": 1, "maximum": 80 },
+          "entry": { "type": "integer", "minimum": 1, "maximum": 3 },
+          "prompt_text": { "type": "string" },
+          "resolved": { "type": "boolean" },
+          "paraphrased_prompt": { "type": "string" },
+          "experience": { "type": "string" },
+          "changes": { "type": "string" }
+        }
+      }
+    },
+    "epitaph": {
+      "type": ["object", "null"],
+      "properties": {
+        "experience": { "type": "string" }
+      }
+    }
+  }
+}
