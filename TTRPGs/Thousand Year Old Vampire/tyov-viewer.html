@@ -250,9 +250,12 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
 <!-- Key Panel -->
 <button id="key-toggle" style="display:none;">🔑</button>
 <div id="key-panel">
-  <div class="key-label">🔑 GitHub Token</div>
-  <input type="password" id="unknown-key" class="key-input" placeholder="ghp_...">
-  <div class="key-info">Your GitHub personal access token with <code>contents:write</code> permission. Required to save edits back to the repository.</div>
+  <div class="key-label">🔑 Vault Key</div>
+  <input type="password" id="vault-key" class="key-input" placeholder="ghp_...">
+  <div class="key-info">The key to your vault.</div>
+  <div class="key-label">🧠 Memory Key</div>
+  <input type="password" id="memory-key" class="key-input" placeholder="ghp_...">
+  <div class="key-info">The key to your memories...</div>
   <button class="modal-btn primary" onclick="closeKeyPanel()" style="width:100%">Done</button>
 </div>
 
@@ -326,7 +329,8 @@ function setStatus(state, msg) {
   document.getElementById('status-dot').className = state;
   document.getElementById('status-text').textContent = msg;
 }
-function getToken() { return document.getElementById('unknown-key').value.trim(); }
+function getVaultKey() { return document.getElementById('vault-key').value.trim(); }
+function getMemoryKey() { return document.getElementById('memory-key').value.trim(); }
 
 // ═══════════════════════════════════════════════════
 // SKIN SWITCHER
@@ -354,11 +358,16 @@ function closeKeyPanel() { document.getElementById('key-panel').classList.remove
 document.getElementById('key-toggle').addEventListener('click', () => {
   document.getElementById('key-panel').classList.toggle('open');
 });
-// Restore saved token
-const savedToken = localStorage.getItem('tyov-token');
-if (savedToken) document.getElementById('unknown-key').value = savedToken;
-document.getElementById('unknown-key').addEventListener('change', () => {
-  localStorage.setItem('tyov-token', document.getElementById('unknown-key').value.trim());
+// Restore saved tokens
+const savedVaultKey = localStorage.getItem('tyov-vault-key');
+if (savedVaultKey) document.getElementById('vault-key').value = savedVaultKey;
+const savedMemoryKey = localStorage.getItem('tyov-memory-key');
+if (savedMemoryKey) document.getElementById('memory-key').value = savedMemoryKey;
+document.getElementById('vault-key').addEventListener('change', () => {
+  localStorage.setItem('tyov-vault-key', document.getElementById('vault-key').value.trim());
+});
+document.getElementById('memory-key').addEventListener('change', () => {
+  localStorage.setItem('tyov-memory-key', document.getElementById('memory-key').value.trim());
 });
 
 // ═══════════════════════════════════════════════════
@@ -394,8 +403,8 @@ async function loadVampire(filename) {
   setStatus('busy', `Loading ${filename}…`);
   try {
     const url = GITHUB_API + '/' + encodeURIComponent(filename);
-    const resp = await fetch(url + (getToken() ? '' : ''), {
-      headers: getToken() ? { Authorization: 'token ' + getToken() } : {}
+    const resp = await fetch(url + (getVaultKey() ? '' : ''), {
+      headers: getVaultKey() ? { Authorization: 'token ' + getVaultKey() } : {}
     });
     if (!resp.ok) throw new Error(resp.status);
     const data = await resp.json();
@@ -803,8 +812,8 @@ function markUnsaved() {
 // SAVE TO GITHUB
 // ═══════════════════════════════════════════════════
 async function saveChronicle() {
-  const token = getToken();
-  if (!token) { openKeyPanel(); alert('Please enter your GitHub token first (🔑 key panel).'); return; }
+  const token = getVaultKey();
+  if (!token) { openKeyPanel(); alert('Please enter your vault key first (🔑 key panel).'); return; }
   if (!currentFileUrl) { setStatus('err', 'No file URL — reload the chronicle.'); return; }
   setStatus('busy', 'Saving…');
   try {
