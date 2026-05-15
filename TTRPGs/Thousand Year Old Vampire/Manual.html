@@ -49,6 +49,8 @@ body{background:var(--bg);color:var(--ink);font-family:'EB Garamond',serif;font-
 #search-input:focus{border-color:var(--blood);box-shadow:0 0 4px var(--blood);}
 #search-input::placeholder{color:var(--ink-faint);}
 #result-count{font-size:13px;color:var(--ink-faint);min-width:120px;text-align:right;}
+#viewer-link{font-family:'Cinzel Decorative',serif;font-size:clamp(.7rem,1.3vw,.95rem);color:var(--blood);text-decoration:none;cursor:pointer;margin-left:8px;}
+#viewer-link:hover{color:var(--blood-bright);text-decoration:underline;}
 .search-btn{background:transparent;border:1px solid var(--border-bright);color:var(--accent);padding:6px 12px;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;text-transform:uppercase;}
 .search-btn:hover{background:var(--blood);color:white;border-color:var(--blood);}
 
@@ -119,6 +121,7 @@ mark{background:var(--highlight-bg);border-radius:3px;padding:0 3px;border-botto
   <span id="search-label">Search Rules</span>
   <input id="search-input" type="text" placeholder="Type a keyword…" autocomplete="off" spellcheck="false">
   <span id="result-count"></span>
+  <a id="viewer-link" href="index.html">Chronicle Viewer</a>
   <button class="search-btn" onclick="clearSearch()">✕ Clear</button>
   <div id="skin-switcher">
     <button class="skin-btn active" data-s="book" title="Book skin"></button>
