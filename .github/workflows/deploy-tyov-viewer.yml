@@ -22,7 +22,7 @@ jobs:
         run: |
           mkdir -p _site
           cp "TTRPGs/Thousand Year Old Vampire/tyov-viewer.html" _site/index.html
-          cp "TTRPGs/Thousand Year Old Vampire/Manual.html" _site/Manual.html
+          cp "TTRPGs/Thousand Year Old Vampire/core-rules.html" _site/core-rules.html
  
       - name: Deploy to gh-pages subfolder
         uses: peaceiris/actions-gh-pages@v4
