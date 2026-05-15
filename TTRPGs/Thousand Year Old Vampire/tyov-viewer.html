@@ -448,7 +448,7 @@ async function refreshCurrent() {
 // ═══════════════════════════════════════════════
 var _ptl = null, _pviz = document.visibilityState === 'visible', _etag = {};
 
-function _armPoll() { if (_pviz) { _ptl = setTimeout(_pollTick, 30000); } }
+function _armPoll() { if (_pviz && !_ptl) { _ptl = setTimeout(_pollTick, 30000); } }
 function _disPoll() { clearTimeout(_ptl); _ptl = null; }
 
 function _pollTick() {
@@ -461,8 +461,6 @@ function _pollTick() {
   } else {
     t.push(_chkFile(GITHUB_API, 'g')); // refresh game list
   }
-  // Poll viewer HTML (detect when you update the HTML file on GitHub)
-  t.push(_chkFile(GITHUB_API.replace('/Vampires', '/tyov-viewer.html'), '_'));
   Promise.allSettled(t).then(function() { _ptl = setTimeout(_pollTick, 30000); });
 }
 
@@ -473,7 +471,7 @@ function _chkFile(url, key) {
   if (tok) { h['Authorization'] = 'token ' + tok; }
   fetch(url, {cache: 'no-store', headers: h}).then(function(r) {
     if (r.status === 304) {
-      // unchdnged — ZERO rate-limit cost
+      // unchanged — ZERO rate-limit cost
       return;
     }
     if (r.status === 403) {
@@ -487,7 +485,7 @@ function _chkFile(url, key) {
     if (key === 'v' && currentFileUrl) {
       return r.json().then(function(d) {
         currentSha = d.sha;
-        currentJson = decodeURIComponent(escape(atob(d.content.replace(/\\n/g, ''))));
+        currentJson = decodeURIComponent(escape(atob(d.content.replace(/\n/g, ''))));
         workingJson = currentJson;
         parsedData = parseSource(currentJson);
         renderChronicle(parsedData);
@@ -501,9 +499,6 @@ function _chkFile(url, key) {
         setStatus('ok', '✓ Chronicle list refreshed — ' + new Date().toLocaleTimeString());
       });
     }
-    if (key === '_') {
-      setStatus('ok', '✓ Viewer HTML updated on GitHub — ' + new Date().toLocaleTimeString() + ' (reload page to get latest)');
-    }
   }).catch(function() { /* transient network error */ });
 }
 
@@ -511,6 +506,11 @@ document.addEventListener('visibilitychange', function() {
   _pviz = document.visibilityState === 'visible';
   if (_pviz) { _armPoll(); } else { _disPoll(); }
 });
+
+// Start the poller immediately when the page is visible
+if (_pviz) { _armPoll(); }
+
+// Also (re-)arm when a game is selected
 
 // ═══════════════════════════════════════════════
 // JSON PARSER  (produces structured parsedData)
