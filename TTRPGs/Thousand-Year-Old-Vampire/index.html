@@ -134,6 +134,10 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
 .strike-btn:hover{border-color:var(--blood);color:var(--blood);}
 .strike-btn.struck:hover{opacity:1;}
 
+/* ── Delete / trashcan button ── */
+.trash-btn{background:none;border:1px solid var(--border);color:var(--ink-faint);padding:2px 6px;cursor:pointer;font-size:13px;line-height:1;opacity:.5;}
+.trash-btn:hover{opacity:1;background:var(--blood);color:white;border-color:var(--blood);}
+
 /* ── List items in edit modal (existing entries) ── */
 .edit-list-item{
   display:flex;align-items:flex-start;gap:10px;
@@ -967,14 +971,18 @@ function editHeader() {
 }
 
 // ── Marks ─────────────────────────────────────────
-function editMarks() {
+ function editMarks() {
   if (!editMode) return;
   let bodyHtml = `<div class="edit-section-title">Existing Marks</div>`;
+  if (parsedData.marks.length === 0) {
+    bodyHtml += `<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No marks to display.</p>`;
+  }
   parsedData.marks.forEach((m, i) => {
     bodyHtml += `<div class="edit-list-item ${m.struck ? 'struck-item' : ''}">
       <div class="edit-list-item-text ${m.struck ? 'struck-text' : ''}">${esc(m.desc)} <span style="color:var(--ink-faint);font-size:.8rem">(${esc(m.concealment)})</span></div>
       <div class="edit-list-actions">
-        <button class="strike-btn ${m.struck ? 'struck' : ''}" onclick="toggleMarkStruck(${i})">${m.struck ? 'Restore' : 'Remove'}</button>
+        <button class="strike-btn ${m.struck ? 'struck' : ''}" onclick="toggleMarkStruck(${i})">${m.struck ? 'Restore' : 'Strike'}</button>
+        <button class="trash-btn" onclick="deleteMark(${i})" title="Delete mark entirely">🗑</button>
       </div>
     </div>`;
   });
@@ -1000,6 +1008,16 @@ function editMarks() {
 
 function toggleMarkStruck(i) {
   parsedData.marks[i].struck = !parsedData.marks[i].struck;
+  editMarks();
+}
+
+function deleteMark(i) {
+  if (!editMode) return;
+  const m = parsedData.marks[i];
+  if (!confirm(`Delete the mark "${m.desc || `Mark ${i+1}`}"?\n\nThis is an admin action — it removes the mark entirely, different from striking it.`)) return;
+  parsedData.marks.splice(i, 1);
+  markUnsaved();
+  setStatus('ok', 'Mark deleted');
   // Re-render the modal in place
   editMarks();
 }
@@ -1017,6 +1035,7 @@ function editSkills() {
           <option value="checked" ${sk.status==='checked'?'selected':''}>☑ Checked</option>
           <option value="lost" ${sk.status==='lost'?'selected':''}>~~lost~~</option>
         </select>
+        <button class="trash-btn" onclick="deleteSkill(${i})" title="Delete skill entirely">🗑</button>
       </div>
     </div>`;
   });
@@ -1058,6 +1077,7 @@ function editResources() {
           <option value="active" ${r.status==='active'?'selected':''}>✅ Active</option>
           <option value="lost" ${r.status==='lost'?'selected':''}>~~Lost~~</option>
         </select>
+        <button class="trash-btn" onclick="deleteResource(${i})" title="Delete resource entirely">🗑</button>
       </div>
     </div>`;
   });
@@ -1096,6 +1116,7 @@ function editCharacters() {
       <div class="edit-list-item-text ${c.dead ? 'struck-text' : ''}"><strong>${esc(c.name)}</strong> — ${esc(c.desc)}</div>
       <div class="edit-list-actions">
         <button class="strike-btn ${c.dead ? 'struck' : ''}" onclick="toggleCharDead('mortal',${i})">${c.dead ? 'Revive' : 'Kill'}</button>
+        <button class="trash-btn" onclick="deleteChar('mortal',${i})" title="Delete character entirely">🗑</button>
       </div>
     </div>`;
   });
@@ -1105,6 +1126,7 @@ function editCharacters() {
       <div class="edit-list-item-text ${c.dead ? 'struck-text' : ''}"><strong>${esc(c.name)}</strong> — ${esc(c.desc)}</div>
       <div class="edit-list-actions">
         <button class="strike-btn ${c.dead ? 'struck' : ''}" onclick="toggleCharDead('immortal',${i})">${c.dead ? 'Revive' : 'Kill'}</button>
+        <button class="trash-btn" onclick="deleteChar('immortal',${i})" title="Delete character entirely">🗑</button>
       </div>
     </div>`;
   });
@@ -1153,6 +1175,7 @@ function editMemories() {
         <strong class="${mem.struck ? 'struck-text' : ''}">Memory ${mem.n} — ${esc(mem.theme)}</strong>
         <div style="display:flex;gap:6px;">
           <button class="strike-btn ${mem.struck ? 'struck' : ''}" onclick="toggleMemStruck(${i})">${mem.struck ? 'Restore' : 'Forget'}</button>
+          <button class="trash-btn" onclick="deleteMemory(${i})" title="Delete memory entirely">🗑</button>
           <button class="strike-btn" onclick="addMemExp(${i})" ${mem.experiences.length >= 3 ? 'disabled style="opacity:.4"' : ''}>+ Exp</button>
         </div>
       </div>`;
@@ -1219,7 +1242,7 @@ function editDiary() {
     bodyHtml += `<div class="edit-list-item">
       <div class="edit-list-item-text"><strong>${esc(mem.theme)}</strong> — ${mem.experiences.map(e=>esc(e.text)).join('; ')}</div>
       <div class="edit-list-actions">
-        <button class="strike-btn struck" onclick="removeDiaryMem(${i})">Remove</button>
+        <button class="trash-btn" onclick="deleteDiaryMem(${i})" title="Delete diary entry entirely">🗑</button>
       </div>
     </div>`;
   });
@@ -1272,12 +1295,132 @@ function removeDiaryMem(i) {
   markUnsaved(); editDiary();
 }
 
+// ── Admin Delete Actions ────────────────────
+// These are separate from game actions (striking, killing, forgetting).
+// Any admin with edit permission can delete items entirely from the JSON.
+
+function deleteSkill(i) {
+  if (!editMode) return;
+  const sk = parsedData.skills[i];
+  if (!confirm(`Delete the skill "${sk.name || ('Skill ' + (i+1))}"?
+
+This is an admin action — it removes the skill entirely from the sheet, not just striking it.`)) return;
+  parsedData.skills.splice(i, 1);
+  markUnsaved();
+  setStatus('ok', 'Skill deleted');
+  editSkills();
+}
+
+function deleteResource(i) {
+  if (!editMode) return;
+  const r = parsedData.resources[i];
+  if (!confirm(`Delete the resource "${r.name || ('Resource ' + (i+1))}"?
+
+This is an admin action — it removes the resource entirely from the sheet.`)) return;
+  parsedData.resources.splice(i, 1);
+  markUnsaved();
+  setStatus('ok', 'Resource deleted');
+  editResources();
+}
+
+function deleteChar(type, i) {
+  if (!editMode) return;
+  const arr = (type === 'mortal') ? parsedData.mortals : parsedData.immortals;
+  const c = arr[i];
+  if (!confirm(`Delete the character "${c.name || ('Character ' + (i+1))}"?
+
+This is an admin action — it removes the character entirely from the sheet, different from killing (which marks them as dead).`)) return;
+  arr.splice(i, 1);
+  markUnsaved();
+  setStatus('ok', 'Character deleted');
+  editCharacters();
+}
+
+function deleteMemory(i) {
+  if (!editMode) return;
+  const mem = parsedData.memories[i];
+  const label = mem.inDiary ? ' (in diary)' : '';
+  if (!confirm(`Delete Memory ${mem.n} — "${mem.theme || ('Memory ' + mem.n)}"${label}?
+
+This is an admin action — it removes the entire memory (and all its experiences) from the sheet.
+If this memory has an entry in the diary, it will also be removed there.`)) return;
+  if (mem.inDiary) {
+    const diaryIdx = parsedData.diary.memories.findIndex(d => d.theme === mem.theme);
+    if (diaryIdx !== -1) {
+      parsedData.diary.memories.splice(diaryIdx, 1);
+      parsedData.diary.memories.forEach((m, idx) => { m.n = idx + 1; });
+      if (parsedData.diary.memories.length === 0) {
+        parsedData.diary.exists = false;
+      }
+      // Clean up frontmatter
+      parsedData.frontmatter.diary_exists = 'true';
+      parsedData.frontmatter.diary_name = 'Diary';
+      parsedData.diary.exists = true;
+    }
+  }
+  parsedData.memories.splice(i, 1);
+  parsedData.memories.forEach((m, idx) => { m.n = idx + 1; });
+  markUnsaved();
+  setStatus('ok', 'Memory deleted');
+  editMemories();
+}
+
+function deleteDiaryMem(i) {
+  if (!editMode) return;
+  const mem = parsedData.diary.memories[i];
+  if (!confirm(`Delete diary entry "${mem.theme || ('Diary ' + (i+1))}" entirely?
+
+This is an admin action — removes it from the diary permanently.`)) return;
+  const removed = parsedData.diary.memories[i];
+  // Unmark inDiary on the active memory
+  const activeMem = parsedData.memories.find(m => m.theme === removed.theme);
+  if (activeMem) activeMem.inDiary = false;
+  parsedData.diary.memories.splice(i, 1);
+  parsedData.diary.memories.forEach((m, idx) => { m.n = idx + 1; });
+  if (parsedData.diary.memories.length === 0) {
+    parsedData.diary.exists = false;
+    parsedData.frontmatter.diary_exists = 'false';
+    parsedData.frontmatter.diary_name = 'Diary';
+  }
+  markUnsaved();
+  setStatus('ok', 'Diary entry deleted');
+  editDiary();
+}
+
+function deleteJournalEntry(i) {
+  if (!editMode) return;
+  const je = parsedData.journal[i];
+  if (!confirm(`Delete journal entry (Turn ${je.turn}, Prompt ${je.prompt})?
+
+This is an admin action — it removes the entire entry from the sheet.`)) return;
+  parsedData.journal.splice(i, 1);
+  // Re-number turns
+  parsedData.journal.forEach((j, idx) => { j.turn = idx + 1; });
+  markUnsaved();
+  setStatus('ok', 'Journal entry deleted');
+  editJournal();
+}
+
 // ── Journal ───────────────────────────────────────
 function editJournal() {
   if (!editMode) return;
   const topEntry = parsedData.journal.length > 0 ? parsedData.journal.reduce((a,b) => a.turn > b.turn ? a : b) : null;
 
   let bodyHtml = '';
+
+  // List existing journal entries (for deletion)
+  if (parsedData.journal.length > 0) {
+    bodyHtml += `<div class="edit-section-title">Journal Entries</div>`;
+    parsedData.journal.forEach((je, idx) => {
+      bodyHtml += `<div class="edit-list-item ${je.awaiting ? '' : ''}">
+        <div class="edit-list-item-text"><strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br><span style="color:var(--ink-dim);font-size:.85rem">${esc(je.promptText || je.prose || 'No text')}</span></div>
+        <div class="edit-list-actions">
+          <button class="trash-btn" onclick="deleteJournalEntry(${idx})" title="Delete journal entry entirely">🗑</button>
+        </div>
+      </div>`;
+    });
+    bodyHtml += `<hr class="edit-divider">`;
+  }
 
   if (topEntry && topEntry.awaiting) {
     // Resolve current prompt
