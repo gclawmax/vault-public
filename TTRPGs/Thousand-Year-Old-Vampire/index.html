@@ -312,7 +312,7 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
     <div class="modal-body" id="modal-body"></div>
     <div class="modal-footer" id="modal-footer">
       <button class="modal-btn" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn primary" id="modal-confirm-btn" onclick="modalConfirm()">Apply</button>
+      <button class="modal-btn primary" id="modal-confirm-btn" onclick="modalConfirm()">Update</button>
     </div>
   </div>
 </div>
@@ -926,23 +926,28 @@ async function saveChronicle() {
 // ═══════════════════════════════════════════════════
 // MODAL HELPERS
 // ═══════════════════════════════════════════════════
-function openModal(title, bodyHtml, confirmFn, confirmLabel = 'Apply') {
+function openModal(title, bodyHtml, confirmFn) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-body').innerHTML = bodyHtml;
-  document.getElementById('modal-confirm-btn').textContent = confirmLabel;
+  document.getElementById('modal-confirm-btn').textContent = 'Update';
   currentModalConfirm = confirmFn;
   document.getElementById('modal-overlay').classList.add('open');
 }
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   currentModalConfirm = null;
+  // Always re-render the page on close — reflects all parsedData changes
+  // whether they came from the Update button or inline game-action buttons
+  renderChronicle(parsedData);
 }
 function modalConfirm() {
-  if (currentModalConfirm) currentModalConfirm();
+  if (currentModalConfirm) {
+    currentModalConfirm();
+  }
 }
-document.getElementById('modal-overlay').addEventListener('click', (e) => {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
-});
+// ✓ Re-render on close: reflects all parsedData changes (whether from Update or inline game actions)
+// Backdrop-click is intentionally not handled so the dialog is fully modal.
+// Users must use "Update" or "Cancel" to close.
 
 // ═══════════════════════════════════════════════════
 // SECTION EDITORS
@@ -966,8 +971,9 @@ function editHeader() {
     parsedData.subtitle = document.getElementById('ed-subtitle').value.trim();
     parsedData.frontmatter.vampire_desc = parsedData.subtitle;
     parsedData.frontmatter.vampire = parsedData.vampireName;
-    closeModal(); markUnsaved(); renderChronicle(parsedData);
-  }, 'Apply');
+    markUnsaved();
+    closeModal();
+  });
 }
 
 // ── Marks ─────────────────────────────────────────
@@ -1003,7 +1009,7 @@ function editHeader() {
       parsedData.marks.push({ desc, concealment: conc, struck: false });
     }
     closeModal(); markUnsaved(); renderChronicle(parsedData);
-  }, 'Add Mark');
+  });
 }
 
 function toggleMarkStruck(i) {
@@ -1057,7 +1063,7 @@ function editSkills() {
     const status = document.getElementById('ed-skill-status').value;
     if (name) parsedData.skills.push({ name, status });
     closeModal(); markUnsaved(); renderChronicle(parsedData);
-  }, 'Add Skill');
+  });
 }
 
 function updateSkillStatus(i, val) {
@@ -1099,7 +1105,7 @@ function editResources() {
     const type = document.getElementById('ed-res-type').value;
     if (name) parsedData.resources.push({ name, type, status: 'active' });
     closeModal(); markUnsaved(); renderChronicle(parsedData);
-  }, 'Add Resource');
+  });
 }
 
 function updateResourceStatus(i, val) {
@@ -1156,7 +1162,7 @@ function editCharacters() {
       else parsedData.immortals.push({ name, desc, dead: false });
     }
     closeModal(); markUnsaved(); renderChronicle(parsedData);
-  }, 'Add Character');
+  });
 }
 
 function toggleCharDead(type, i) {
@@ -1212,7 +1218,7 @@ function editMemories() {
       parsedData.memories.push({ n: newN, theme, experiences: [{ text: expText, struck: false }], struck: false, inDiary: false });
     }
     closeModal(); markUnsaved(); renderChronicle(parsedData);
-  }, 'Add Memory');
+  });
 }
 
 function toggleMemStruck(i) {
@@ -1242,7 +1248,8 @@ function editDiary() {
     bodyHtml += `<div class="edit-list-item">
       <div class="edit-list-item-text"><strong>${esc(mem.theme)}</strong> — ${mem.experiences.map(e=>esc(e.text)).join('; ')}</div>
       <div class="edit-list-actions">
-        <button class="trash-btn" onclick="deleteDiaryMem(${i})" title="Delete diary entry entirely">🗑</button>
+        <button class="strike-btn struck" onclick="removeDiaryMem(${i})">Remove</button>
+        <button class="trash-btn" onclick="deleteDiaryMem(${i})" title="Delete diary entry entirely from schema">🗑</button>
       </div>
     </div>`;
   });
@@ -1277,7 +1284,7 @@ function editDiary() {
       }
     }
     closeModal(); markUnsaved(); renderChronicle(parsedData);
-  }, 'Move to Diary');
+  });
 }
 
 function removeDiaryMem(i) {
