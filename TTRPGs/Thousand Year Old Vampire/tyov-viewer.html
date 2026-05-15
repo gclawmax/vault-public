@@ -618,7 +618,7 @@ function renderChronicle(d) {
   // Marks cell
   html += `<div class="strip-cell section-editwrap" data-section="marks">
     <button class="edit-section-btn" onclick="editMarks()">✎ Edit</button>
-    <div class="strip-label">⚰ Marks</div>
+    <div class="strip-label"><span class="section-icon">⚰</span> Marks</div>
     <div class="marks-inline">`;
   d.marks.filter(m=>!m.struck).forEach(m => {
     html += `<span class="mark-chip" title="Concealed: ${esc(m.concealment)}">${esc(m.desc)}</span>`;
@@ -629,7 +629,7 @@ function renderChronicle(d) {
   // Skills cell
   html += `<div class="strip-cell section-editwrap" data-section="skills">
     <button class="edit-section-btn" onclick="editSkills()">✎ Edit</button>
-    <div class="strip-label">⚔ Skills</div>
+    <div class="strip-label"><span class="section-icon">⚔</span> Skills</div>
     <div class="skills-inline">`;
   d.skills.forEach(sk => {
     const cls = sk.status === 'lost' ? 'lost' : sk.status === 'checked' ? 'checked' : '';
@@ -643,7 +643,7 @@ function renderChronicle(d) {
   // Resources cell
   html += `<div class="strip-cell section-editwrap" data-section="resources">
     <button class="edit-section-btn" onclick="editResources()">✎ Edit</button>
-    <div class="strip-label">🏚 Resources</div>
+    <div class="strip-label"><span class="section-icon">🏚</span> Resources</div>
     <div class="resources-inline">`;
   d.resources.forEach(r => {
     const cls = r.status === 'lost' ? 'lost' : r.type;
@@ -663,7 +663,7 @@ function renderChronicle(d) {
   // ── Left: Mortal Characters ──
   html += `<div class="char-col section-editwrap" data-section="characters-mortal">
     <button class="edit-section-btn" onclick="editCharacters()">✎ Edit</button>
-    <div class="char-panel" style="height:100%;"><div class="panel-title">🧑 Mortal Characters</div>
+    <div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧑</span> Mortal Characters</div>
     <div class="char-list">`;
   if (d.mortals.length === 0) {
     html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
@@ -700,7 +700,7 @@ function renderChronicle(d) {
 
   // ── Right: Immortal Characters ──
   html += `<div class="char-col section-editwrap" data-section="characters-immortal">
-    <div class="char-panel" style="height:100%;"><div class="panel-title">🧛 Immortal Characters</div>
+    <div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧛</span> Immortal Characters</div>
     <div class="char-list">`;
   if (d.immortals.length === 0) {
     html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
@@ -718,7 +718,7 @@ function renderChronicle(d) {
   // ── Memories ──
   html += `<div class="memories-section section-editwrap" data-section="memories">
     <button class="edit-section-btn" onclick="editMemories()">✎ Edit</button>
-    <div class="memories-section-label">🧠 Memories</div>
+    <div class="memories-section-label"><span class="section-icon">🧠</span> Memories</div>
     <div class="memories-grid">`;
   d.memories.forEach(mem => {
     const cls = mem.struck ? 'forgotten' : '';
