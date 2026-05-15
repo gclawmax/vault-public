@@ -1,7 +1,7 @@
 {
-  "name": "James McCloud",
-  "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
-  "mortal_self": "James McCloud, born 1050 AD in Scotland. A rich noble, pampered by slaves and surrounded by sycophants. Arrogant and soft.",
+  "name": "Jonny 2 Hats",
+  "vampire_desc": "Desc.",
+  "mortal_self": "Mortal Desc",
   "game_start": "2026-05-14",
   "modified": "2026-05-14",
   "game_over": false,

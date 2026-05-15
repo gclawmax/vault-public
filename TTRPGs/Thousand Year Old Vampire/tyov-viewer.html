@@ -144,11 +144,6 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
 .status-radio{cursor:pointer;display:flex;align-items:center;gap:5px;font-size:.88rem;}
 .status-radio input{cursor:pointer;}
 
-/* ── Save bar (shown in edit mode) ── */
-#save-bar{display:none;position:sticky;bottom:0;z-index:90;background:var(--bg3);border-top:2px solid var(--blood);padding:10px 20px;display:flex;gap:10px;justify-content:flex-end;align-items:center;}
-#save-bar.visible{display:flex;}
-#save-bar .unsaved-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--blood);margin-right:auto;}
-
 /* ── Vampire header ── */
 .vamp-header{text-align:center;padding:36px 20px 28px;border-bottom:1px solid var(--border);margin-bottom:0;}
 .vamp-name-wrap{display:flex;align-items:center;justify-content:center;gap:18px;margin:0 auto;max-width:700px;}
@@ -291,13 +286,6 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
     <p>Select a chronicle to begin.</p>
   </div>
   <div id="content" style="display:none;"></div>
-</div>
-
-<!-- Save Bar (sticky bottom in edit mode) -->
-<div id="save-bar">
-  <span class="unsaved-label">⚠ Unsaved changes</span>
-  <button class="modal-btn" onclick="cancelEditMode()">✕ Cancel</button>
-  <button class="modal-btn primary" onclick="saveChronicle()">✓ Save to GitHub</button>
 </div>
 
 <!-- Modal Overlay -->
@@ -792,7 +780,6 @@ function leaveEditMode() {
   document.getElementById('edit-mode-btn').textContent = '✎ Edit';
   document.getElementById('save-btn').style.display = 'none';
   document.getElementById('cancel-btn').style.display = 'none';
-  document.getElementById('save-bar').classList.remove('visible');
   document.getElementById('edit-mode-banner').classList.remove('visible');
   document.getElementById('game-select').disabled = false;
   document.getElementById('key-toggle').style.display = 'none';
@@ -809,7 +796,6 @@ function cancelEditMode() {
 
 function markUnsaved() {
   hasUnsaved = true;
-  document.getElementById('save-bar').classList.add('visible');
   setStatus('busy', 'Unsaved changes');
 }
 
