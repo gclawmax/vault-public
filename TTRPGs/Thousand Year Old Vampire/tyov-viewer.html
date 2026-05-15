@@ -39,7 +39,7 @@
   --edit-ring: #6b0f0f44;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--ink);font-family:'EB Garamond',serif;font-size:17px;line-height:1.7;min-height:100vh;}
+body{background:var(--bg);color:var(--ink);font-family:'EB Garamond',serif;font-size:19px;line-height:1.7;min-height:100vh;}
 
 /* ── Key Panel ── */
 #key-panel{position:fixed;left:-320px;top:0;width:300px;height:100vh;background:var(--bg2);border-right:1px solid var(--border);padding:20px;z-index:200;transition:left .3s ease;overflow-y:auto;box-shadow:2px 0 15px var(--shadow);}
@@ -55,7 +55,7 @@ body{background:var(--bg);color:var(--ink);font-family:'EB Garamond',serif;font-
 #top-bar{position:sticky;top:0;z-index:100;background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);backdrop-filter:blur(8px);}
 #picker-row{display:flex;gap:8px;align-items:center;padding:10px 16px;flex-wrap:wrap;}
 #picker-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.14em;color:var(--accent-dim);text-transform:uppercase;}
-#game-select{flex:1;min-width:180px;background:var(--bg2);border:1px solid var(--border);color:var(--ink);padding:8px 10px;font-size:15px;}
+#game-select{flex:1;min-width:180px;background:var(--bg2);border:1px solid var(--border);color:var(--ink);padding:8px 10px;font-size:17px;}
 #game-select:disabled{opacity:.5;cursor:not-allowed;}
 .top-btn{background:transparent;border:1px solid var(--border-bright);color:var(--accent);padding:6px 12px;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;text-transform:uppercase;}
 .top-btn:hover{background:var(--blood);color:white;border-color:var(--blood);}
@@ -77,7 +77,7 @@ body{background:var(--bg);color:var(--ink);font-family:'EB Garamond',serif;font-
 #edit-mode-banner.visible{display:block;}
 
 /* ── App ── */
-#app{max-width:1600px;margin:0 auto;padding:0 0 40px;}
+#app{max-width:100%;margin:0;padding:0 32px 40px;}
 
 /* ── Section edit wrapper ── */
 .section-editwrap{position:relative;}
@@ -162,7 +162,7 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
 .vamp-rule span{display:block;background:var(--blood);height:1px;}
 .vamp-rule span:first-child{opacity:.5;}
 .vamp-rule span:last-child{opacity:.3;}
-.vamp-name{font-family:'Cinzel Decorative',serif;font-weight:400;font-size:clamp(1.6rem,3.5vw,2.8rem);line-height:1.15;color:var(--blood);letter-spacing:.04em;white-space:nowrap;}
+.vamp-name{font-family:'Cinzel Decorative',serif;font-weight:400;font-size:clamp(2rem,4.5vw,3.4rem);line-height:1.15;color:var(--blood);letter-spacing:.04em;white-space:nowrap;}
 .vamp-subtitle{font-family:'Cinzel Decorative',serif;font-weight:400;font-size:clamp(.7rem,1.5vw,1rem);color:var(--ink-faint);letter-spacing:.08em;margin-top:10px;}
 .vamp-epitaph{margin:14px auto 0;max-width:600px;padding:10px 16px;border-left:2px solid var(--blood);text-align:left;color:var(--ink-dim);font-style:italic;font-size:.95rem;background:var(--surface2);}
 .meta-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:16px;}
@@ -214,9 +214,9 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
 .journal-entry{margin-bottom:30px;}
 .journal-turn{font-family:'Cinzel',serif;font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--blood);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
 .journal-turn::after{content:'';flex:1;height:1px;background:var(--border);}
-.journal-scrap{background:var(--card-bg);border:1px solid var(--border);padding:18px 22px;box-shadow:2px 3px 10px var(--torn-shadow);}
-.journal-prompt-text{margin-bottom:14px;padding:8px 12px;background:var(--tag-bg);border-left:3px solid var(--blood);font-size:.88rem;color:var(--ink-dim);line-height:1.5;}
-.journal-body{line-height:1.8;}
+.journal-scrap{background:var(--card-bg);border:1px solid var(--border);padding:20px 24px;box-shadow:2px 3px 10px var(--torn-shadow);}
+.journal-prompt-text{margin-bottom:14px;padding:8px 12px;background:var(--tag-bg);border-left:3px solid var(--blood);font-size:.95rem;color:var(--ink-dim);line-height:1.5;}
+.journal-body{line-height:1.8;font-size:.95rem;}
 .journal-body p{margin-bottom:12px;}
 .journal-body p:last-child{margin-bottom:0;}
 .journal-body em,.journal-body i{font-style:italic;}
