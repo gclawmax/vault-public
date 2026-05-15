@@ -562,14 +562,14 @@ function jsonToParsedData(json) {
     }),
     diary: {
       exists: Array.isArray(json.diary?.memories) && json.diary.memories.length > 0,
-      memories: (json.diary?.memories || []).map((mem, idx) => ({
-        n: mem.n || idx + 1,
-        theme: mem.name || '',
-        experiences: (mem.experiences || []).map(e => {
-        if (typeof e === 'string') return { text: e };
-        return { text: e.text || e.description || '' };
+      memories: (json.diary?.memories || []).map((mem, idx) => {
+        const name = typeof mem === 'string' ? mem : (mem.name || '');
+        const exps = typeof mem === 'string' ? [] : (mem.experiences || []).map(e => {
+          if (typeof e === 'string') return { text: e };
+          return { text: e.text || e.description || '' };
+        });
+        return { n: mem.n || idx + 1, theme: name, experiences: exps };
       })
-      }))
     },
     skills: (json.skills || []).map(sk => ({ name: sk.name || '', description: sk.description || '', status: sk.status === 'available' ? 'unchecked' : sk.status === 'spent' ? 'checked' : 'lost' })),
     resources: (json.resources || []).map(r => ({ name: r.name || '', description: r.description || '', type: r.type || 'portable', status: r.status === 'available' ? 'active' : 'lost' })),
@@ -635,12 +635,7 @@ function serializeJson(d) {
       in_diary: !!mem.inDiary
     })),
     diary: {
-      memories: (d.diary?.memories || []).map(mem => ({
-        name: mem.theme || `Memory ${mem.n || ''}`,
-        experiences: (mem.experiences || []).map(exp => {
-          return typeof exp.text === 'string' ? exp.text : String(exp.text || '');
-        })
-      }))
+      memories: (d.diary?.memories || []),
     },
     skills: (d.skills || []).map(sk => ({ name: sk.name || '', description: sk.description || '', status: sk.status === 'checked' ? 'spent' : sk.status === 'lost' ? 'struck' : 'available' })),
     resources: (d.resources || []).map(r => ({ name: r.name || '', description: r.description || '', type: r.type || 'portable', status: r.status === 'active' ? 'available' : 'struck' })),
