@@ -20,8 +20,8 @@ jobs:
  
       - name: Build site files
         run: |
-          mkdir -p _site
           cp "TTRPGs/Thousand Year Old Vampire/tyov-viewer.html" _site/index.html
+          cp "TTRPGs/Thousand Year Old Vampire/Manual.html" _site/Manual.html
  
       - name: Deploy to gh-pages subfolder
         uses: peaceiris/actions-gh-pages@v4
