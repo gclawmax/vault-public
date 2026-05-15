@@ -860,6 +860,8 @@ function enterEditMode() {
   document.getElementById('edit-mode-banner').classList.add('visible');
   document.getElementById('game-select').disabled = true;
   document.getElementById('key-toggle').style.display = 'flex';
+  // No re-render here — page stays as-is for editing.
+  // Re-render only happens when the Update button is clicked in a modal.
   setStatus('busy', 'Edit mode — changes not yet saved');
 }
 
@@ -936,18 +938,20 @@ function openModal(title, bodyHtml, confirmFn) {
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   currentModalConfirm = null;
-  // Always re-render the page on close — reflects all parsedData changes
-  // whether they came from the Update button or inline game-action buttons
-  renderChronicle(parsedData);
 }
 function modalConfirm() {
-  if (currentModalConfirm) {
-    currentModalConfirm();
+  let cb = currentModalConfirm;
+  currentModalConfirm = null;
+  document.getElementById('modal-overlay').classList.remove('open');
+  if (cb) {
+    cb();               // callback sets markUnsaved() if needed
+    markUnsaved();      // ensure unsaved flag is set after Update
+    renderChronicle(parsedData); // re-render the page only on Update
   }
 }
-// ✓ Re-render on close: reflects all parsedData changes (whether from Update or inline game actions)
-// Backdrop-click is intentionally not handled so the dialog is fully modal.
-// Users must use "Update" or "Cancel" to close.
+
+// Inline game actions trigger immediate re-renders
+// since they don't go through the Update button flow.
 
 // ═══════════════════════════════════════════════════
 // SECTION EDITORS
@@ -1008,8 +1012,7 @@ function editHeader() {
     if (desc && conc) {
       parsedData.marks.push({ desc, concealment: conc, struck: false });
     }
-    closeModal(); markUnsaved(); renderChronicle(parsedData);
-  });
+  }); // modalConfirm() re-renders after Update is clicked
 }
 
 function toggleMarkStruck(i) {
@@ -1062,8 +1065,7 @@ function editSkills() {
     const name = document.getElementById('ed-skill-name').value.trim();
     const status = document.getElementById('ed-skill-status').value;
     if (name) parsedData.skills.push({ name, status });
-    closeModal(); markUnsaved(); renderChronicle(parsedData);
-  });
+  }); // modalConfirm() re-renders after Update is clicked
 }
 
 function updateSkillStatus(i, val) {
@@ -1103,9 +1105,11 @@ function editResources() {
   openModal('Edit Resources', bodyHtml, () => {
     const name = document.getElementById('ed-res-name').value.trim();
     const type = document.getElementById('ed-res-type').value;
-    if (name) parsedData.resources.push({ name, type, status: 'active' });
-    closeModal(); markUnsaved(); renderChronicle(parsedData);
-  });
+    if (name) {
+      parsedData.resources.push({ name, type, status: 'active' });
+      markUnsaved();
+    }
+  }); // modalConfirm() handles modalClose, markUnsaved, and re-render after Update is clicked
 }
 
 function updateResourceStatus(i, val) {
@@ -1160,9 +1164,9 @@ function editCharacters() {
     if (name && desc) {
       if (type === 'mortal') parsedData.mortals.push({ name, desc, dead: false });
       else parsedData.immortals.push({ name, desc, dead: false });
+      markUnsaved();
     }
-    closeModal(); markUnsaved(); renderChronicle(parsedData);
-  });
+  }); // modalConfirm() handles re-render after Update is clicked
 }
 
 function toggleCharDead(type, i) {
@@ -1216,9 +1220,9 @@ function editMemories() {
     if (theme && expText) {
       const newN = (parsedData.memories.length > 0 ? Math.max(...parsedData.memories.map(m=>m.n)) : 0) + 1;
       parsedData.memories.push({ n: newN, theme, experiences: [{ text: expText, struck: false }], struck: false, inDiary: false });
+      markUnsaved();
     }
-    closeModal(); markUnsaved(); renderChronicle(parsedData);
-  });
+  }); // modalConfirm() handles re-render after Update is clicked
 }
 
 function toggleMemStruck(i) {
@@ -1281,10 +1285,10 @@ function editDiary() {
         parsedData.frontmatter.diary_exists = 'true';
         parsedData.frontmatter.diary_name = parsedData.frontmatter.diary_name || 'Diary';
         parsedData.diary.exists = true;
+        markUnsaved();
       }
     }
-    closeModal(); markUnsaved(); renderChronicle(parsedData);
-  });
+  }); // modalConfirm() handles re-render after Update is clicked
 }
 
 function removeDiaryMem(i) {
@@ -1463,6 +1467,7 @@ function editJournal() {
     </div>`;
 
   openModal('Edit Journal', bodyHtml, () => {
+    let changed = false;
     // Resolve current if awaiting
     if (topEntry && topEntry.awaiting) {
       const prose = document.getElementById('ed-j-prose') ? document.getElementById('ed-j-prose').value.trim() : '';
@@ -1471,6 +1476,7 @@ function editJournal() {
         topEntry.prose = prose;
         topEntry.changes = changes;
         topEntry.awaiting = false;
+        changed = true;
       }
     }
     // Add new entry
@@ -1489,9 +1495,10 @@ function editJournal() {
         awaiting: true
       });
       parsedData.frontmatter.current_prompt = promptNum;
+      changed = true;
     }
-    closeModal(); markUnsaved(); renderChronicle(parsedData);
-  }, topEntry && topEntry.awaiting ? 'Resolve & Save' : 'Add Entry');
+    if (changed) markUnsaved();
+  }); // modalConfirm() handles re-render after Update is clicked
 }
 
 // ═══════════════════════════════════════════════════
