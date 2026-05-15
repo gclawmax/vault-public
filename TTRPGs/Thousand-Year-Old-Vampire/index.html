@@ -441,9 +441,80 @@ async function refreshCurrent() {
   else await loadGameList();
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// ⏰ AUTO-POLLER — ETag conditional GET (30s, visible-only)
+// GitHub docs: "304 responses do NOT count against rate limits."
+// Only 200 (content changed) consumes quota (~60/hr unauth, 5k/hr+ with token).
+// ═══════════════════════════════════════════════
+var _ptl = null, _pviz = document.visibilityState === 'visible', _etag = {};
+
+function _armPoll() { if (_pviz) { _ptl = setTimeout(_pollTick, 30000); } }
+function _disPoll() { clearTimeout(_ptl); _ptl = null; }
+
+function _pollTick() {
+  if (!_pviz) { _ptl = setTimeout(_pollTick, 30000); return; }
+  var t = [];
+  var sel = document.getElementById('game-select');
+  // Poll current vampire sheet
+  if (sel.value) {
+    t.push(_chkFile(GITHUB_API + '/' + encodeURIComponent(sel.value), 'v'));
+  } else {
+    t.push(_chkFile(GITHUB_API, 'g')); // refresh game list
+  }
+  // Poll viewer HTML (detect when you update the HTML file on GitHub)
+  t.push(_chkFile(GITHUB_API.replace('/Vampires', '/tyov-viewer.html'), '_'));
+  Promise.allSettled(t).then(function() { _ptl = setTimeout(_pollTick, 30000); });
+}
+
+function _chkFile(url, key) {
+  var h = {}, o = _etag['' + key];
+  if (o && key !== '_') { h['If-None-Match'] = o; }
+  var tok = getVaultKey();
+  if (tok) { h['Authorization'] = 'token ' + tok; }
+  fetch(url, {cache: 'no-store', headers: h}).then(function(r) {
+    if (r.status === 304) {
+      // unchdnged — ZERO rate-limit cost
+      return;
+    }
+    if (r.status === 403) {
+      setStatus('err', 'Rate-limited — add Vault Key for 5,000/hr');
+      return;
+    }
+    if (!r.ok) { return; }
+    var et = r.headers.get('etag');
+    if (et) { _etag['' + key] = et; }
+    // Content changed
+    if (key === 'v' && currentFileUrl) {
+      return r.json().then(function(d) {
+        currentSha = d.sha;
+        currentJson = decodeURIComponent(escape(atob(d.content.replace(/\\n/g, ''))));
+        workingJson = currentJson;
+        parsedData = parseSource(currentJson);
+        renderChronicle(parsedData);
+        setStatus('ok', '✓ Chronicle refreshed — ' + new Date().toLocaleTimeString());
+      });
+    }
+    if (key === 'g') {
+      // Game list changed — reload
+      return r.json().then(function(files) {
+        loadGameList();
+        setStatus('ok', '✓ Chronicle list refreshed — ' + new Date().toLocaleTimeString());
+      });
+    }
+    if (key === '_') {
+      setStatus('ok', '✓ Viewer HTML updated on GitHub — ' + new Date().toLocaleTimeString() + ' (reload page to get latest)');
+    }
+  }).catch(function() { /* transient network error */ });
+}
+
+document.addEventListener('visibilitychange', function() {
+  _pviz = document.visibilityState === 'visible';
+  if (_pviz) { _armPoll(); } else { _disPoll(); }
+});
+
+// ═══════════════════════════════════════════════
 // JSON PARSER  (produces structured parsedData)
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function parseSource(source) {
   const trimmed = source.trim();
   if (!trimmed) throw new Error('Empty JSON source');
