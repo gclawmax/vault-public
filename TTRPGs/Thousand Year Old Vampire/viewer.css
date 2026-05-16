@@ -1036,6 +1036,12 @@ body.edit-mode .section-editwrap {
   font-size: .9rem;
 }
 
+.journal-edit-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
 /* ── Memories ── */
 .memories-section {
   border-top: 1px solid var(--border);

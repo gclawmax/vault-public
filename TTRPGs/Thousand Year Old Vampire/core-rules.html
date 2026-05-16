@@ -669,17 +669,16 @@ Don't fret about specific years, but watch for obvious breaks in the timeline. A
         if (btn.dataset.s !== 'book') document.body.setAttribute('data-skin', btn.dataset.s);
         document.querySelectorAll('.skin-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        try { localStorage.setItem('tyov-manual-skin', btn.dataset.s); } catch (e) { }
+        localStorage.setItem('tyov-skin', btn.dataset.s);
       });
     });
+
     (function () {
-      try {
-        const s = localStorage.getItem('tyov-manual-skin') || 'book';
-        if (s !== 'book') document.body.setAttribute('data-skin', s);
-        document.querySelectorAll('.skin-btn').forEach(b => {
-          b.classList.toggle('active', b.dataset.s === s);
-        });
-      } catch (e) { }
+      const s = localStorage.getItem('tyov-skin') || 'book';
+      if (s !== 'book') document.body.setAttribute('data-skin', s);
+      document.querySelectorAll('.skin-btn').forEach(b => {
+        if (b.dataset.s === s) b.classList.add('active'); else b.classList.remove('active');
+      });
     })();
 
     // ═══════════════════════════════════════════════════════

@@ -572,9 +572,10 @@
       if (d.journal.length === 0) {
         html += `<p style="color:var(--ink-faint);font-style:italic;">No journal entries yet.</p>`;
       }
-      d.journal.forEach(j => {
-        html += `<div class="journal-entry">
+      d.journal.forEach((j, idx) => {
+        html += `<div class="journal-entry" data-entry-idx="${idx}">
       <div class="journal-turn">Turn ${j.turn} — Prompt ${j.prompt}, Entry ${j.entry}</div>
+      ${editMode ? '<div class="journal-edit-actions"><button class="top-btn" onclick="editJournalEntryEntry(' + idx + ')" style="font-size:11px;padding:4px 10px;">✎ Edit</button></div>' : ''}
       <div class="journal-scrap">
 <div class="journal-prompt-text">${esc(getPromptText(j.prompt, j.entry))}</div>
         <div class="journal-body">`;
@@ -1223,10 +1224,16 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       editJournal();
     }
 
-    // ── Journal ───────────────────────────────────────
+    function getAnyAwaitingEntry() {
+      for (const je of parsedData.journal) {
+        if (je.awaiting) return je;
+      }
+      return null;
+    }
+
+    // ── Journal array-level editing ─────────────────────
     function editJournal() {
       if (!editMode) return;
-      const topEntry = parsedData.journal.length > 0 ? parsedData.journal.reduce((a, b) => a.turn > b.turn ? a : b) : null;
 
       let bodyHtml = '';
 
@@ -1235,7 +1242,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         bodyHtml += `<div class="edit-section-title">Journal Entries</div>`;
         parsedData.journal.forEach((je, idx) => {
           bodyHtml += `<div class="edit-list-item">
-    <div class="edit-list-item-text"><strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br><span style="color:var(--ink-dim);font-size:.85rem">${esc(getPromptText(je.prompt, je.entry) || je.prose || 'No text')}</span></div>
+    <div class="edit-list-item-text"><strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br><span style="color:var(--ink-dim);font-size:.85rem">Awaiting: ${je.awaiting ? 'Yes' : 'No'}${je.prose ? ' — Has prose' : ''}</span></div>
     <div class="edit-list-actions">
       <button class="trash-btn" onclick="deleteJournalEntry(${idx})" title="Delete journal entry entirely">🗑</button>
     </div>
@@ -1244,24 +1251,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         bodyHtml += `<hr class="edit-divider">`;
       }
 
-      if (topEntry && topEntry.awaiting) {
-        // Resolve current prompt
-        bodyHtml += `<div class="edit-section-title" style="color:var(--blood);">Resolve Current Prompt — Turn ${topEntry.turn}</div>
-  <div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:14px;font-size:.88rem;color:var(--ink-dim);">${esc(getPromptText(topEntry.prompt, topEntry.entry))}</div>
-  <div class="form-row">
-    <label class="form-label">Journal Prose</label>
-    <textarea class="form-textarea" id="ed-j-prose" style="min-height:100px;">${esc(topEntry.prose)}</textarea>
-    <div class="form-hint">Your character's experience resolving this prompt.</div>
-  </div>
-  <div class="form-row">
-    <label class="form-label">Changes (mechanical summary)</label>
-    <input class="form-input" id="ed-j-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty.">
-    <div class="form-hint">Required. Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>
-  </div>
-  <hr class="edit-divider">`;
-      }
-
-      // Add new prompt entry — no prompt text field, looked up dynamically
+      // Add new prompt entry
+      const hasReady = hasUnexperiencedMemory();
       bodyHtml += `<div class="edit-section-title">Add New Journal Entry</div>
 <div class="form-row">
   <label class="form-label">Prompt Number (1–80)</label>
@@ -1273,19 +1264,13 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
   <div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>
 </div>`;
 
+      // If there's an awaiting entry and we don't have a ready memory, show memory add
+      const awaitingEntry = getAnyAwaitingEntry();
+      if (awaitingEntry && !hasReady) {
+        bodyHtml += `<div style="background:var(--blood);border-left:3px solid var(--blood-bright);padding:8px 12px;margin-top:14px;font-size:.88rem;color:var(--blood-bright);font-style:italic;">Resolve requires an unrecorded memory. Add one below using the per-entry edit (✎ button), then click Update.</div>`;
+      }
+
       openModal('Edit Journal', bodyHtml, () => {
-        let changed = false;
-        // Resolve current if awaiting
-        if (topEntry && topEntry.awaiting) {
-          const prose = document.getElementById('ed-j-prose') ? document.getElementById('ed-j-prose').value.trim() : '';
-          const changes = document.getElementById('ed-j-changes') ? document.getElementById('ed-j-changes').value.trim() : '';
-          if (changes) {
-            topEntry.prose = prose;
-            topEntry.changes = changes;
-            topEntry.awaiting = false;
-            changed = true;
-          }
-        }
         // Add new entry — no promptText stored
         const promptNum = parseInt(document.getElementById('ed-j-prompt').value || '0');
         const entryNum = parseInt(document.getElementById('ed-j-entry').value || '1');
@@ -1300,19 +1285,135 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             awaiting: true
           });
           parsedData.frontmatter.current_prompt = promptNum;
-          changed = true;
+          markUnsaved();
         }
-        if (changed) markUnsaved();
       });
     }
 
-    // ═══════════════════════════════════════════════════
-    // INIT
-    // ═══════════════════════════════════════════════════
+    // ── Per-entry journal editing ───────────────────────
+    function editJournalEntryEntry(idx) {
+      if (!editMode) return;
+      if (idx < 0 || idx >= parsedData.journal.length) return;
+      const je = parsedData.journal[idx];
+      const canResolve = hasUnexperiencedMemory();
 
-    /* ══════════════════════
-       🎲 GET NEXT PROMPT — Ported from get_next_prompt.py
-       ══════════════════════ */
+      let bodyHtml = `<div class="edit-section-title">Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</div>
+  <div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:14px;font-size:.88rem;color:var(--ink-dim);margin-bottom:16px;">${esc(getPromptText(je.prompt, je.entry))}</div>
+  <div class="form-row">
+    <label class="form-label">Journal Prose</label>
+    <textarea class="form-textarea" id="ed-je-prose" style="min-height:120px;">${esc(je.prose)}</textarea>
+    <div class="form-hint">Your character's experience with this prompt.</div>
+  </div>
+  <div class="form-row">
+    <label class="form-label">Changes (mechanical summary)</label>
+    <input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="${esc(je.changes)}">
+    <div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>
+  </div>`;
+
+      // For awaiting entries, show the appropriate action buttons at the bottom
+      if (je.awaiting) {
+        bodyHtml += `<hr class="edit-divider">
+  <div class="form-row" style="border-top:1px solid var(--border);padding-top:16px;margin-top:0;">
+    <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:10px;">Actions</div>`;
+
+        if (canResolve) {
+          // Memory available — show Resolve as the positive path, Draft as the fallback
+          bodyHtml += `<button class="modal-btn primary" id="ed-je-resolve-btn" onclick="resolveJournalEntryEntry(${idx})" style="width:100%;margin-bottom:6px;">✓ Resolve This Entry</button>
+      <div class="form-hint" style="margin-top:4px;color:var(--status-ok);font-size:.8rem;">The vampire has an unrecorded memory experience available for this prompt.</div>
+      <button class="modal-btn" id="ed-je-draft-btn" onclick="saveJournalEntryAsDraft(${idx})" style="width:100%;margin-top:6px;">💾 Save as Draft</button>
+      <div class="form-hint" style="margin-top:4px;color:var(--ink-faint);font-size:.8rem;">Saves prose and changes without marking the entry resolved.</div>`;
+        } else {
+          // No memory available — force memory experience input
+          const activeMems = parsedData.memories.filter(m => !m.struck);
+          bodyHtml += `<div style="color:var(--blood);font-size:.88rem;font-style:italic;margin-bottom:10px;">The vampire cannot resolve this entry. A memory experience must be recorded first.</div>`;
+          if (activeMems.length === 0) {
+            bodyHtml += `<div style="color:var(--blood);font-size:.88rem;font-style:italic;margin-bottom:10px;">No active memories available. Add a new memory via the Memories editor.</div>`;
+          } else {
+            bodyHtml += `<div id="ed-je-mem-input-wrap" style="background:var(--card-bg);padding:12px;border:1px solid var(--border);margin-bottom:10px;">
+        <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--blood);margin-bottom:8px;">Record a Memory Experience</div>
+        <label class="form-label">Active Memory</label>
+        <select class="form-select" id="ed-je-exp-mem">
+${activeMems.map(m => `<option value="${parsedData.memories.indexOf(m)}">Memory ${m.n} — ${esc(m.theme)}</option>`).join('\n')}
+        </select>
+        <label class="form-label" style="margin-top:8px;">Experience</label>
+        <textarea class="form-textarea" id="ed-je-exp-text" style="min-height:60px;" placeholder="Write the memory experience this prompt generates…"></textarea>
+      </div>
+      <button class="modal-btn" id="ed-je-record-btn" onclick="recordMemoryExperienceAndDraft(${idx})" style="width:100%;margin-bottom:6px;">💾 Record Experience & Save as Draft</button>
+      <div class="form-hint" style="margin-top:4px;color:var(--ink-faint);font-size:.8rem;">This adds the experience to your selected memory and saves your prose as a draft. After saving, use the ✎ Edit button again to resolve.</div>
+      <button class="modal-btn" id="ed-je-draft-only-btn" onclick="saveJournalEntryAsDraft(${idx})" style="width:100%;margin-top:6px;">💾 Save as Draft (No Memory)</button>
+      <div class="form-hint" style="margin-top:4px;color:var(--ink-faint);font-size:.8rem;">Just saves prose and changes. Still can't resolve until a memory experience is added.</div>`;
+          }
+        }
+        bodyHtml += `</div>`;
+      }
+
+      openModal('Edit Journal Entry', bodyHtml, () => {
+        // Save prose + changes regardless
+        const prose = document.getElementById('ed-je-prose') ? document.getElementById('ed-je-prose').value.trim() : '';
+        const changes = document.getElementById('ed-je-changes') ? document.getElementById('ed-je-changes').value.trim() : '';
+        je.prose = prose;
+        je.changes = changes;
+        markUnsaved();
+      });
+    }
+
+    function recordMemoryExperienceAndDraft(idx) {
+      const expTextEl = document.getElementById('ed-je-exp-text');
+      const expMemEl = document.getElementById('ed-je-exp-mem');
+      if (!expTextEl || !expMemEl || !expTextEl.value.trim()) {
+        alert('Please write a memory experience before recording.');
+        return;
+      }
+      const memIdx = parseInt(expMemEl.value);
+      if (isNaN(memIdx) || memIdx < 0 || memIdx >= parsedData.memories.length) {
+        alert('No valid memory selected.');
+        return;
+      }
+      parsedData.memories[memIdx].experiences.push({ text: expTextEl.value.trim(), struck: false });
+      markUnsaved();
+      setStatus('ok', 'Memory experience recorded.');
+      editJournalEntryEntry(idx); // refresh — now should show Resolve
+    }
+
+    function hasUnexperiencedMemory() {
+      for (const mem of parsedData.memories) {
+        if (mem.struck) continue;
+        for (const exp of mem.experiences) {
+          if (!exp.struck) return true;
+        }
+      }
+      return false;
+    }
+
+    function saveJournalEntryAsDraft(idx) {
+      if (idx < 0 || idx >= parsedData.journal.length) return;
+      const je = parsedData.journal[idx];
+      je.prose = je.prose || '';
+      je.awaiting = true;
+      markUnsaved();
+      setStatus('ok', 'Entry saved as draft — awaiting resolution.');
+    }
+
+    function resolveJournalEntryEntry(idx) {
+      if (idx < 0 || idx >= parsedData.journal.length) return;
+      const je = parsedData.journal[idx];
+      if (!je.prose || je.prose.trim() === '') {
+        alert('Cannot resolve: prose must be written first.');
+        return;
+      }
+      if (!hasUnexperiencedMemory()) {
+        alert('Cannot resolve: the vampire must record a memory experience before resolving a prompt.');
+        return;
+      }
+      if (!confirm(`Resolve journal entry Turn ${je.turn}?
+
+This marks the entry as resolved and the vampire records a memory experience for this prompt.`)) return;
+      je.awaiting = false;
+      markUnsaved();
+      editJournalEntryEntry(idx);
+      renderChronicle(parsedData);
+      setStatus('ok', `Turn ${je.turn} resolved.`);
+    }
 
     function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
