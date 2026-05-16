@@ -101,6 +101,12 @@
       "description": "A blade of grey steel, heavy and unyielding, brought from a campaign in the distant north. It never dulls, never chips, and its pommel is set with a dark gem that seems to draw the light from the air.",
       "type": "portable",
       "status": "available"
+    },
+    {
+      "name": "The vault key",
+      "description": "",
+      "type": "portable",
+      "status": "available"
     }
   ],
   "characters": [
