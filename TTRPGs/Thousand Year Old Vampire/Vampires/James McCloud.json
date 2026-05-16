@@ -144,9 +144,9 @@
       "turn": 1,
       "prompt": 1,
       "entry": 1,
-      "resolved": false,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "experience": "I killed jack",
+      "changes": "Killed Jack, Gained bloodthirsty"
     }
   ]
 }
