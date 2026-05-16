@@ -7,7 +7,7 @@
   "modified": "2026-05-16",
   "game_completed": "",
   "show_suggestions": true,
-  "current_prompt": 1,
+  "current_prompt": 6,
   "prompts_resolved": 0,
   "marks": [
     {
@@ -148,6 +148,15 @@
       "resolved_at": "2026-05-16T18:04:59.122Z",
       "experience": "Killed Jack",
       "changes": "Killed Jack, Gained bloodthirsty"
+    },
+    {
+      "turn": 2,
+      "prompt": 6,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
     }
   ]
 }
