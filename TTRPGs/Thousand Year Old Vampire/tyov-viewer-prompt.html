@@ -472,18 +472,47 @@ async function refreshCurrent() {
   else await loadGameList();
 }
 
-function loadPrompts() {
+// ═══════════════════════════════════════════════════
+// PROMPTS — load once, cache in sessionStorage
+// ═══════════════════════════════════════════════════
+const PROMPTS_SESSION_KEY = 'tyov-prompts-cache';
+let PROMPTS_DATA = null;
+
+async function ensurePromptsLoaded() {
+  // Already in memory — free
+  if (PROMPTS_DATA) return true;
+
+  // Try sessionStorage — avoids a network call for the rest of the tab session
+  try {
+    const cached = sessionStorage.getItem(PROMPTS_SESSION_KEY);
+    if (cached) {
+      PROMPTS_DATA = JSON.parse(cached);
+      return true;
+    }
+  } catch(e) { /* sessionStorage unavailable — proceed to fetch */ }
+
+  // Need a token to fetch from the private repo
   const token = getVaultKey();
+  if (!token) return false; // caller must prompt for key
+
   const url = 'https://api.github.com/repos/gclawmax/hermes-skills/contents/thousand-year-vampire-agent/prompts.json';
-  return fetch(url + (token ? '?ref=main' : '?ref=main'), {
-    headers: token ? { Authorization: 'token ' + token } : {}
-  }).then(function(r) {
-    if (!r.ok) throw new Error('Failed to load prompts: ' + r.status);
-    return r.json();
-  }).then(function(data) {
-    const decoded = base64ToUtf8(data.content, data.encoding);
+  try {
+    const resp = await fetch(url, {
+      headers: { Authorization: 'token ' + token }
+    });
+    if (!resp.ok) throw new Error('Prompts fetch failed: ' + resp.status);
+    const data = await resp.json();
+    const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
     PROMPTS_DATA = JSON.parse(decoded);
-  });
+
+    // Cache for the rest of this tab session — never written to disk
+    try { sessionStorage.setItem(PROMPTS_SESSION_KEY, JSON.stringify(PROMPTS_DATA)); } catch(e) {}
+
+    return true;
+  } catch(e) {
+    setStatus('err', 'Failed to load prompts: ' + e.message);
+    return false;
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1799,7 +1828,7 @@ async function getAndSetNextPrompt() {
   }
 }
 
-await loadPrompts(); loadGameList();
+loadGameList(); // prompts load lazily on first use — no token available yet anyway
 </script>
 </body>
 </html>
