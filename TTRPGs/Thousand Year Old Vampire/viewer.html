@@ -1410,14 +1410,41 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
       return false;
     }
-
     function saveJournalEntryAsDraft(idx) {
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
-      je.prose = je.prose || '';
+      const proseEl = document.getElementById('ed-je-prose');
+      const changesEl = document.getElementById('ed-je-changes');
+      if (proseEl) je.prose = proseEl.value.trim();
+      if (changesEl) je.changes = changesEl.value.trim();
       je.awaiting = true;
       markUnsaved();
+      renderChronicle(parsedData);
+      closeModal();
       setStatus('ok', 'Entry saved as draft — awaiting resolution.');
+    }
+
+    function resolveJournalEntryEntry(idx) {
+      if (idx < 0 || idx >= parsedData.journal.length) return;
+      const je = parsedData.journal[idx];
+      const proseEl = document.getElementById('ed-je-prose');
+      const changesEl = document.getElementById('ed-je-changes');
+      if (proseEl) je.prose = proseEl.value.trim();
+      if (changesEl) je.changes = changesEl.value.trim();
+      if (!je.prose) {
+        alert('Cannot resolve: prose must be written first.');
+        return;
+      }
+      if (!hasUnexperiencedMemory()) {
+        alert('Cannot resolve: the vampire must record a memory experience before resolving a prompt.');
+        return;
+      }
+      if (!confirm('Resolve journal entry Turn ' + je.turn + '?\n\nThis marks the entry as resolved.')) return;
+      je.awaiting = false;
+      markUnsaved();
+      renderChronicle(parsedData);
+      closeModal();
+      setStatus('ok', 'Turn ' + je.turn + ' resolved.');
     }
 
     function unresolveJournalEntry(idx) {
@@ -1427,27 +1454,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       je.awaiting = true;
       markUnsaved();
       editJournalEntryEntry(idx); // re-open refreshed
-    }
-
-    function resolveJournalEntryEntry(idx) {
-      if (idx < 0 || idx >= parsedData.journal.length) return;
-      const je = parsedData.journal[idx];
-      if (!je.prose || je.prose.trim() === '') {
-        alert('Cannot resolve: prose must be written first.');
-        return;
-      }
-      if (!hasUnexperiencedMemory()) {
-        alert('Cannot resolve: the vampire must record a memory experience before resolving a prompt.');
-        return;
-      }
-      if (!confirm(`Resolve journal entry Turn ${je.turn}?
-
-This marks the entry as resolved and the vampire records a memory experience for this prompt.`)) return;
-      je.awaiting = false;
-      markUnsaved();
-      editJournalEntryEntry(idx);
-      renderChronicle(parsedData);
-      setStatus('ok', `Turn ${je.turn} resolved.`);
     }
 
     function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
