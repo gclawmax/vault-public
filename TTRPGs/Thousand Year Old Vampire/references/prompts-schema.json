@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Thousand Year Old Vampire — Prompt Collection",
+  "description": "Schema for the prompts.json file containing all 80 prompts from the TYOB game book, each with multiple entries (usually 3). Used by the viewer to look up prompt text dynamically.",
+  "type": "object",
+  "required": ["metadata", "pages"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "description": "Book metadata describing the prompt structure",
+      "required": ["title", "structure", "page_structure", "use_rule"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Title of the prompt collection"
+        },
+        "structure": {
+          "type": "string",
+          "description": "Description of the overall structure"
+        },
+        "page_structure": {
+          "type": "string",
+          "description": "Description of individual page structure"
+        },
+        "use_rule": {
+          "type": "string",
+          "description": "Rules for how prompts are used in gameplay"
+        }
+      },
+      "additionalProperties": false
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 80,
+      "maxItems": 80,
+      "description": "Array of all 80 prompts, ordered by prompt_number",
+      "items": {
+        "type": "object",
+        "required": ["page_number", "prompt_number", "entries"],
+        "properties": {
+          "page_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120,
+            "description": "The page number in the source book"
+          },
+          "prompt_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 80,
+            "description": "The sequential prompt number (1-80)"
+          },
+          "entries": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "description": "Possible outcomes for this prompt (usually 3)",
+            "items": {
+              "type": "object",
+              "required": ["text"],
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The full text of this prompt entry, including any instructions and consequences"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "patternProperties": {
+    "^pages/.*": {
+      "description": "Pages must be sorted by prompt_number ascending"
+    }
+  }
+}

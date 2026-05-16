@@ -3,7 +3,7 @@
 import json, re, sys, os, jsonschema
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCHEMA_PATH = os.path.join(BASE_DIR, "tests", "vampire-schema.json")
+SCHEMA_PATH = os.path.join(BASE_DIR, "references", "vampire-schema.json")
 VIEWER_PATH = os.path.join(BASE_DIR, "tyov-viewer.html")
 
 with open(SCHEMA_PATH) as sf:
