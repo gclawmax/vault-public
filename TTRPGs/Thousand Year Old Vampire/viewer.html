@@ -779,10 +779,17 @@
     // ═══════════════════════════════════════════════════
     // MODAL HELPERS
     // ═══════════════════════════════════════════════════
-    function openModal(title, bodyHtml, confirmFn) {
+    function openModal(title, bodyHtml, confirmFn, footerHtml) {
       document.getElementById('modal-title').textContent = title;
       document.getElementById('modal-body').innerHTML = bodyHtml;
-      document.getElementById('modal-confirm-btn').textContent = 'Update';
+      const footer = document.getElementById('modal-footer');
+      if (footerHtml !== undefined) {
+        footer.innerHTML = footerHtml;
+      } else {
+        footer.innerHTML = `
+      <button class="modal-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn primary" id="modal-confirm-btn" onclick="modalConfirm()">Update</button>`;
+      }
       currentModalConfirm = confirmFn;
       document.getElementById('modal-overlay').classList.add('open');
     }
@@ -1386,14 +1393,23 @@ ${activeMems.map(m => `<option value="${parsedData.memories.indexOf(m)}">Memory 
         bodyHtml += `</div>`;
       }
 
+      const footerHtml = `
+  <button class="modal-btn" onclick="closeModal()">Cancel</button>
+  ${!je.awaiting ? `<button class="modal-btn" onclick="unresolveJournalEntry(${idx})">↩ Unresolve</button>` : ''}
+  <button class="modal-btn" onclick="saveJournalEntryAsDraft(${idx})">💾 Save as Draft</button>
+  <button class="modal-btn primary" style="background:var(--blood);border-color:var(--blood);"
+    ${!canResolve || !je.awaiting ? 'disabled style="opacity:.4;background:var(--blood);border-color:var(--blood);"' : ''}
+    onclick="${je.awaiting && canResolve ? `resolveJournalEntryEntry(${idx})` : ''}">
+    ✓ Resolve This Entry
+  </button>`;
+
       openModal('Edit Journal Entry', bodyHtml, () => {
-        // Save prose + changes regardless
         const prose = document.getElementById('ed-je-prose') ? document.getElementById('ed-je-prose').value.trim() : '';
         const changes = document.getElementById('ed-je-changes') ? document.getElementById('ed-je-changes').value.trim() : '';
         je.prose = prose;
         je.changes = changes;
         markUnsaved();
-      });
+      }, footerHtml);
     }
 
     function recordMemoryExperienceAndDraft(idx) {
@@ -1431,6 +1447,15 @@ ${activeMems.map(m => `<option value="${parsedData.memories.indexOf(m)}">Memory 
       je.awaiting = true;
       markUnsaved();
       setStatus('ok', 'Entry saved as draft — awaiting resolution.');
+    }
+
+    function unresolveJournalEntry(idx) {
+      if (idx < 0 || idx >= parsedData.journal.length) return;
+      const je = parsedData.journal[idx];
+      if (!confirm(`Unresolve Turn ${je.turn}? This marks the entry as awaiting resolution again.`)) return;
+      je.awaiting = true;
+      markUnsaved();
+      editJournalEntryEntry(idx); // re-open refreshed
     }
 
     function resolveJournalEntryEntry(idx) {
