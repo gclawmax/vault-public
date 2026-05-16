@@ -1393,13 +1393,18 @@ ${activeMems.map(m => `<option value="${parsedData.memories.indexOf(m)}">Memory 
         bodyHtml += `</div>`;
       }
 
+      const isAwaiting = je.awaiting === true;
+      const resolveDisabled = !isAwaiting || !canResolve;
+
       const footerHtml = `
   <button class="modal-btn" onclick="closeModal()">Cancel</button>
-  ${!je.awaiting ? `<button class="modal-btn" onclick="unresolveJournalEntry(${idx})">↩ Unresolve</button>` : ''}
+  ${!isAwaiting
+          ? `<button class="modal-btn" onclick="unresolveJournalEntry(${idx})">↩ Unresolve</button>`
+          : ''}
   <button class="modal-btn" onclick="saveJournalEntryAsDraft(${idx})">💾 Save as Draft</button>
-  <button class="modal-btn primary" style="background:var(--blood);border-color:var(--blood);"
-    ${!canResolve || !je.awaiting ? 'disabled style="opacity:.4;background:var(--blood);border-color:var(--blood);"' : ''}
-    onclick="${je.awaiting && canResolve ? `resolveJournalEntryEntry(${idx})` : ''}">
+  <button class="modal-btn primary"
+    style="background:var(--blood);border-color:var(--blood);${resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : ''}"
+    ${resolveDisabled ? 'disabled' : `onclick="resolveJournalEntryEntry(${idx})"`}>
     ✓ Resolve This Entry
   </button>`;
 
