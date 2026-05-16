@@ -633,6 +633,21 @@ body.edit-mode .section-editwrap {
   margin-bottom: 10px;
 }
 
+.edit-mode .section-editwrap {
+  cursor: pointer;
+  transition: outline 0.1s;
+}
+.edit-mode .section-editwrap:hover {
+  outline: 1px dashed var(--accent-dim);
+}
+.edit-mode .journal-entry {
+  cursor: pointer;
+  transition: outline 0.1s;
+}
+.edit-mode .journal-entry:hover {
+  outline: 1px dashed var(--accent-dim);
+}
+
 /* ── Skill / resource status chips ── */
 .status-radio-group {
   display: flex;
