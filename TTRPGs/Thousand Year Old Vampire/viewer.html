@@ -1355,52 +1355,16 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
     <input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="${esc(je.changes)}">
     <div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>
   </div>`;
+    }
 
-      // For awaiting entries, show the appropriate action buttons at the bottom
-      if (je.awaiting) {
-        bodyHtml += `<hr class="edit-divider">
-  <div class="form-row" style="border-top:1px solid var(--border);padding-top:16px;margin-top:0;">
-    <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:10px;">Actions</div>`;
+    const isAwaiting = je.awaiting === true;
+    const resolveDisabled = !isAwaiting || !canResolve;
 
-        if (canResolve) {
-          // Memory available — show Resolve as the positive path, Draft as the fallback
-          bodyHtml += `<button class="modal-btn primary" id="ed-je-resolve-btn" onclick="resolveJournalEntryEntry(${idx})" style="width:100%;margin-bottom:6px;">✓ Resolve This Entry</button>
-      <div class="form-hint" style="margin-top:4px;color:var(--status-ok);font-size:.8rem;">The vampire has an unrecorded memory experience available for this prompt.</div>
-      <button class="modal-btn" id="ed-je-draft-btn" onclick="saveJournalEntryAsDraft(${idx})" style="width:100%;margin-top:6px;">💾 Save as Draft</button>
-      <div class="form-hint" style="margin-top:4px;color:var(--ink-faint);font-size:.8rem;">Saves prose and changes without marking the entry resolved.</div>`;
-        } else {
-          // No memory available — force memory experience input
-          const activeMems = parsedData.memories.filter(m => !m.struck);
-          bodyHtml += `<div style="color:var(--blood);font-size:.88rem;font-style:italic;margin-bottom:10px;">The vampire cannot resolve this entry. A memory experience must be recorded first.</div>`;
-          if (activeMems.length === 0) {
-            bodyHtml += `<div style="color:var(--blood);font-size:.88rem;font-style:italic;margin-bottom:10px;">No active memories available. Add a new memory via the Memories editor.</div>`;
-          } else {
-            bodyHtml += `<div id="ed-je-mem-input-wrap" style="background:var(--card-bg);padding:12px;border:1px solid var(--border);margin-bottom:10px;">
-        <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--blood);margin-bottom:8px;">Record a Memory Experience</div>
-        <label class="form-label">Active Memory</label>
-        <select class="form-select" id="ed-je-exp-mem">
-${activeMems.map(m => `<option value="${parsedData.memories.indexOf(m)}">Memory ${m.n} — ${esc(m.theme)}</option>`).join('\n')}
-        </select>
-        <label class="form-label" style="margin-top:8px;">Experience</label>
-        <textarea class="form-textarea" id="ed-je-exp-text" style="min-height:60px;" placeholder="Write the memory experience this prompt generates…"></textarea>
-      </div>
-      <button class="modal-btn" id="ed-je-record-btn" onclick="recordMemoryExperienceAndDraft(${idx})" style="width:100%;margin-bottom:6px;">💾 Record Experience & Save as Draft</button>
-      <div class="form-hint" style="margin-top:4px;color:var(--ink-faint);font-size:.8rem;">This adds the experience to your selected memory and saves your prose as a draft. After saving, use the ✎ Edit button again to resolve.</div>
-      <button class="modal-btn" id="ed-je-draft-only-btn" onclick="saveJournalEntryAsDraft(${idx})" style="width:100%;margin-top:6px;">💾 Save as Draft (No Memory)</button>
-      <div class="form-hint" style="margin-top:4px;color:var(--ink-faint);font-size:.8rem;">Just saves prose and changes. Still can't resolve until a memory experience is added.</div>`;
-          }
-        }
-        bodyHtml += `</div>`;
-      }
-
-      const isAwaiting = je.awaiting === true;
-      const resolveDisabled = !isAwaiting || !canResolve;
-
-      const footerHtml = `
+    const footerHtml = `
   <button class="modal-btn" onclick="closeModal()">Cancel</button>
   ${!isAwaiting
-          ? `<button class="modal-btn" onclick="unresolveJournalEntry(${idx})">↩ Unresolve</button>`
-          : ''}
+        ? `<button class="modal-btn" onclick="unresolveJournalEntry(${idx})">↩ Unresolve</button>`
+        : ''}
   <button class="modal-btn" onclick="saveJournalEntryAsDraft(${idx})">💾 Save as Draft</button>
   <button class="modal-btn primary"
     style="background:var(--blood);border-color:var(--blood);${resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : ''}"
@@ -1408,13 +1372,13 @@ ${activeMems.map(m => `<option value="${parsedData.memories.indexOf(m)}">Memory 
     ✓ Resolve This Entry
   </button>`;
 
-      openModal('Edit Journal Entry', bodyHtml, () => {
-        const prose = document.getElementById('ed-je-prose') ? document.getElementById('ed-je-prose').value.trim() : '';
-        const changes = document.getElementById('ed-je-changes') ? document.getElementById('ed-je-changes').value.trim() : '';
-        je.prose = prose;
-        je.changes = changes;
-        markUnsaved();
-      }, footerHtml);
+    openModal('Edit Journal Entry', bodyHtml, () => {
+      const prose = document.getElementById('ed-je-prose') ? document.getElementById('ed-je-prose').value.trim() : '';
+      const changes = document.getElementById('ed-je-changes') ? document.getElementById('ed-je-changes').value.trim() : '';
+      je.prose = prose;
+      je.changes = changes;
+      markUnsaved();
+    }, footerHtml);
     }
 
     function recordMemoryExperienceAndDraft(idx) {
