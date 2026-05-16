@@ -1717,10 +1717,10 @@
           turn: j.turn,
           prompt: j.prompt,
           entry: j.entry,
-          prompt_text: j.promptText || '',
-          resolved: !j.awaiting,
-          paraphrased_prompt: j.promptText || '',
-          experience: j.prose || '',
+          prompt_text: j.prompt_text || j.promptText || '',
+          resolved: j.resolved !== undefined ? j.resolved : (j.awaiting === undefined ? false : !j.awaiting),
+          paraphrased_prompt: j.paraphrased_prompt || j.prompt_text || j.promptText || '',
+          experience: j.experience || j.prose || '',
           changes: j.changes || ''
         }))
       };
@@ -2764,14 +2764,14 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
           // Add entry to journal
           const maxTurn = vampire.journal.reduce((m, e) => Math.max(m, e.turn || 0), 0);
           vampire.journal.push({
-            turn: result.turn,
             prompt: result.prompt,
+            turn: result.turn,
             entry: result.entry,
-            promptText: result.text,
-            prose: '',
-            changes: '',
-            awaiting: true,
-            resolved: false
+            prompt_text: result.text,
+            resolved: false,
+            paraphrased_prompt: result.text,
+            experience: '',
+            changes: ''
           });
 
           const newJson = JSON.stringify(vampire, null, 2);
@@ -2800,14 +2800,14 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             const retryContent = JSON.parse(atob(retryData.content.replace(/\\n/g, '')));
             retryContent.journal = retryContent.journal || [];
             retryContent.journal.push({
-              turn: result.turn,
               prompt: result.prompt,
+              turn: result.turn,
               entry: result.entry,
-              promptText: result.text,
-              prose: '',
-              changes: '',
-              awaiting: true,
-              resolved: false
+              prompt_text: result.text,
+              resolved: false,
+              paraphrased_prompt: result.text,
+              experience: '',
+              changes: ''
             });
             retryContent.current_prompt = result.prompt;
             retryContent.modified = new Date().toISOString().split('T')[0];
