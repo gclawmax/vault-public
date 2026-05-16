@@ -1532,6 +1532,35 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       return { error: 'all_prompts_exhausted' };
     }
 
+    function displayPromptResult(result) {
+      const section = document.getElementById('prompt-section');
+      if (!section) return;
+
+      if (result.error === 'all_prompts_exhausted') {
+        section.innerHTML =
+          '<div class="prompt-card prompt-gameover">' +
+          '<div class="prompt-label">🏛️ All Prompts Exhausted</div>' +
+          '<div class="prompt-text" style="font-size:16px;">The vampire has lived a full thousand years.</div>' +
+          '</div>';
+        setStatus('ok', 'All prompts exhausted');
+        return;
+      }
+
+      const diceStr = result.dice
+        ? '<div class="prompt-dice">Roll: d10=' + result.dice.d10 + ', d6=' + result.dice.d6 + ' → offset ' + result.dice.offset + '</div>'
+        : '';
+
+      section.innerHTML =
+        '<div class="prompt-card prompt-success">' +
+        '<div class="prompt-label">🎲 Next Prompt</div>' +
+        diceStr +
+        '<div class="prompt-dice" style="color:white;font-size:13px;margin-bottom:4px;">Turn ' + result.turn + ' — Prompt ' + result.prompt + ' · Entry ' + result.entry + '</div>' +
+        '<div class="prompt-text">' + esc(result.text) + '</div>' +
+        '</div>';
+
+      setStatus('ok', 'Prompt ' + result.prompt + ', entry ' + result.entry + ' — Turn ' + result.turn);
+    }
+
     // Main handler: compute + update + display
     async function getAndSetNextPrompt() {
       const token = getVaultKey();
