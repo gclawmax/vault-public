@@ -176,6 +176,7 @@
         currentJson = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
         workingJson = currentJson;
         parsedData = parseSource(currentJson);
+        await ensurePromptsLoaded();
         // Fallback for lastPlayed: use GitHub commit date when JSON lacks it
         if (!parsedData.lastPlayed && data.committed_date) {
           parsedData.lastPlayed = data.committed_date.slice(0, 10);
