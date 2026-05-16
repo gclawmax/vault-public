@@ -1351,41 +1351,37 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const canResolve = hasUnexperiencedMemory();
 
       let bodyHtml = `<div class="edit-section-title">Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</div>
-  <div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:14px;font-size:.88rem;color:var(--ink-dim);margin-bottom:16px;">${esc(getPromptText(je.prompt, je.entry))}</div>
-  <div class="form-row">
-    <label class="form-label">Journal Prose</label>
-    <textarea class="form-textarea" id="ed-je-prose" style="min-height:120px;">${esc(je.prose)}</textarea>
-    <div class="form-hint">Your character's experience with this prompt.</div>
-  </div>
-  <div class="form-row">
-    <label class="form-label">Changes (mechanical summary)</label>
-    <input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="${esc(je.changes)}">
-    <div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>
-  </div>`;
+<div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:14px;font-size:.88rem;color:var(--ink-dim);margin-bottom:16px;">${esc(getPromptText(je.prompt, je.entry))}</div>
+<div class="form-row">
+  <label class="form-label">Journal Prose</label>
+  <textarea class="form-textarea" id="ed-je-prose" style="min-height:120px;">${esc(je.prose)}</textarea>
+  <div class="form-hint">Your character's experience with this prompt.</div>
+</div>
+<div class="form-row">
+  <label class="form-label">Changes (mechanical summary)</label>
+  <input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="${esc(je.changes)}">
+  <div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>
+</div>`;
+
+      const isAwaiting = je.awaiting === true;
+      const resolveDisabled = !isAwaiting || !canResolve;
+
+      const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
+        + (!isAwaiting ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
+        + '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>'
+        + '<button class="modal-btn primary"'
+        + ' style="background:var(--blood);border-color:var(--blood);' + (resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
+        + (resolveDisabled ? ' disabled' : ' onclick="resolveJournalEntryEntry(' + idx + ')"')
+        + '>✓ Resolve This Entry</button>';
+
+      openModal('Edit Journal Entry', bodyHtml, () => {
+        const prose = document.getElementById('ed-je-prose') ? document.getElementById('ed-je-prose').value.trim() : '';
+        const changes = document.getElementById('ed-je-changes') ? document.getElementById('ed-je-changes').value.trim() : '';
+        je.prose = prose;
+        je.changes = changes;
+        markUnsaved();
+      }, footerHtml);
     }
-
-    const isAwaiting = je.awaiting === true;
-    const resolveDisabled = !isAwaiting || !canResolve;
-
-    const footerHtml = `
-  <button class="modal-btn" onclick="closeModal()">Cancel</button>
-  ${!isAwaiting
-        ? `<button class="modal-btn" onclick="unresolveJournalEntry(${idx})">↩ Unresolve</button>`
-        : ''}
-  <button class="modal-btn" onclick="saveJournalEntryAsDraft(${idx})">💾 Save as Draft</button>
-  <button class="modal-btn primary"
-    style="background:var(--blood);border-color:var(--blood);${resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : ''}"
-    ${resolveDisabled ? 'disabled' : `onclick="resolveJournalEntryEntry(${idx})"`}>
-    ✓ Resolve This Entry
-  </button>`;
-
-    openModal('Edit Journal Entry', bodyHtml, () => {
-      const prose = document.getElementById('ed-je-prose') ? document.getElementById('ed-je-prose').value.trim() : '';
-      const changes = document.getElementById('ed-je-changes') ? document.getElementById('ed-je-changes').value.trim() : '';
-      je.prose = prose;
-      je.changes = changes;
-      markUnsaved();
-    }, footerHtml);
 
     function recordMemoryExperienceAndDraft(idx) {
       const expTextEl = document.getElementById('ed-je-exp-text');
