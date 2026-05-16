@@ -2743,6 +2743,14 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         const rawContent = atob(fileData.content.replace(/\\n/g, ''));
         const vampire = JSON.parse(rawContent);
 
+        // Ensure prompts are loaded before computing
+        const promptsReady = await ensurePromptsLoaded();
+        if (!promptsReady) {
+          openKeyPanel();
+          alert('Could not load prompts. Please check your vault key.');
+          return;
+        }
+
         // Compute next prompt
         const result = computeNextPrompt(vampire);
         displayPromptResult(result);
