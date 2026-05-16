@@ -1,322 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thousand Year Old Vampire — Core Rules</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #e8dfc8; --bg2: #dfd5ba; --bg3: #d4c9a8; --surface: #f0e8d0; --surface2: #e8ddc0;
-  --ink: #1c1208; --ink-dim: #3a2c18; --ink-faint: #7a6040;
-  --blood: #8b1a1a; --blood-bright: #c0392b; --accent: #5c3a10; --accent-dim: #8a6030;
-  --border: #b8a070; --border-bright: #8a6030;
-  --topbar-bg: #d4c9a8f2; --topbar-border: #b8a070;
-  --pill-bg: #d4c9a8; --tag-bg: #c8b888; --shadow: rgba(0,0,0,.18); --torn-shadow: rgba(0,0,0,.14);
-  --status-ok: #3a6a2a; --card-bg: #f5edd8; --card-bg2: #ece0c4;
-  --edit-ring: #8b1a1a44;
-}
-[data-skin="dark"] {
-  --bg: #14100c; --bg2: #1b1611; --bg3: #241d16; --surface: #1a140f; --surface2: #120d09;
-  --ink: #efe3c6; --ink-dim: #cbb996; --ink-faint: #8a755c;
-  --blood: #7a1a1a; --blood-bright: #b33a2e; --accent: #d1b15a; --accent-dim: #9a7c36;
-  --border: #4f3a25; --border-bright: #7a5936;
-  --topbar-bg: #0f0c08f2; --topbar-border: #2a1e12;
-  --pill-bg: #241b13; --tag-bg: #2a2118; --shadow: rgba(0,0,0,.55); --torn-shadow: rgba(0,0,0,.45);
-  --status-ok: #4f8f55; --card-bg: #1e1711; --card-bg2: #17110c;
-  --edit-ring: #c0392b55;
-}
-[data-skin="scholar"] {
-  --bg: #f5f0e8; --bg2: #ede6d8; --bg3: #e4dccc; --surface: #faf7f0; --surface2: #f0ebe0;
-  --ink: #1a1208; --ink-dim: #4a3c28; --ink-faint: #9a8a70;
-  --blood: #6b0f0f; --blood-bright: #9b2020; --accent: #2c4a6e; --accent-dim: #4a6a8e;
-  --border: #c8bca0; --border-bright: #a09070;
-  --topbar-bg: #ede6d8f5; --topbar-border: #c8bca0;
-  --pill-bg: #e4dccc; --tag-bg: #ddd4c0; --shadow: rgba(0,0,0,.10); --torn-shadow: rgba(0,0,0,.08);
-  --status-ok: #2a5a2a; --card-bg: #faf7f0; --card-bg2: #f0ebe0;
-  --edit-ring: #6b0f0f44;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth; scroll-padding-top: 90px;}
-body{background:var(--bg);color:var(--ink);font-family:'EB Garamond',serif;font-size:21px;line-height:1.7;min-height:100vh;}
-
-/* ── Search bar (sticky top) ── */
-#search-bar{position:sticky;top:0;z-index:100;background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);backdrop-filter:blur(8px);}
-#search-row{display:flex;gap:8px;align-items:center;padding:10px 32px;flex-wrap:wrap;}
-#search-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.14em;color:var(--accent-dim);text-transform:uppercase;}
-#search-input{flex:1;min-width:200px;background:var(--search-bg);border:1px solid var(--border);color:var(--ink);padding:8px 12px;font-size:19px;font-family:'EB Garamond',serif;outline:none;}
-#search-input:focus{border-color:var(--blood);box-shadow:0 0 4px var(--blood);}
-#search-input::placeholder{color:var(--ink-faint);}
-#result-count{font-size:13px;color:var(--ink-faint);min-width:120px;text-align:right;}
-#viewer-link{font-family:'Cinzel Decorative',serif;font-size:clamp(.7rem,1.3vw,.95rem);color:var(--blood);text-decoration:none;cursor:pointer;margin-left:8px;}
-#viewer-link:hover{color:var(--blood-bright);text-decoration:underline;}
-.search-btn{background:transparent;border:1px solid var(--border-bright);color:var(--accent);padding:6px 12px;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;text-transform:uppercase;}
-.search-btn:hover{background:var(--blood);color:white;border-color:var(--blood);}
-
-/* ── Skin switcher ── */
-.skin-btn{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;}
-.skin-btn.active{border-color:var(--border-bright);}
-.skin-btn[data-s="book"]{background:radial-gradient(circle at 35% 35%,#f0e8d0,#b8a070);}
-.skin-btn[data-s="dark"]{background:radial-gradient(circle at 35% 35%,#4a3520,#1a1410);}
-.skin-btn[data-s="scholar"]{background:radial-gradient(circle at 35% 35%,#faf7f0,#c8bca0);}
-#skin-switcher{display:flex;gap:6px;align-items:center;}
-
-/* ── App layout ── */
-#app{display:flex;gap:0;min-height:calc(100vh - 300px);padding:0 32px 40px;}
-
-/* ── TOC sidebar ── */
-#toc-wrap{width:260px;flex-shrink:0;padding:40px 16px 40px 0;border-right:1px solid var(--border);position:sticky;top:60px;max-height:calc(100vh - 70px);overflow-y:auto;}
-#toc-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
-.toc-link{display:block;color:var(--accent-dim);font-size:15px;padding:4px 8px;border-radius:4px;text-decoration:none;cursor:pointer;border:none;background:none;font-family:'EB Garamond',serif;line-height:1.5;width:100%;text-align:left;}
-.toc-link:hover{background:var(--surface2);color:var(--blood);}
-.toc-link.sub{padding-left:20px;font-size:13.5px;}
-.toc-link.sub2{padding-left:34px;font-size:13px;color:var(--ink-faint);}
-.toc-link.active{color:var(--blood);font-weight:600;}
-.toc-link.active::before{content:'▸ ';color:var(--blood);font-size:10px;}
-.toc-section-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:18px 0 6px 8px;font-weight:600;}
-
-/* ── Main content ── */
-#content-wrap{flex:1;min-width:0;padding:0 0 0 32px;}
-#content{max-width:800px;}
-
-/* ── Typography ── */
-.manual-title{font-family:'Cinzel Decorative',serif;font-weight:400;font-size:clamp(2rem,4.5vw,3.4rem);line-height:1.15;color:var(--blood);text-align:center;margin-bottom:8px;letter-spacing:.04em;}
-.manual-subtitle{font-family:'Cinzel Decorative',serif;font-weight:400;font-size:clamp(.7rem,1.5vw,1rem);color:var(--ink-faint);text-align:center;letter-spacing:.08em;margin-bottom:36px;}
-
-/* Linkable headings */
-h2,h3,h4{position:relative;}
-h2 .anchor-link,h3 .anchor-link,h4 .anchor-link{
-  opacity:0;position:absolute;left:-1.2em;top:50%;transform:translateY(-50%);
-  color:var(--accent-dim);text-decoration:none;font-size:.7em;font-family:'Cinzel',serif;
-  transition:opacity .15s;
-}
-h2:hover .anchor-link,h3:hover .anchor-link,h4:hover .anchor-link{opacity:.6;}
-.anchor-link:hover{opacity:1!important;color:var(--blood);}
-
-h2{font-family:'Cinzel',serif;font-size:26px;line-height:1.35;color:var(--ink);margin:48px 0 18px;padding-bottom:8px;border-bottom:1px solid var(--border);}
-h3{font-family:'Cinzel',serif;font-size:21px;line-height:1.35;color:var(--ink-dim);margin:32px 0 12px;}
-h4{font-family:'Cinzel',serif;font-size:18px;color:var(--accent);margin:20px 0 8px;}
-p{margin-bottom:14px;}
-blockquote{background:var(--surface2);border-left:3px solid var(--blood);padding:12px 18px;margin:16px 0;color:var(--ink-dim);font-style:italic;}
-blockquote p:last-child{margin-bottom:0;}
-strong{color:var(--blood);}
-em{color:var(--ink-dim);}
-code{background:var(--bg3);padding:1px 6px;border-radius:3px;font-size:.9em;}
-table{width:100%;border-collapse:collapse;margin:16px 0;}
-th,td{padding:8px 12px;border:1px solid var(--border);text-align:left;}
-th{background:var(--bg3);font-family:'Cinzel',serif;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-dim);}
-td{font-size:17px;}
-ul,ol{margin:12px 0;padding-left:24px;}
-li{margin-bottom:8px;}
-hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
-mark{background:var(--highlight-bg);border-radius:3px;padding:0 2px;border-bottom:1px solid var(--highlight-border);}
-.no-match{text-align:center;color:var(--ink-faint);font-style:italic;padding:40px 20px;font-size:19px;}
-
-/* Internal cross-links */
-a.xlink{color:var(--blood);text-decoration:none;border-bottom:1px dotted var(--blood-bright);}
-a.xlink:hover{color:var(--blood-bright);border-bottom-style:solid;}
-
-/* ── Mobile ── */
-@media(max-width:860px){
-  #app{flex-direction:column;padding:0 16px 30px;}
-  #toc-wrap{width:100%;max-height:280px;position:static;padding:0 0 16px;border-right:none;border-bottom:1px solid var(--border);margin-bottom:16px;}
-  #content-wrap{padding:0;}
-  #search-row{padding:10px 16px;}
-  h2{font-size:22px;}
-  h3{font-size:19px;}
-  li{font-size:19px;}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thousand Year Old Vampire — Core Rules</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=UnifrakturMaguntia&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./core-rules.css">
 </head>
+
 <body>
 
-<!-- Search Bar -->
-<div id="search-bar">
-  <div id="search-row">
-    <span id="search-label">Search Rules</span>
-    <input id="search-input" type="text" placeholder="Type a keyword…" autocomplete="off" spellcheck="false">
-    <span id="result-count"></span>
-    <a id="viewer-link" href="index.html">Chronicle Viewer</a>
-    <button class="search-btn" onclick="clearSearch()">✕ Clear</button>
-    <div id="skin-switcher">
-      <button class="skin-btn active" data-s="book" title="Book skin"></button>
-      <button class="skin-btn" data-s="dark" title="Dark skin"></button>
-      <button class="skin-btn" data-s="scholar" title="Scholar skin"></button>
+  <!-- Search Bar -->
+  <div id="search-bar">
+    <div id="search-row">
+      <span id="search-label">Search Rules</span>
+      <input id="search-input" type="text" placeholder="Type a keyword…" autocomplete="off" spellcheck="false">
+      <span id="result-count"></span>
+      <a id="viewer-link" href="index.html">Chronicle Viewer</a>
+      <button class="search-btn" onclick="clearSearch()">✕ Clear</button>
+      <div id="skin-switcher">
+        <button class="skin-btn active" data-s="book" title="Book skin"></button>
+        <button class="skin-btn" data-s="dark" title="Dark skin"></button>
+        <button class="skin-btn" data-s="scholar" title="Scholar skin"></button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- App -->
-<div id="app">
-  <!-- TOC Sidebar -->
-  <div id="toc-wrap">
-    <div id="toc-title">Contents</div>
-    <div id="toc-links"></div>
+  <!-- App -->
+  <div id="app">
+    <!-- TOC Sidebar -->
+    <div id="toc-wrap">
+      <div id="toc-title">Contents</div>
+      <div id="toc-links"></div>
+    </div>
+    <!-- Content -->
+    <div id="content-wrap">
+      <div id="content"></div>
+    </div>
   </div>
-  <!-- Content -->
-  <div id="content-wrap">
-    <div id="content"></div>
-  </div>
-</div>
 
-<script>
-// ═══════════════════════════════════════════════════════
-// SLUG HELPER — used everywhere IDs are generated
-// ═══════════════════════════════════════════════════════
-function slugify(text) {
-  return text.trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
-}
+  <script>
+    // ═══════════════════════════════════════════════════════
+    // SLUG HELPER — used everywhere IDs are generated
+    // ═══════════════════════════════════════════════════════
+    function slugify(text) {
+      return text.trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+    }
 
-// ═══════════════════════════════════════════════════════
-// MARKDOWN RENDERER
-// Handles: headings (with anchor links), bold, italic,
-// inline code, blockquotes, hr, ul, ol, tables,
-// inline links [text](url or #anchor), cross-links
-// ═══════════════════════════════════════════════════════
-function renderMarkdown(raw) {
-  const lines = raw.split('\n');
-  let html = '';
-  let i = 0;
+    // ═══════════════════════════════════════════════════════
+    // MARKDOWN RENDERER
+    // Handles: headings (with anchor links), bold, italic,
+    // inline code, blockquotes, hr, ul, ol, tables,
+    // inline links [text](url or #anchor), cross-links
+    // ═══════════════════════════════════════════════════════
+    function renderMarkdown(raw) {
+      const lines = raw.split('\n');
+      let html = '';
+      let i = 0;
 
-  function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  // Process inline formatting (bold, italic, code, links)
-  function inline(s) {
-    // inline code (before other replacements)
-    s = s.replace(/`([^`]+)`/g, (_, c) => `<code>${escHtml(c)}</code>`);
-    // bold
-    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    // italic (single * or _)
-    s = s.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
-    s = s.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
-    // markdown links [text](#anchor) or [text](url)
-    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, href) => {
-      if (href.startsWith('#')) {
-        const slug = slugify(href.slice(1).replace(/-/g,' '));
-        return `<a class="xlink" href="#${slug}" onclick="smoothScrollTo('${slug}');return false;">${text}</a>`;
+      function escHtml(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       }
-      return `<a href="${escHtml(href)}" target="_blank" rel="noopener">${escHtml(text)}</a>`;
-    });
-    // strikethrough
-    s = s.replace(/~~(.+?)~~/g, '<del>$1</del>');
-    return s;
-  }
 
-  function headingHtml(level, text) {
-    const slug = slugify(text);
-    const tag = `h${level}`;
-    const anchorLink = `<a class="anchor-link" href="#${slug}" onclick="smoothScrollTo('${slug}');return false;" title="Link to this section">§</a>`;
-    return `<${tag} id="${slug}">${anchorLink}${inline(text)}</${tag}>\n`;
-  }
-
-  while (i < lines.length) {
-    const line = lines[i];
-
-    // Headings
-    const hMatch = line.match(/^(#{1,4})\s+(.+)$/);
-    if (hMatch) {
-      html += headingHtml(hMatch[1].length, hMatch[2].trim());
-      i++; continue;
-    }
-
-    // HR
-    if (/^---+$/.test(line.trim())) {
-      html += '<hr>\n';
-      i++; continue;
-    }
-
-    // Blockquote
-    if (line.startsWith('> ')) {
-      let bqContent = '';
-      while (i < lines.length && lines[i].startsWith('> ')) {
-        bqContent += inline(lines[i].slice(2)) + ' ';
-        i++;
+      // Process inline formatting (bold, italic, code, links)
+      function inline(s) {
+        // inline code (before other replacements)
+        s = s.replace(/`([^`]+)`/g, (_, c) => `<code>${escHtml(c)}</code>`);
+        // bold
+        s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        // italic (single * or _)
+        s = s.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
+        s = s.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
+        // markdown links [text](#anchor) or [text](url)
+        s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, href) => {
+          if (href.startsWith('#')) {
+            const slug = slugify(href.slice(1).replace(/-/g, ' '));
+            return `<a class="xlink" href="#${slug}" onclick="smoothScrollTo('${slug}');return false;">${text}</a>`;
+          }
+          return `<a href="${escHtml(href)}" target="_blank" rel="noopener">${escHtml(text)}</a>`;
+        });
+        // strikethrough
+        s = s.replace(/~~(.+?)~~/g, '<del>$1</del>');
+        return s;
       }
-      html += `<blockquote><p>${bqContent.trim()}</p></blockquote>\n`;
-      continue;
-    }
 
-    // Table
-    if (line.includes('|') && lines[i+1] && /^\|?[\s\-:]+\|/.test(lines[i+1])) {
-      const headerCells = line.split('|').map(c=>c.trim()).filter(c=>c!=='');
-      i += 2; // skip separator
-      let tableHtml = '<table>\n<thead><tr>';
-      headerCells.forEach(c => { tableHtml += `<th>${inline(c)}</th>`; });
-      tableHtml += '</tr></thead>\n<tbody>\n';
-      while (i < lines.length && lines[i].includes('|')) {
-        const cells = lines[i].split('|').map(c=>c.trim()).filter(c=>c!=='');
-        tableHtml += '<tr>';
-        cells.forEach(c => { tableHtml += `<td>${inline(c)}</td>`; });
-        tableHtml += '</tr>\n';
-        i++;
+      function headingHtml(level, text) {
+        const slug = slugify(text);
+        const tag = `h${level}`;
+        const anchorLink = `<a class="anchor-link" href="#${slug}" onclick="smoothScrollTo('${slug}');return false;" title="Link to this section">§</a>`;
+        return `<${tag} id="${slug}">${anchorLink}${inline(text)}</${tag}>\n`;
       }
-      tableHtml += '</tbody></table>\n';
-      html += tableHtml;
-      continue;
-    }
 
-    // Unordered list
-    if (/^[-*]\s/.test(line)) {
-      html += '<ul>\n';
-      while (i < lines.length && /^[-*]\s/.test(lines[i])) {
-        // Sub-list?
-        if (/^\s{2,}[-*]\s/.test(lines[i])) {
-          html += `<li class="sub">${inline(lines[i].replace(/^\s+[-*]\s/, ''))}</li>\n`;
-        } else {
-          html += `<li>${inline(lines[i].replace(/^[-*]\s/, ''))}</li>\n`;
+      while (i < lines.length) {
+        const line = lines[i];
+
+        // Headings
+        const hMatch = line.match(/^(#{1,4})\s+(.+)$/);
+        if (hMatch) {
+          html += headingHtml(hMatch[1].length, hMatch[2].trim());
+          i++; continue;
         }
-        i++;
+
+        // HR
+        if (/^---+$/.test(line.trim())) {
+          html += '<hr>\n';
+          i++; continue;
+        }
+
+        // Blockquote
+        if (line.startsWith('> ')) {
+          let bqContent = '';
+          while (i < lines.length && lines[i].startsWith('> ')) {
+            bqContent += inline(lines[i].slice(2)) + ' ';
+            i++;
+          }
+          html += `<blockquote><p>${bqContent.trim()}</p></blockquote>\n`;
+          continue;
+        }
+
+        // Table
+        if (line.includes('|') && lines[i + 1] && /^\|?[\s\-:]+\|/.test(lines[i + 1])) {
+          const headerCells = line.split('|').map(c => c.trim()).filter(c => c !== '');
+          i += 2; // skip separator
+          let tableHtml = '<table>\n<thead><tr>';
+          headerCells.forEach(c => { tableHtml += `<th>${inline(c)}</th>`; });
+          tableHtml += '</tr></thead>\n<tbody>\n';
+          while (i < lines.length && lines[i].includes('|')) {
+            const cells = lines[i].split('|').map(c => c.trim()).filter(c => c !== '');
+            tableHtml += '<tr>';
+            cells.forEach(c => { tableHtml += `<td>${inline(c)}</td>`; });
+            tableHtml += '</tr>\n';
+            i++;
+          }
+          tableHtml += '</tbody></table>\n';
+          html += tableHtml;
+          continue;
+        }
+
+        // Unordered list
+        if (/^[-*]\s/.test(line)) {
+          html += '<ul>\n';
+          while (i < lines.length && /^[-*]\s/.test(lines[i])) {
+            // Sub-list?
+            if (/^\s{2,}[-*]\s/.test(lines[i])) {
+              html += `<li class="sub">${inline(lines[i].replace(/^\s+[-*]\s/, ''))}</li>\n`;
+            } else {
+              html += `<li>${inline(lines[i].replace(/^[-*]\s/, ''))}</li>\n`;
+            }
+            i++;
+          }
+          html += '</ul>\n';
+          continue;
+        }
+
+        // Ordered list
+        if (/^\d+\.\s/.test(line)) {
+          html += '<ol>\n';
+          while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
+            html += `<li>${inline(lines[i].replace(/^\d+\.\s/, ''))}</li>\n`;
+            i++;
+          }
+          html += '</ol>\n';
+          continue;
+        }
+
+        // Blank line
+        if (line.trim() === '') {
+          i++; continue;
+        }
+
+        // Paragraph — accumulate consecutive non-special lines
+        let para = '';
+        while (i < lines.length && lines[i].trim() !== '' &&
+          !/^#{1,4}\s/.test(lines[i]) &&
+          !/^[-*]\s/.test(lines[i]) &&
+          !/^\d+\.\s/.test(lines[i]) &&
+          !/^---+$/.test(lines[i].trim()) &&
+          !lines[i].startsWith('> ') &&
+          !lines[i].includes('|')) {
+          para += (para ? ' ' : '') + lines[i];
+          i++;
+        }
+        if (para.trim()) {
+          html += `<p>${inline(para.trim())}</p>\n`;
+        }
       }
-      html += '</ul>\n';
-      continue;
+      return html;
     }
 
-    // Ordered list
-    if (/^\d+\.\s/.test(line)) {
-      html += '<ol>\n';
-      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
-        html += `<li>${inline(lines[i].replace(/^\d+\.\s/, ''))}</li>\n`;
-        i++;
-      }
-      html += '</ol>\n';
-      continue;
-    }
-
-    // Blank line
-    if (line.trim() === '') {
-      i++; continue;
-    }
-
-    // Paragraph — accumulate consecutive non-special lines
-    let para = '';
-    while (i < lines.length && lines[i].trim() !== '' &&
-           !/^#{1,4}\s/.test(lines[i]) &&
-           !/^[-*]\s/.test(lines[i]) &&
-           !/^\d+\.\s/.test(lines[i]) &&
-           !/^---+$/.test(lines[i].trim()) &&
-           !lines[i].startsWith('> ') &&
-           !lines[i].includes('|')) {
-      para += (para ? ' ' : '') + lines[i];
-      i++;
-    }
-    if (para.trim()) {
-      html += `<p>${inline(para.trim())}</p>\n`;
-    }
-  }
-  return html;
-}
-
-// ═══════════════════════════════════════════════════════
-// CONTENT
-// ═══════════════════════════════════════════════════════
-const README = `# Thousand Year Old Vampire — Core Rules
+    // ═══════════════════════════════════════════════════════
+    // CONTENT
+    // ═══════════════════════════════════════════════════════
+    const README = `# Thousand Year Old Vampire — Core Rules
 
 Based on the TYOV rulebook (Tim Hutchings). Extracted from pages 7–29.
 
@@ -609,207 +492,210 @@ Think about historical events and work them in when it feels right. World wars a
 Don't fret about specific years, but watch for obvious breaks in the timeline. A series of Prompts might tell a small story before something interrupts. Take the opportunity to jump decades ahead. If you reach a game-ending Prompt and it's only the Fifteenth Century — that's fine too.
 `;
 
-// ═══════════════════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════════════════
-const contentEl = document.getElementById('content');
-const tocEl = document.getElementById('toc-links');
+    // ═══════════════════════════════════════════════════════
+    // RENDER
+    // ═══════════════════════════════════════════════════════
+    const contentEl = document.getElementById('content');
+    const tocEl = document.getElementById('toc-links');
 
-function render() {
-  contentEl.innerHTML = renderMarkdown(README);
-  buildToc();
-}
-
-// ═══════════════════════════════════════════════════════
-// TOC — built by scanning the rendered DOM headings
-// ═══════════════════════════════════════════════════════
-function buildToc() {
-  const headings = contentEl.querySelectorAll('h1,h2,h3,h4');
-  let html = '';
-  headings.forEach(h => {
-    const level = parseInt(h.tagName[1]);
-    const id = h.id;
-    // Get text without the anchor link
-    const text = h.textContent.replace('§', '').trim();
-    if (level === 1) {
-      html += `<div class="toc-section-label">${text}</div>`;
-    } else if (level === 2) {
-      html += `<button class="toc-link" data-target="${id}">${text}</button>`;
-    } else if (level === 3) {
-      html += `<button class="toc-link sub" data-target="${id}">${text}</button>`;
-    } else {
-      html += `<button class="toc-link sub2" data-target="${id}">${text}</button>`;
+    function render() {
+      contentEl.innerHTML = renderMarkdown(README);
+      buildToc();
     }
-  });
-  tocEl.innerHTML = html;
 
-  // Wire up clicks
-  tocEl.querySelectorAll('[data-target]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      smoothScrollTo(btn.dataset.target);
-      // Highlight active
-      tocEl.querySelectorAll('.toc-link').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
-}
+    // ═══════════════════════════════════════════════════════
+    // TOC — built by scanning the rendered DOM headings
+    // ═══════════════════════════════════════════════════════
+    function buildToc() {
+      const headings = contentEl.querySelectorAll('h1,h2,h3,h4');
+      let html = '';
+      headings.forEach(h => {
+        const level = parseInt(h.tagName[1]);
+        const id = h.id;
+        // Get text without the anchor link
+        const text = h.textContent.replace('§', '').trim();
+        if (level === 1) {
+          html += `<div class="toc-section-label">${text}</div>`;
+        } else if (level === 2) {
+          html += `<button class="toc-link" data-target="${id}">${text}</button>`;
+        } else if (level === 3) {
+          html += `<button class="toc-link sub" data-target="${id}">${text}</button>`;
+        } else {
+          html += `<button class="toc-link sub2" data-target="${id}">${text}</button>`;
+        }
+      });
+      tocEl.innerHTML = html;
 
-// ═══════════════════════════════════════════════════════
-// SMOOTH SCROLL TO ID
-// ═══════════════════════════════════════════════════════
-function smoothScrollTo(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // Update URL hash without jumping
-    history.replaceState(null, '', '#' + id);
-  }
-}
-
-// Highlight active TOC item on scroll
-function updateActiveToc() {
-  const headings = Array.from(contentEl.querySelectorAll('h2,h3,h4'));
-  let activeId = null;
-  const scrollTop = window.scrollY + 100;
-  for (let i = headings.length - 1; i >= 0; i--) {
-    if (headings[i].offsetTop <= scrollTop) {
-      activeId = headings[i].id;
-      break;
+      // Wire up clicks
+      tocEl.querySelectorAll('[data-target]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          smoothScrollTo(btn.dataset.target);
+          // Highlight active
+          tocEl.querySelectorAll('.toc-link').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
     }
-  }
-  tocEl.querySelectorAll('.toc-link').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.target === activeId);
-  });
-}
-window.addEventListener('scroll', updateActiveToc, { passive: true });
 
-// ═══════════════════════════════════════════════════════
-// SEARCH — robust implementation
-// ═══════════════════════════════════════════════════════
-const searchInput = document.getElementById('search-input');
-const resultCount = document.getElementById('result-count');
-
-function performSearch(query) {
-  // Remove existing marks safely
-  contentEl.querySelectorAll('mark.search-mark').forEach(mark => {
-    const parent = mark.parentNode;
-    if (parent) {
-      parent.replaceChild(document.createTextNode(mark.textContent), mark);
-      parent.normalize();
-    }
-  });
-
-  const q = query.trim();
-  if (!q) {
-    resultCount.textContent = '';
-    return;
-  }
-  const qLower = q.toLowerCase();
-  let count = 0;
-  let firstMark = null;
-
-  // Collect all text nodes in content (avoid script/style)
-  function getTextNodes(root) {
-    const nodes = [];
-    const walker = document.createTreeWalker(
-      root,
-      NodeFilter.SHOW_TEXT,
-      { acceptNode(node) {
-        const parent = node.parentElement;
-        if (!parent) return NodeFilter.FILTER_REJECT;
-        const tag = parent.tagName;
-        if (tag === 'SCRIPT' || tag === 'STYLE') return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }}
-    );
-    let n;
-    while (n = walker.nextNode()) nodes.push(n);
-    return nodes;
-  }
-
-  const textNodes = getTextNodes(contentEl);
-
-  // Process each text node
-  textNodes.forEach(node => {
-    const text = node.textContent;
-    const lower = text.toLowerCase();
-    if (!lower.includes(qLower)) return;
-
-    const frag = document.createDocumentFragment();
-    let lastIdx = 0;
-    let idx = lower.indexOf(qLower, 0);
-    while (idx !== -1) {
-      if (idx > lastIdx) {
-        frag.appendChild(document.createTextNode(text.slice(lastIdx, idx)));
+    // ═══════════════════════════════════════════════════════
+    // SMOOTH SCROLL TO ID
+    // ═══════════════════════════════════════════════════════
+    function smoothScrollTo(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Update URL hash without jumping
+        history.replaceState(null, '', '#' + id);
       }
-      const mark = document.createElement('mark');
-      mark.className = 'search-mark';
-      mark.textContent = text.slice(idx, idx + q.length);
-      frag.appendChild(mark);
-      if (!firstMark) firstMark = mark;
-      count++;
-      lastIdx = idx + q.length;
-      idx = lower.indexOf(qLower, lastIdx);
     }
-    if (lastIdx < text.length) {
-      frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+
+    // Highlight active TOC item on scroll
+    function updateActiveToc() {
+      const headings = Array.from(contentEl.querySelectorAll('h2,h3,h4'));
+      let activeId = null;
+      const scrollTop = window.scrollY + 100;
+      for (let i = headings.length - 1; i >= 0; i--) {
+        if (headings[i].offsetTop <= scrollTop) {
+          activeId = headings[i].id;
+          break;
+        }
+      }
+      tocEl.querySelectorAll('.toc-link').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.target === activeId);
+      });
     }
-    node.parentNode.replaceChild(frag, node);
-  });
+    window.addEventListener('scroll', updateActiveToc, { passive: true });
 
-  if (count > 0) {
-    resultCount.textContent = `${count} match${count !== 1 ? 'es' : ''}`;
-    if (firstMark) {
-      setTimeout(() => firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+    // ═══════════════════════════════════════════════════════
+    // SEARCH — robust implementation
+    // ═══════════════════════════════════════════════════════
+    const searchInput = document.getElementById('search-input');
+    const resultCount = document.getElementById('result-count');
+
+    function performSearch(query) {
+      // Remove existing marks safely
+      contentEl.querySelectorAll('mark.search-mark').forEach(mark => {
+        const parent = mark.parentNode;
+        if (parent) {
+          parent.replaceChild(document.createTextNode(mark.textContent), mark);
+          parent.normalize();
+        }
+      });
+
+      const q = query.trim();
+      if (!q) {
+        resultCount.textContent = '';
+        return;
+      }
+      const qLower = q.toLowerCase();
+      let count = 0;
+      let firstMark = null;
+
+      // Collect all text nodes in content (avoid script/style)
+      function getTextNodes(root) {
+        const nodes = [];
+        const walker = document.createTreeWalker(
+          root,
+          NodeFilter.SHOW_TEXT,
+          {
+            acceptNode(node) {
+              const parent = node.parentElement;
+              if (!parent) return NodeFilter.FILTER_REJECT;
+              const tag = parent.tagName;
+              if (tag === 'SCRIPT' || tag === 'STYLE') return NodeFilter.FILTER_REJECT;
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          }
+        );
+        let n;
+        while (n = walker.nextNode()) nodes.push(n);
+        return nodes;
+      }
+
+      const textNodes = getTextNodes(contentEl);
+
+      // Process each text node
+      textNodes.forEach(node => {
+        const text = node.textContent;
+        const lower = text.toLowerCase();
+        if (!lower.includes(qLower)) return;
+
+        const frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        let idx = lower.indexOf(qLower, 0);
+        while (idx !== -1) {
+          if (idx > lastIdx) {
+            frag.appendChild(document.createTextNode(text.slice(lastIdx, idx)));
+          }
+          const mark = document.createElement('mark');
+          mark.className = 'search-mark';
+          mark.textContent = text.slice(idx, idx + q.length);
+          frag.appendChild(mark);
+          if (!firstMark) firstMark = mark;
+          count++;
+          lastIdx = idx + q.length;
+          idx = lower.indexOf(qLower, lastIdx);
+        }
+        if (lastIdx < text.length) {
+          frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+        }
+        node.parentNode.replaceChild(frag, node);
+      });
+
+      if (count > 0) {
+        resultCount.textContent = `${count} match${count !== 1 ? 'es' : ''}`;
+        if (firstMark) {
+          setTimeout(() => firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+        }
+      } else {
+        resultCount.textContent = 'No matches';
+      }
     }
-  } else {
-    resultCount.textContent = 'No matches';
-  }
-}
 
-function clearSearch() {
-  searchInput.value = '';
-  performSearch('');
-}
+    function clearSearch() {
+      searchInput.value = '';
+      performSearch('');
+    }
 
-searchInput.addEventListener('input', () => performSearch(searchInput.value));
-searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') clearSearch(); });
+    searchInput.addEventListener('input', () => performSearch(searchInput.value));
+    searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') clearSearch(); });
 
-// ═══════════════════════════════════════════════════════
-// SKIN SWITCHER
-// ═══════════════════════════════════════════════════════
-document.querySelectorAll('.skin-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.body.removeAttribute('data-skin');
-    if (btn.dataset.s !== 'book') document.body.setAttribute('data-skin', btn.dataset.s);
-    document.querySelectorAll('.skin-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    try { localStorage.setItem('tyov-manual-skin', btn.dataset.s); } catch(e){}
-  });
-});
-(function(){
-  try {
-    const s = localStorage.getItem('tyov-manual-skin') || 'book';
-    if (s !== 'book') document.body.setAttribute('data-skin', s);
-    document.querySelectorAll('.skin-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.s === s);
+    // ═══════════════════════════════════════════════════════
+    // SKIN SWITCHER
+    // ═══════════════════════════════════════════════════════
+    document.querySelectorAll('.skin-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeAttribute('data-skin');
+        if (btn.dataset.s !== 'book') document.body.setAttribute('data-skin', btn.dataset.s);
+        document.querySelectorAll('.skin-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        try { localStorage.setItem('tyov-manual-skin', btn.dataset.s); } catch (e) { }
+      });
     });
-  } catch(e) {}
-})();
+    (function () {
+      try {
+        const s = localStorage.getItem('tyov-manual-skin') || 'book';
+        if (s !== 'book') document.body.setAttribute('data-skin', s);
+        document.querySelectorAll('.skin-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.s === s);
+        });
+      } catch (e) { }
+    })();
 
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-render();
+    // ═══════════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════════
+    render();
 
-// Navigate to hash on load
-window.addEventListener('DOMContentLoaded', () => {
-  if (location.hash) {
-    const id = location.hash.slice(1);
-    setTimeout(() => smoothScrollTo(id), 100);
-  }
-});
-</script>
+    // Navigate to hash on load
+    window.addEventListener('DOMContentLoaded', () => {
+      if (location.hash) {
+        const id = location.hash.slice(1);
+        setTimeout(() => smoothScrollTo(id), 100);
+      }
+    });
+  </script>
 
 </body>
+
 </html>
