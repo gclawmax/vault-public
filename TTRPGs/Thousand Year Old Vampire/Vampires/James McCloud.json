@@ -3,25 +3,25 @@
   "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
   "mortal_self": "James McCloud, born 1050 AD in Scotland. A rich noble, pampered by slaves and surrounded by sycophants. Arrogant and soft.",
   "game_start": "2026-05-14",
-  "modified": "2026-05-14",
+  "modified": "2026-05-16",
   "game_over": false,
   "game_completed": null,
-  "current_prompt": 0,
+  "current_prompt": 1,
   "prompts_resolved": 0,
   "show_suggestions": true,
   "memories": [
     {
       "name": "Memory 1",
-      "description": "Your mortal life — broad overview of who you were before the nights began.",
+      "description": "Your mortal life â broad overview of who you were before the nights began.",
       "experiences": [
-        "I was born into silk and sycophants in the misty highlands around 1050 AD — surrounded by those who flattered every whim, I grew arrogant in the knowledge that the world would bend or break for me, not the other way round."
+        "I was born into silk and sycophants in the misty highlands around 1050 AD â surrounded by those who flattered every whim, I grew arrogant in the knowledge that the world would bend or break for me, not the other way round."
       ],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 2",
-      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
       "experiences": [
         "The banner of a rival house burned over the borderlands, and in the reek of smoke and blood your swordsmanship became the final word your enemies heard; you felt nothing but the old warmth of the blade doing what it was forged to do."
       ],
@@ -30,16 +30,16 @@
     },
     {
       "name": "Memory 3",
-      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
       "experiences": [
-        "Elspeth begged you to spare the villages your raids had reduced to ghosts, and you let her have that mercy — not for her sake, but because her voice was one thread in the tapestry of cruelty you had learned to love that still held your hand."
+        "Elspeth begged you to spare the villages your raids had reduced to ghosts, and you let her have that mercy â not for her sake, but because her voice was one thread in the tapestry of cruelty you had learned to love that still held your hand."
       ],
       "status": "available",
       "in_diary": false
     },
     {
       "name": "Memory 4",
-      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
       "experiences": [
         "Jack's own retinue deserted him when your tactics stripped his lands bare, and you found his last letter burning in the hearth before you had to answer his challenge; the gem in your blade drank the light one last time."
       ],
@@ -48,9 +48,9 @@
     },
     {
       "name": "Memory 5",
-      "description": "A memory in your immortal life — holds one Experience (two selected traits woven together).",
+      "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
       "experiences": [
-        "Sister Seraphina pressed the cold of the borderlands into your mouth and tasted the emptiness beneath your pride — there, where the leprosy ate her like slow fire, you found a hunger that would outlast the centuries, and you drank until the world sharpened and the wind in the highlands learned your name."
+        "Sister Seraphina pressed the cold of the borderlands into your mouth and tasted the emptiness beneath your pride â there, where the leprosy ate her like slow fire, you found a hunger that would outlast the centuries, and you drank until the world sharpened and the wind in the highlands learned your name."
       ],
       "status": "available",
       "in_diary": false
@@ -96,19 +96,19 @@
   "characters": [
     {
       "name": "Elspeth",
-      "description": "Younger sister. Smarter and kinder than James, she found refuge with the castle's animals — a wounded hawk, a stray hound, any creature in need of care. She loved James in spite of his arrogance; the only soul in that house who ever did.",
+      "description": "Younger sister. Smarter and kinder than James, she found refuge with the castle's animals â a wounded hawk, a stray hound, any creature in need of care. She loved James in spite of his arrogance; the only soul in that house who ever did.",
       "type": "mortal",
       "status": "alive"
     },
     {
       "name": "Jack Stewart",
-      "description": "Young lord from a nearby estate. Matched James line for line — in wealth, in station, in charm. Where James was born to privilege, Jack had earned his standing. Now courts the same girl James loves, turning rivalry into something that cuts deeper than pride.",
+      "description": "Young lord from a nearby estate. Matched James line for line â in wealth, in station, in charm. Where James was born to privilege, Jack had earned his standing. Now courts the same girl James loves, turning rivalry into something that cuts deeper than pride.",
       "type": "mortal",
       "status": "alive"
     },
     {
       "name": "Bran",
-      "description": "Retired soldier and James's teacher. Grey-bearded, scarred, he drilled into James from the first dawn: kindness is the language of the weak. Paced the training yard before the sun until those words took root — ruthlessness, money, power. The only virtues.",
+      "description": "Retired soldier and James's teacher. Grey-bearded, scarred, he drilled into James from the first dawn: kindness is the language of the weak. Paced the training yard before the sun until those words took root â ruthlessness, money, power. The only virtues.",
       "type": "mortal",
       "status": "alive"
     },
@@ -125,6 +125,17 @@
       "concealment": "Always hidden beneath gauntlets or heavy fur cuffs."
     }
   ],
-  "journal": [],
+  "journal": [
+    {
+      "turn": 1,
+      "prompt": 1,
+      "entry": 1,
+      "promptText": "In your blood-hunger you destroy someone close to you. Kill a mortal Character. Create a mortal if none are available.Take the skill Bloodthirsty.",
+      "prose": "",
+      "changes": "",
+      "awaiting": true,
+      "resolved": false
+    }
+  ],
   "epitaph": null
 }
