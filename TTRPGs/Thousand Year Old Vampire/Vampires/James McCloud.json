@@ -139,14 +139,5 @@
       "death_reason": ""
     }
   ],
-  "journal": [
-    {
-      "turn": 1,
-      "prompt": 2,
-      "entry": 1,
-      "resolved": false,
-      "experience": "",
-      "changes": ""
-    }
-  ]
+  "journal": []
 }
