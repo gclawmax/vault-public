@@ -437,6 +437,7 @@
           entry: j.entry,
           prose: j.experience || '',
           changes: j.changes || '',
+          resolved_at: j.resolved_at || null,
           awaiting: j.resolved === false
         })),
         epitaph: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
@@ -503,6 +504,7 @@
           prompt: j.prompt,
           entry: j.entry,
           resolved: j.resolved !== undefined ? j.resolved : (j.awaiting === undefined ? false : !j.awaiting),
+          resolved_at: j.resolved_at || null,
           experience: j.experience || j.prose || '',
           changes: j.changes || ''
         }))
@@ -620,7 +622,14 @@
       if (d.journal.length === 0) {
         html += `<p style="color:var(--ink-faint);font-style:italic;">No journal entries yet.</p>`;
       }
-      d.journal.forEach((j, idx) => {
+      const journalDisplay = [...d.journal].sort((a, b) => {
+        if (a.awaiting && !b.awaiting) return -1;
+        if (!a.awaiting && b.awaiting) return 1;
+        if (a.resolved_at && b.resolved_at) return new Date(b.resolved_at) - new Date(a.resolved_at);
+        return b.turn - a.turn;
+      });
+      journalDisplay.forEach((j) => {
+        const idx = d.journal.indexOf(j);
         html += `<div class="journal-entry" data-entry-idx="${idx}">
       <div class="journal-turn">Turn ${j.turn} — Prompt ${j.prompt}, Entry ${j.entry}</div>
       ${editMode ? '<div class="journal-edit-actions"><button class="top-btn" onclick="editJournalEntryEntry(' + idx + ')" style="font-size:11px;padding:4px 10px;">✎ Edit</button></div>' : ''}
@@ -632,6 +641,10 @@
           html += `<p class="journal-awaiting">Awaiting resolution…</p>`;
         } else if (j.changes) {
           html += `<p style="font-size:.85rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:10px;margin-top:10px;"><strong>Changes:</strong> ${esc(j.changes)}</p>`;
+        }
+        if (j.resolved_at) {
+          const resolvedDate = new Date(j.resolved_at).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          html += `<p style="font-size:.75rem;color:var(--ink-faint);margin-top:6px;">Resolved ${resolvedDate}</p>`;
         }
         html += `</div></div></div>`;
       });
@@ -1447,6 +1460,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
       if (!confirm('Resolve journal entry Turn ' + je.turn + '?\n\nThis marks the entry as resolved.')) return;
       je.awaiting = false;
+      je.resolved_at = new Date().toISOString();
       markUnsaved();
       renderChronicle(parsedData);
       closeModal();
@@ -1593,7 +1607,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
           entry: result.entry,
           prose: '',
           changes: '',
-          awaiting: true
+          awaiting: true,
+          resolved_at: null
         });
         parsedData.frontmatter.current_prompt = String(result.prompt);
 
