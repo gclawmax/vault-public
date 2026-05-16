@@ -520,185 +520,189 @@
     function renderChronicle(d) {
       const el = document.getElementById('content');
       const fm = d.frontmatter;
+      const em = editMode;
+
+      function editAttr(fn) {
+        return em ? 'onclick="event.stopPropagation();' + fn + '" style="cursor:pointer;"' : '';
+      }
+
+      const hasUnresolved = d.journal.some(j => j.awaiting === true);
+      const promptBtnDisabled = em || hasUnresolved;
 
       let html = '';
 
       // ── Header ──
-      html += `<div class="section-editwrap" data-section="header">
-    <button class="edit-section-btn" onclick="editHeader()">✎ Edit</button>
-    <div class="vamp-header">
-      <div class="vamp-name-wrap">
-        <div class="vamp-rule"><span></span><span></span></div>
-        <div class="vamp-name">${esc(d.vampireName)}</div>
-        <div class="vamp-rule"><span></span><span></span></div>
-      </div>
-      <div class="vamp-subtitle">A Thousand Year Old Vampire</div>
-      <div class="vamp-epitaph">${esc(d.subtitle)}</div>
-      <div class="meta-row">
-        ${fm.game_start ? `<span class="meta-pill">Started <span>${fm.game_start}</span></span>` : ''}
-        ${fm.game_over === 'true' ? `<span class="meta-pill" style="color:var(--blood)">Game Over</span>` : ''}
-        ${d.lastPlayed ? `<span class="meta-pill">Last played <span>${d.lastPlayed}</span></span>` : ''}
-      </div>
-    </div>
-  </div>`;
+      html += '<div class="section-editwrap" data-section="header" ' + (em ? 'onclick="editHeader()" title="Click to edit header"' : '') + '>'
+        + '<div class="vamp-header">'
+        + '<div class="vamp-name-wrap">'
+        + '<div class="vamp-rule"><span></span><span></span></div>'
+        + '<div class="vamp-name">' + esc(d.vampireName) + '</div>'
+        + '<div class="vamp-rule"><span></span><span></span></div>'
+        + '</div>'
+        + '<div class="vamp-subtitle">A Thousand Year Old Vampire</div>'
+        + '<div class="vamp-epitaph">' + esc(d.subtitle) + '</div>'
+        + '<div class="meta-row">'
+        + (fm.game_start ? '<span class="meta-pill">Started <span>' + fm.game_start + '</span></span>' : '')
+        + (fm.game_over === 'true' ? '<span class="meta-pill" style="color:var(--blood)">Game Over</span>' : '')
+        + (d.lastPlayed ? '<span class="meta-pill">Last played <span>' + d.lastPlayed + '</span></span>' : '')
+        + '</div>'
+        + '</div>'
+        + '</div>';
 
-      // ── Dashboard (Marks / Skills / Resources) ──
-      html += `<div class="dashboard-strip">`;
+      // ── Dashboard ──
+      html += '<div class="dashboard-strip">';
 
-      // Marks cell
-      html += `<div class="strip-cell section-editwrap" data-section="marks">
-    <button class="edit-section-btn" onclick="editMarks()">✎ Edit</button>
-    <div class="strip-label"><span class="section-icon">⚰</span> Marks</div>
-    <div class="marks-inline">`;
+      // Marks
+      html += '<div class="strip-cell section-editwrap" data-section="marks" '
+        + (em ? 'onclick="editMarks()" title="Click to edit marks"' : '') + '>'
+        + '<div class="strip-label"><span class="section-icon">⚰</span> Marks</div>'
+        + '<div class="marks-inline">';
       d.marks.filter(m => !m.struck).forEach(m => {
-        html += `<span class="mark-chip" title="Concealed: ${esc(m.concealment)}">${esc(m.desc)}</span>`;
+        html += '<span class="mark-chip" title="Concealed: ' + esc(m.concealment) + '">' + esc(m.desc) + '</span>';
       });
-      if (d.marks.filter(m => !m.struck).length === 0) html += `<span style="color:var(--ink-faint);font-size:.85rem;">None</span>`;
-      html += `</div></div>`;
+      if (d.marks.filter(m => !m.struck).length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
+      html += '</div></div>';
 
-      // Skills cell
-      html += `<div class="strip-cell section-editwrap" data-section="skills">
-    <button class="edit-section-btn" onclick="editSkills()">✎ Edit</button>
-    <div class="strip-label"><span class="section-icon">⚔</span> Skills</div>
-    <div class="skills-inline">`;
+      // Skills
+      html += '<div class="strip-cell section-editwrap" data-section="skills" '
+        + (em ? 'onclick="editSkills()" title="Click to edit skills"' : '') + '>'
+        + '<div class="strip-label"><span class="section-icon">⚔</span> Skills</div>'
+        + '<div class="skills-inline">';
       d.skills.forEach(sk => {
         const cls = sk.status === 'lost' ? 'lost' : sk.status === 'checked' ? 'checked' : '';
-        html += `<span class="skill-chip ${cls}">
-      <span class="skill-box">${sk.status === 'checked' ? '✓' : ''}</span>
-      ${esc(sk.name)}
-    </span>`;
+        html += '<span class="skill-chip ' + cls + '"><span class="skill-box">' + (sk.status === 'checked' ? '✓' : '') + '</span>' + esc(sk.name) + '</span>';
       });
-      html += `</div></div>`;
+      html += '</div></div>';
 
-      // Resources cell
-      html += `<div class="strip-cell section-editwrap" data-section="resources">
-    <button class="edit-section-btn" onclick="editResources()">✎ Edit</button>
-    <div class="strip-label"><span class="section-icon">🏚</span> Resources</div>
-    <div class="resources-inline">`;
+      // Resources
+      html += '<div class="strip-cell section-editwrap" data-section="resources" '
+        + (em ? 'onclick="editResources()" title="Click to edit resources"' : '') + '>'
+        + '<div class="strip-label"><span class="section-icon">🏚</span> Resources</div>'
+        + '<div class="resources-inline">';
       d.resources.forEach(r => {
         const cls = r.status === 'lost' ? 'lost' : r.type;
-        const icon = r.type === 'portable' ? '\uD83D\uDCE6' : r.type === 'stationary' ? '\uD83D\uDCCD' : '\u25CB';
-        html += `<span class="resource-chip ${cls}" title="${r.type}">
-      <span class="resource-type-icon">${esc(icon)}</span>
-      ${esc(r.name)}
-    </span>`;
+        const icon = r.type === 'portable' ? '📦' : r.type === 'stationary' ? '📍' : '○';
+        html += '<span class="resource-chip ' + cls + '" title="' + r.type + '"><span class="resource-type-icon">' + esc(icon) + '</span>' + esc(r.name) + '</span>';
       });
-      html += `</div></div>`;
+      html += '</div></div>';
 
-      html += `</div>`; // dashboard-strip
+      html += '</div>'; // dashboard-strip
 
-      // ── Main layout: Mortals | Journal | Immortals ──
-      html += `<div class="main-layout">`;
+      // ── Main layout ──
+      html += '<div class="main-layout">';
 
-      // ── Left: Mortal Characters ──
-      html += `<div class="char-col section-editwrap" data-section="characters-mortal">
-    <button class="edit-section-btn" onclick="editCharacters()">✎ Edit</button>
-    <div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧑</span> Mortal Characters</div>
-    <div class="char-list">`;
-      if (d.mortals.length === 0) {
-        html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
-      }
+      // Mortal Characters
+      html += '<div class="char-col section-editwrap" data-section="characters-mortal" '
+        + (em ? 'onclick="editCharacters()" title="Click to edit characters"' : '') + '>'
+        + '<div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧑</span> Mortal Characters</div>'
+        + '<div class="char-list">';
+      if (d.mortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
       d.mortals.forEach(c => {
-        html += `<div class="char-row ${c.dead ? 'dead' : ''}">
-      <div class="char-row-name">${esc(c.name)}</div>
-      <div class="char-row-desc">${esc(c.desc)}</div>
-    </div>`;
+        html += '<div class="char-row ' + (c.dead ? 'dead' : '') + '">'
+          + '<div class="char-row-name">' + esc(c.name) + '</div>'
+          + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
+          + '</div>';
       });
-      html += `</div></div></div>`;
+      html += '</div></div></div>';
 
-      // ── Middle: Journal ──
-      const hasUnresolved = parsedData.journal.some(j => j.awaiting === true);
-      const promptBtnDisabled = editMode || hasUnresolved;
-
-      html += `<div class="journal-col section-editwrap" data-section="journal">
-  <button class="edit-section-btn" onclick="editJournal()">✎ Edit</button>
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-    <div style="font-family:'Cinzel',serif; font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-dim);">📖 Journal</div>
-    <button class="top-btn" onclick="getAndSetNextPrompt()" title="Get next prompt"
-      style="font-size:11px; padding:5px 12px;${promptBtnDisabled ? 'opacity:.4;cursor:not-allowed;' : ''}"
-      ${promptBtnDisabled ? 'disabled' : ''}>🎲 Next Prompt</button>
-  </div>`;
+      // Journal
+      html += '<div class="journal-col section-editwrap" data-section="journal" '
+        + (em ? 'onclick="editJournal()" title="Click to add/remove journal entries"' : '') + '>'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+        + '<div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);">📖 Journal</div>'
+        + '<button class="top-btn" onclick="event.stopPropagation();getAndSetNextPrompt()" title="'
+        + (promptBtnDisabled ? (em ? 'Disabled in edit mode' : 'Resolve current entry first') : 'Get next prompt')
+        + '" style="font-size:11px;padding:5px 12px;'
+        + (promptBtnDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
+        + (promptBtnDisabled ? ' disabled' : '') + '>🎲 Next Prompt</button>'
+        + '</div>';
 
       if (d.journal.length === 0) {
-        html += `<p style="color:var(--ink-faint);font-style:italic;">No journal entries yet.</p>`;
+        html += '<p style="color:var(--ink-faint);font-style:italic;">No journal entries yet.</p>';
       }
+
       const journalDisplay = [...d.journal].sort((a, b) => {
         if (a.awaiting && !b.awaiting) return -1;
         if (!a.awaiting && b.awaiting) return 1;
         if (a.resolved_at && b.resolved_at) return new Date(b.resolved_at) - new Date(a.resolved_at);
         return b.turn - a.turn;
       });
-      journalDisplay.forEach((j) => {
-        const idx = d.journal.indexOf(j);
-        html += `<div class="journal-entry" data-entry-idx="${idx}">
-      <div class="journal-turn">Turn ${j.turn} — Prompt ${j.prompt}, Entry ${j.entry}</div>
-      ${editMode ? '<div class="journal-edit-actions"><button class="top-btn" onclick="editJournalEntryEntry(' + idx + ')" style="font-size:11px;padding:4px 10px;">✎ Edit</button></div>' : ''}
-      <div class="journal-scrap">
-<div class="journal-prompt-text">${esc(getPromptText(j.prompt, j.entry))}</div>
-        <div class="journal-body">`;
-        if (j.prose) html += `<p>${esc(j.prose)}</p>`;
+
+      journalDisplay.forEach(j => {
+        const trueIdx = d.journal.indexOf(j);
+        html += '<div class="journal-entry" data-entry-idx="' + trueIdx + '" '
+          + (em ? 'onclick="event.stopPropagation();editJournalEntryEntry(' + trueIdx + ')" title="Click to edit this entry"' : '') + '>'
+          + '<div class="journal-turn">Turn ' + j.turn + ' — Prompt ' + j.prompt + ', Entry ' + j.entry + '</div>'
+          + '<div class="journal-scrap">'
+          + '<div class="journal-prompt-text">' + esc(getPromptText(j.prompt, j.entry)) + '</div>'
+          + '<div class="journal-body">';
+        if (j.prose) html += '<p>' + esc(j.prose) + '</p>';
         if (j.awaiting) {
-          html += `<p class="journal-awaiting">Awaiting resolution…</p>`;
+          html += '<p class="journal-awaiting">Awaiting resolution…</p>';
         } else if (j.changes) {
-          html += `<p style="font-size:.85rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:10px;margin-top:10px;"><strong>Changes:</strong> ${esc(j.changes)}</p>`;
+          html += '<p style="font-size:.85rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:10px;margin-top:10px;"><strong>Changes:</strong> ' + esc(j.changes) + '</p>';
         }
         if (j.resolved_at) {
-          const resolvedDate = new Date(j.resolved_at).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-          html += `<p style="font-size:.75rem;color:var(--ink-faint);margin-top:6px;">Resolved ${resolvedDate}</p>`;
+          const rd = new Date(j.resolved_at);
+          const resolvedDate = String(rd.getDate()).padStart(2, '0') + '-'
+            + String(rd.getMonth() + 1).padStart(2, '0') + '-'
+            + rd.getFullYear() + ' '
+            + String(rd.getHours()).padStart(2, '0') + ':'
+            + String(rd.getMinutes()).padStart(2, '0');
+          html += '<p style="font-size:.75rem;color:var(--ink-faint);margin-top:6px;">Resolved ' + resolvedDate + '</p>';
         }
-        html += `</div></div></div>`;
+        html += '</div></div></div>';
       });
-      html += `</div>`;
+      html += '</div>'; // journal-col
 
-      // ── Right: Immortal Characters ──
-      html += `<div class="char-col section-editwrap" data-section="characters-immortal">
-    <div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧛</span> Immortal Characters</div>
-    <div class="char-list">`;
-      if (d.immortals.length === 0) {
-        html += `<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>`;
-      }
+      // Immortal Characters
+      html += '<div class="char-col section-editwrap" data-section="characters-immortal" '
+        + (em ? 'onclick="editCharacters()" title="Click to edit characters"' : '') + '>'
+        + '<div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧛</span> Immortal Characters</div>'
+        + '<div class="char-list">';
+      if (d.immortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
       d.immortals.forEach(c => {
-        html += `<div class="char-row ${c.dead ? 'dead' : ''}">
-      <div class="char-row-name">${esc(c.name)}</div>
-      <div class="char-row-desc">${esc(c.desc)}</div>
-    </div>`;
+        html += '<div class="char-row ' + (c.dead ? 'dead' : '') + '">'
+          + '<div class="char-row-name">' + esc(c.name) + '</div>'
+          + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
+          + '</div>';
       });
-      html += `</div></div></div>`;
+      html += '</div></div></div>';
 
-      html += `</div>`; // main-layout
+      html += '</div>'; // main-layout
 
-      // ── Memories ──
-      html += `<div class="memories-section section-editwrap" data-section="memories">
-    <button class="edit-section-btn" onclick="editMemories()">✎ Edit</button>
-    <div class="memories-section-label"><span class="section-icon">🧠</span> Memories</div>
-    <div class="memories-grid">`;
+      // Memories
+      html += '<div class="memories-section section-editwrap" data-section="memories" '
+        + (em ? 'onclick="editMemories()" title="Click to edit memories"' : '') + '>'
+        + '<div class="memories-section-label"><span class="section-icon">🧠</span> Memories</div>'
+        + '<div class="memories-grid">';
       d.memories.forEach(mem => {
         const cls = mem.struck ? 'forgotten' : '';
         const tag = mem.inDiary ? ' <span style="font-size:.75em;color:var(--blood)">(in diary)</span>' : '';
-        html += `<div class="memory-block ${cls}">
-      <div class="memory-title">Memory ${mem.n} — ${esc(mem.theme)}${tag}</div>
-      <ol>`;
+        html += '<div class="memory-block ' + cls + '">'
+          + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme) + tag + '</div>'
+          + '<ol>';
         mem.experiences.forEach(exp => {
-          html += `<li${exp.struck ? ' style="text-decoration:line-through;opacity:.5"' : ''}>${esc(exp.text)}</li>`;
+          html += '<li' + (exp.struck ? ' style="text-decoration:line-through;opacity:.5"' : '') + '>' + esc(exp.text) + '</li>';
         });
-        html += `</ol></div>`;
+        html += '</ol></div>';
       });
-      html += `</div></div>`;
+      html += '</div></div>';
 
-      // ── Diary ──
-      html += `<div class="diary-strip section-editwrap" data-section="diary">
-    <button class="edit-section-btn" onclick="editDiary()">✎ Edit</button>
-    <div class="diary-label">📖 Diary</div>
-    <div class="diary-block">`;
+      // Diary
+      html += '<div class="diary-strip section-editwrap" data-section="diary" '
+        + (em ? 'onclick="editDiary()" title="Click to edit diary"' : '') + '>'
+        + '<div class="diary-label">📖 Diary</div>'
+        + '<div class="diary-block">';
       if (!d.diary.exists || d.diary.memories.length === 0) {
-        html += `<p style="font-style:italic;color:var(--ink-faint)">No diary yet.</p>`;
+        html += '<p style="font-style:italic;color:var(--ink-faint)">No diary yet.</p>';
       } else {
         d.diary.memories.forEach(mem => {
-          html += `<p><strong>${esc(mem.theme)}</strong></p>`;
-          mem.experiences.forEach(e => html += `<p style="padding-left:1em">— ${esc(e.text)}</p>`);
+          html += '<p><strong>' + esc(mem.theme) + '</strong></p>';
+          mem.experiences.forEach(e => html += '<p style="padding-left:1em">— ' + esc(e.text) + '</p>');
         });
       }
-      html += `</div></div>`;
+      html += '</div></div>';
 
       el.innerHTML = html;
     }
