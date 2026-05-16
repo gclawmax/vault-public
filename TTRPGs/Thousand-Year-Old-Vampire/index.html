@@ -1522,6 +1522,16 @@
       }
     }
 
+    // ═══════════════════════════════════════════════════
+    // GETPROMPTTEXT — helper to read prompts from cache in sessionStorage
+    // ═══════════════════════════════════════════════════
+
+    function getPromptText(prompt, entry) {
+      if (!PROMPTS_DATA) return `[Prompt ${prompt}.${entry} — unlock text with Vault Key]`;
+      const lookup = buildPromptLookup();
+      return lookup[prompt + ',' + entry] || `[Prompt ${prompt}.${entry} — not found]`;
+    }
+
     // ═══════════════════════════════════════════════
     // ⏰ AUTO-POLLER — ETag conditional GET (30s, visible-only)
     // GitHub docs: "304 responses do NOT count against rate limits."
@@ -1649,7 +1659,6 @@
           turn: j.turn,
           prompt: j.prompt,
           entry: j.entry,
-          promptText: j.prompt_text || j.paraphrased_prompt || '',
           prose: j.experience || '',
           changes: j.changes || '',
           awaiting: j.resolved === false
@@ -1717,9 +1726,7 @@
           turn: j.turn,
           prompt: j.prompt,
           entry: j.entry,
-          prompt_text: j.prompt_text || j.promptText || '',
           resolved: j.resolved !== undefined ? j.resolved : (j.awaiting === undefined ? false : !j.awaiting),
-          paraphrased_prompt: j.paraphrased_prompt || j.prompt_text || j.promptText || '',
           experience: j.experience || j.prose || '',
           changes: j.changes || ''
         }))
@@ -1835,7 +1842,7 @@
         html += `<div class="journal-entry">
       <div class="journal-turn">Turn ${j.turn} — Prompt ${j.prompt}, Entry ${j.entry}</div>
       <div class="journal-scrap">
-        <div class="journal-prompt-text">${esc(j.promptText)}</div>
+<div class="journal-prompt-text">${esc(getPromptText(j.prompt, j.entry))}</div>
         <div class="journal-body">`;
         if (j.prose) html += `<p>${esc(j.prose)}</p>`;
         if (j.awaiting) {
@@ -2767,9 +2774,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             prompt: result.prompt,
             turn: result.turn,
             entry: result.entry,
-            prompt_text: result.text,
             resolved: false,
-            paraphrased_prompt: result.text,
             experience: '',
             changes: ''
           });
@@ -2803,9 +2808,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
               prompt: result.prompt,
               turn: result.turn,
               entry: result.entry,
-              prompt_text: result.text,
               resolved: false,
-              paraphrased_prompt: result.text,
               experience: '',
               changes: ''
             });
