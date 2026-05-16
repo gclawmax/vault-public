@@ -141,9 +141,7 @@
       "turn": 1,
       "prompt": 1,
       "entry": 1,
-      "prompt_text": "You wake in a cold, silent place. Your body is whole. You are not. What do you do?",
       "resolved": true,
-      "paraphrased_prompt": "Waking as a newborn vampire — first moments of discovery.",
       "experience": "The morgue drawer slid open with a screech of rusted metal. The air smelled of carbolic and decay. I stood on shaking legs and looked at my reflection in the steel countertop — pale, unaging, eyes like polished obsidian. I was dead. I knew this with the same certainty that I knew I was breathing. I was both.",
       "changes": "Gained skill: First Hunger. Mark: Eternal Thirst."
     },
@@ -151,9 +149,7 @@
       "turn": 2,
       "prompt": 2,
       "entry": 1,
-      "prompt_text": "Silas Vorne appears at your door. He wants to train you. What is his price?",
       "resolved": true,
-      "paraphrased_prompt": "The mentor vampire approaches — training comes at a cost.",
       "experience": "Silas arrived not by knocking, but by simply being there when I turned. He stood in the shadows of my first flat, wearing a military uniform from a war three decades old. His smile was thin and hungry. 'You will learn,' he said. 'But learning is a two-way street. You will serve me in return.'",
       "changes": "Gained skill: Churchcraft. Resource: The Black Grimoire."
     }
