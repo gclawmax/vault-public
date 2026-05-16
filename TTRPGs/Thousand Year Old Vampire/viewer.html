@@ -83,12 +83,30 @@
 
     let currentSha = null;
     let currentFileUrl = null;
-    let currentJson = null;       // the raw source string currently loaded (JSON state)
-    let workingJson = null;       // the source string being edited (may differ from currentJson)
+    let currentJson = null;   // last saved state from GitHub — never mutated
     let editMode = false;
-    let hasUnsaved = false;
-    let parsedData = null;      // structured parse of current source
+    let parsedData = null;    // live working copy — mutated by editors, persisted to localStorage
     let currentModalConfirm = null;
+    let currentFilename = null; // tracks which file is loaded, for localStorage key
+
+    function draftKey() { return currentFilename ? 'tyov-draft-' + currentFilename : null; }
+
+    function saveDraft() {
+      const key = draftKey();
+      if (!key || !parsedData) return;
+      try { localStorage.setItem(key, serializeJson(parsedData)); } catch (e) { }
+    }
+
+    function clearDraft() {
+      const key = draftKey();
+      if (key) try { localStorage.removeItem(key); } catch (e) { }
+    }
+
+    function loadDraft() {
+      const key = draftKey();
+      if (!key) return null;
+      try { const d = localStorage.getItem(key); return d || null; } catch (e) { return null; }
+    }
 
 
     // ═══════════════════════════════════════════════════
@@ -166,33 +184,50 @@
       setStatus('busy', `Loading ${filename}…`);
       try {
         const url = GITHUB_API + '/' + encodeURIComponent(filename);
-        const resp = await fetch(url + (getVaultKey() ? '' : ''), {
+        const resp = await fetch(url, {
           headers: getVaultKey() ? { Authorization: 'token ' + getVaultKey() } : {}
         });
         if (!resp.ok) throw new Error(resp.status);
         const data = await resp.json();
         currentSha = data.sha;
         currentFileUrl = url;
+        currentFilename = filename;
         currentJson = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-        workingJson = currentJson;
-        parsedData = parseSource(currentJson);
+
         await ensurePromptsLoaded();
-        // Fallback for lastPlayed: use GitHub commit date when JSON lacks it
+
+        // Check for a localStorage draft
+        const draft = loadDraft();
+        if (draft) {
+          const resume = confirm('You have unsaved edits for this chronicle. Resume editing?');
+          if (resume) {
+            parsedData = parseSource(draft);
+            editMode = true;
+            applyEditModeUI();
+          } else {
+            clearDraft();
+            parsedData = parseSource(currentJson);
+          }
+        } else {
+          parsedData = parseSource(currentJson);
+        }
+
         if (!parsedData.lastPlayed && data.committed_date) {
           parsedData.lastPlayed = data.committed_date.slice(0, 10);
         }
+
         renderChronicle(parsedData);
         document.getElementById('empty-state').style.display = 'none';
         document.getElementById('content').style.display = 'block';
         document.getElementById('edit-mode-btn').style.display = '';
-        setStatus('ok', `Loaded: ${filename}`);
+        setStatus('ok', draft && editMode ? `Resumed draft: ${filename}` : `Loaded: ${filename}`);
       } catch (e) {
         setStatus('err', 'Load failed: ' + e.message);
       }
     }
 
     function resetToGameList() {
-      if (editMode && hasUnsaved) {
+      if (editMode) {
         if (!confirm('You have unsaved changes. Discard them?')) return;
       }
       leaveEditMode();
@@ -277,7 +312,7 @@
     function _disPoll() { clearTimeout(_ptl); _ptl = null; }
 
     function _pollTick() {
-      if (!_pviz) { _ptl = setTimeout(_pollTick, 30000); return; }
+      if (!_pviz || editMode) { _ptl = setTimeout(_pollTick, 30000); return; } // don't poll during edits
       var t = [];
       var sel = document.getElementById('game-select');
       // Poll current vampire sheet
@@ -659,11 +694,7 @@
       else cancelEditMode();
     }
 
-    function enterEditMode() {
-      editMode = true;
-      hasUnsaved = false;
-      workingJson = currentJson;
-      parsedData = parseSource(workingJson);
+    function applyEditModeUI() {
       document.body.classList.add('edit-mode');
       document.getElementById('edit-mode-btn').classList.add('active-edit');
       document.getElementById('edit-mode-btn').textContent = '✎ Editing';
@@ -672,14 +703,17 @@
       document.getElementById('edit-mode-banner').classList.add('visible');
       document.getElementById('game-select').disabled = true;
       document.getElementById('key-toggle').style.display = 'flex';
+    }
 
-      renderChronicle(parsedData); // ← add this — shows per-entry edit buttons
-      setStatus('busy', 'Edit mode — changes not yet saved');
+    function enterEditMode() {
+      editMode = true;
+      applyEditModeUI();
+      renderChronicle(parsedData); // re-render to show per-entry edit buttons
+      setStatus('busy', 'Edit mode — changes saved locally, not yet on GitHub');
     }
 
     function leaveEditMode() {
       editMode = false;
-      hasUnsaved = false;
       document.body.classList.remove('edit-mode');
       document.getElementById('edit-mode-btn').classList.remove('active-edit');
       document.getElementById('edit-mode-btn').textContent = '✎ Edit';
@@ -692,16 +726,17 @@
     }
 
     function cancelEditMode() {
-      if (hasUnsaved && !confirm('Discard unsaved changes?')) return;
+      if (!confirm('Discard all unsaved edits and revert to the last saved version?')) return;
+      clearDraft();
       leaveEditMode();
       parsedData = parseSource(currentJson);
       renderChronicle(parsedData);
-      setStatus('ok', 'Edit cancelled.');
+      setStatus('ok', 'Edits discarded — showing last saved version.');
     }
 
     function markUnsaved() {
-      hasUnsaved = true;
-      setStatus('busy', 'Unsaved changes');
+      saveDraft(); // persist to localStorage immediately
+      setStatus('busy', 'Unsaved changes — draft saved locally');
     }
 
     // ═══════════════════════════════════════════════════
@@ -726,11 +761,11 @@
         }
         const result = await resp.json();
         currentSha = result.content.sha;
-        currentJson = newJson;
-        workingJson = newJson;
+        currentJson = newJson;   // advance the clean reference
+        clearDraft();            // draft is now on GitHub — remove local copy
         leaveEditMode();
         renderChronicle(parsedData);
-        setStatus('ok', 'Saved successfully ✓');
+        setStatus('ok', 'Saved to GitHub ✓');
       } catch (e) {
         setStatus('err', 'Save failed: ' + e.message);
         alert('Save failed: ' + e.message);
@@ -756,9 +791,9 @@
       currentModalConfirm = null;
       document.getElementById('modal-overlay').classList.remove('open');
       if (cb) {
-        cb();               // callback sets markUnsaved() if needed
-        markUnsaved();      // ensure unsaved flag is set after Update
-        renderChronicle(parsedData); // re-render the page only on Update
+        cb();
+        markUnsaved();           // persist draft after every modal confirm
+        renderChronicle(parsedData);
       }
     }
 
