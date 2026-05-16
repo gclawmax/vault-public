@@ -2,13 +2,20 @@
   "name": "James McCloud",
   "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
   "mortal_self": "James McCloud, born 1050 AD in Scotland. A rich noble, pampered by slaves and surrounded by sycophants. Arrogant and soft.",
+  "game_over": false,
   "game_start": "2026-05-14",
   "modified": "2026-05-16",
-  "game_over": false,
-  "game_completed": null,
-  "current_prompt": 1,
-  "prompts_resolved": 0,
+  "game_completed": "",
   "show_suggestions": true,
+  "current_prompt": 5,
+  "prompts_resolved": 0,
+  "marks": [
+    {
+      "description": "A pair of small, pinprick scars on the forearm, where James drank Seraphina's corrupted blood. On cold nights, they burn; under moonlight, they glow faintly.",
+      "concealment": "Always hidden beneath gauntlets or heavy fur cuffs.",
+      "status": "available"
+    }
+  ],
   "memories": [
     {
       "name": "Memory 1",
@@ -56,6 +63,9 @@
       "in_diary": false
     }
   ],
+  "diary": {
+    "memories": []
+  },
   "skills": [
     {
       "name": "Swordsmanship",
@@ -96,33 +106,31 @@
   "characters": [
     {
       "name": "Elspeth",
-      "description": "Younger sister. Smarter and kinder than James, she found refuge with the castle's animals â a wounded hawk, a stray hound, any creature in need of care. She loved James in spite of his arrogance; the only soul in that house who ever did.",
       "type": "mortal",
-      "status": "alive"
+      "description": "Younger sister. Smarter and kinder than James, she found refuge with the castle's animals â a wounded hawk, a stray hound, any creature in need of care. She loved James in spite of his arrogance; the only soul in that house who ever did.",
+      "status": "alive",
+      "death_reason": ""
     },
     {
       "name": "Jack Stewart",
-      "description": "Young lord from a nearby estate. Matched James line for line â in wealth, in station, in charm. Where James was born to privilege, Jack had earned his standing. Now courts the same girl James loves, turning rivalry into something that cuts deeper than pride.",
       "type": "mortal",
-      "status": "alive"
+      "description": "Young lord from a nearby estate. Matched James line for line â in wealth, in station, in charm. Where James was born to privilege, Jack had earned his standing. Now courts the same girl James loves, turning rivalry into something that cuts deeper than pride.",
+      "status": "alive",
+      "death_reason": ""
     },
     {
       "name": "Bran",
-      "description": "Retired soldier and James's teacher. Grey-bearded, scarred, he drilled into James from the first dawn: kindness is the language of the weak. Paced the training yard before the sun until those words took root â ruthlessness, money, power. The only virtues.",
       "type": "mortal",
-      "status": "alive"
+      "description": "Retired soldier and James's teacher. Grey-bearded, scarred, he drilled into James from the first dawn: kindness is the language of the weak. Paced the training yard before the sun until those words took root â ruthlessness, money, power. The only virtues.",
+      "status": "alive",
+      "death_reason": ""
     },
     {
       "name": "Sister Seraphina",
-      "description": "A leper saint of the borderlands, her face pocked and hands twisted by the disease that ate her from the outside in. She ran a hospice of corpses among the ruins of a border abbey. She chose James because she saw the hunger beneath his arrogance and fed it to him.",
       "type": "immortal",
-      "status": "alive"
-    }
-  ],
-  "marks": [
-    {
-      "description": "A pair of small, pinprick scars on the forearm, where James drank Seraphina's corrupted blood. On cold nights, they burn; under moonlight, they glow faintly.",
-      "concealment": "Always hidden beneath gauntlets or heavy fur cuffs."
+      "description": "A leper saint of the borderlands, her face pocked and hands twisted by the disease that ate her from the outside in. She ran a hospice of corpses among the ruins of a border abbey. She chose James because she saw the hunger beneath his arrogance and fed it to him.",
+      "status": "alive",
+      "death_reason": ""
     }
   ],
   "journal": [
@@ -130,11 +138,17 @@
       "turn": 1,
       "prompt": 1,
       "entry": 1,
-      "prose": "",
-      "changes": "",
-      "awaiting": true,
-      "resolved": false
+      "resolved": false,
+      "experience": "",
+      "changes": ""
+    },
+    {
+      "turn": 2,
+      "prompt": 5,
+      "entry": 1,
+      "resolved": false,
+      "experience": "",
+      "changes": ""
     }
-  ],
-  "epitaph": null
+  ]
 }
