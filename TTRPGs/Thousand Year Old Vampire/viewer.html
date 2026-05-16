@@ -672,8 +672,8 @@
       document.getElementById('edit-mode-banner').classList.add('visible');
       document.getElementById('game-select').disabled = true;
       document.getElementById('key-toggle').style.display = 'flex';
-      // No re-render here — page stays as-is for editing.
-      // Re-render only happens when the Update button is clicked in a modal.
+
+      renderChronicle(parsedData); // ← add this — shows per-entry edit buttons
       setStatus('busy', 'Edit mode — changes not yet saved');
     }
 
