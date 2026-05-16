@@ -1278,9 +1278,6 @@
     <div class="key-label">🔑 Vault Key</div>
     <input type="password" id="vault-key" class="key-input" placeholder="ghp_...">
     <div class="key-info">The key to your vault.</div>
-    <div class="key-label">🧠 Memory Key</div>
-    <input type="password" id="memory-key" class="key-input" placeholder="ghp_...">
-    <div class="key-info">The key to your memories...</div>
     <button class="modal-btn primary" onclick="closeKeyPanel()" style="width:100%">Done</button>
   </div>
 
@@ -1360,7 +1357,6 @@
       document.getElementById('status-text').textContent = msg;
     }
     function getVaultKey() { return document.getElementById('vault-key').value.trim(); }
-    function getMemoryKey() { return document.getElementById('memory-key').value.trim(); }
 
     // ═══════════════════════════════════════════════════
     // SKIN SWITCHER
@@ -1391,13 +1387,8 @@
     // Restore saved tokens
     const savedVaultKey = localStorage.getItem('tyov-vault-key');
     if (savedVaultKey) document.getElementById('vault-key').value = savedVaultKey;
-    const savedMemoryKey = localStorage.getItem('tyov-memory-key');
-    if (savedMemoryKey) document.getElementById('memory-key').value = savedMemoryKey;
     document.getElementById('vault-key').addEventListener('change', () => {
       localStorage.setItem('tyov-vault-key', document.getElementById('vault-key').value.trim());
-    });
-    document.getElementById('memory-key').addEventListener('change', () => {
-      localStorage.setItem('tyov-memory-key', document.getElementById('memory-key').value.trim());
     });
 
     // ═══════════════════════════════════════════════════
