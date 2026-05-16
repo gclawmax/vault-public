@@ -256,18 +256,6 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
   .memories-section{padding:16px;}
   .memories-grid{grid-template-columns:1fr;}
 }
-
-/* ── Prompt result section ── */
-.prompt-section{min-height:20px;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:20px;}
-.prompt-card{background:var(--blood);color:white;border-radius:8px;padding:18px 20px;text-align:center;margin:0 auto;max-width:640px;}
-.prompt-card .prompt-label{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;opacity:.9;}
-.prompt-card .prompt-dice{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:6px 0;opacity:.85;}
-.prompt-card .prompt-number{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin:4px 0;opacity:.7;}
-.prompt-card .prompt-text{background:var(--bg2);border-left:4px solid var(--bg);padding:14px 18px;margin:12px auto;max-width:560px;text-align:left;font-family:'EB Garamond',serif;font-size:18px;line-height:1.6;color:var(--ink-dim);border-radius:4px;}
-.prompt-card .prompt-notice{font-size:12px;font-style:italic;opacity:.7;margin-top:10px;}
-.prompt-unresolved{background:#5c1a1a;}
-.prompt-success{background:var(--blood);}
-.prompt-gameover{background:#2a3a4a;}
 </style>
 </head>
 <body>
@@ -293,7 +281,6 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
     <select id="game-select"><option value="">— Loading games… —</option></select>
     <a id="game-link" href="core-rules.html">Core Rules</a>
     <button id="refresh-btn" class="top-btn" onclick="refreshCurrent()">↻ Refresh</button>
-    <button id="next-prompt-btn" class="top-btn" onclick="getAndSetNextPrompt()" title="Get next prompt">🎲 Prompt</button>
     <button id="edit-mode-btn" class="top-btn" style="display:none;" onclick="toggleEditMode()">✎ Edit</button>
     <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
     <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
@@ -314,7 +301,7 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
     <h2>Thousand Year Old Vampire</h2>
     <p>Select a chronicle to begin.</p>
   </div>
-  <div id="content" style="display:none;"><div class="prompt-section" id="prompt-section"></div></div>
+  <div id="content" style="display:none;"></div>
 </div>
 
 <!-- Modal Overlay -->
@@ -347,7 +334,6 @@ let editMode = false;
 let hasUnsaved = false;
 let parsedData = null;      // structured parse of current source
 let currentModalConfirm = null;
-
 
 // ═══════════════════════════════════════════════════
 // UTILITY
@@ -470,49 +456,6 @@ async function refreshCurrent() {
   const sel = document.getElementById('game-select');
   if (sel.value) await loadVampire(sel.value);
   else await loadGameList();
-}
-
-// ═══════════════════════════════════════════════════
-// PROMPTS — load once, cache in sessionStorage
-// ═══════════════════════════════════════════════════
-const PROMPTS_SESSION_KEY = 'tyov-prompts-cache';
-let PROMPTS_DATA = null;
-
-async function ensurePromptsLoaded() {
-  // Already in memory — free
-  if (PROMPTS_DATA) return true;
-
-  // Try sessionStorage — avoids a network call for the rest of the tab session
-  try {
-    const cached = sessionStorage.getItem(PROMPTS_SESSION_KEY);
-    if (cached) {
-      PROMPTS_DATA = JSON.parse(cached);
-      return true;
-    }
-  } catch(e) { /* sessionStorage unavailable — proceed to fetch */ }
-
-  // Need a token to fetch from the private repo
-  const token = getVaultKey();
-  if (!token) return false; // caller must prompt for key
-
-  const url = 'https://api.github.com/repos/gclawmax/hermes-skills/contents/thousand-year-vampire-agent/prompts.json';
-  try {
-    const resp = await fetch(url, {
-      headers: { Authorization: 'token ' + token }
-    });
-    if (!resp.ok) throw new Error('Prompts fetch failed: ' + resp.status);
-    const data = await resp.json();
-    const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-    PROMPTS_DATA = JSON.parse(decoded);
-
-    // Cache for the rest of this tab session — never written to disk
-    try { sessionStorage.setItem(PROMPTS_SESSION_KEY, JSON.stringify(PROMPTS_DATA)); } catch(e) {}
-
-    return true;
-  } catch(e) {
-    setStatus('err', 'Failed to load prompts: ' + e.message);
-    return false;
-  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1563,272 +1506,7 @@ function editJournal() {
 // ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
-
-/* ══════════════════════
-   🎲 GET NEXT PROMPT — Ported from get_next_prompt.py
-   ══════════════════════ */
-
-function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-// Ported: build_prompt_lookup() — build (prompt, entry) -> text map
-function buildPromptLookup() {
-  const lookup = {};
-  for (const page of PROMPTS_DATA) {
-    const pn = page.prompt_number;
-    for (let i = 0; i < page.entries.length; i++) {
-      lookup[pn + ',' + (i + 1)] = page.entries[i].text;
-    }
-  }
-  return lookup;
-}
-
-// Ported: get_entry_limit()
-function getEntryLimit(pn) {
-  if (pn >= 72 && pn <= 80) return 1;
-  return 3;
-}
-
-// Ported: roll_dice()
-function rollDice() {
-  const d10 = Math.floor(Math.random() * 10) + 1;
-  const d6 = Math.floor(Math.random() * 6) + 1;
-  return [d10, d6];
-}
-
-// Ported: get_current_dest()
-function getDest(vamp, offset) {
-  const current = vamp.current_prompt || 0;
-  return Math.max(1, Math.min(80, current + offset));
-}
-
-// Ported: get_unresolved_entry()
-function getUnresolved(journal) {
-  for (let i = journal.length - 1; i >= 0; i--) {
-    if (!journal[i].resolved && journal[i].awaiting) return journal[i];
-  }
-  return null;
-}
-
-// Ported: count_entries_for_prompt()
-function countEntries(journal, pn) {
-  let c = 0;
-  for (const e of journal) { if (e.prompt === pn) c++; }
-  return c;
-}
-
-// Ported: main() — computeNextPrompt
-function computeNextPrompt(vampire) {
-  const journal = vampire.journal || [];
-  const lookup = buildPromptLookup();
-
-  // Case 1: no journal entries — first turn
-  if (journal.length === 0) {
-    const [d10, d6] = rollDice();
-    const offset = d10 - d6;
-    for (const page of PROMPTS_DATA) {
-      if (lookup[page.prompt_number + ',1']) {
-        return {
-          unresolved: false, turn: 1,
-          prompt: page.prompt_number, entry: 1,
-          text: lookup[page.prompt_number + ',1'],
-          dice: { d10, d6, offset }, _isFirst: true
-        };
-      }
-    }
-    return { unresolved: false, error: 'all_prompts_exhausted' };
-  }
-
-  // Case A: unresolved prompt exists
-  const unresolved = getUnresolved(journal);
-  if (unresolved) {
-    const key = unresolved.prompt + ',' + unresolved.entry;
-    return {
-      unresolved: true, turn: unresolved.turn,
-      prompt: unresolved.prompt, entry: unresolved.entry,
-      text: lookup[key] || unresolved.promptText || ''
-    };
-  }
-
-  // Case B: all resolved — roll dice and find next
-  const [d10, d6] = rollDice();
-  const offset = d10 - d6;
-  let dest = getDest(vampire, offset);
-
-  for (let pn = dest; pn <= 80; pn++) {
-    const limit = getEntryLimit(pn);
-    const count = countEntries(journal, pn);
-    if (count < limit) {
-      const nextEntry = count + 1;
-      const key = pn + ',' + nextEntry;
-      if (lookup[key]) {
-        return {
-          unresolved: false, turn: journal.length + 1,
-          prompt: pn, entry: nextEntry,
-          text: lookup[key], dice: { d10, d6, offset }
-        };
-      }
-    }
-  }
-
-  return { unresolved: false, error: 'all_prompts_exhausted' };
-}
-
-// Display the result on the page
-function displayPromptResult(result) {
-  const section = document.getElementById('prompt-section');
-  if (!section) return;
-
-  if (result.unresolved) {
-    section.innerHTML =
-      '<div class="prompt-card prompt-unresolved">' +
-        '<div class="prompt-label">⚠ Unresolved Prompt</div>' +
-        '<div class="prompt-dice">Turn ' + result.turn + ' — Prompt ' + result.prompt + '</div>' +
-        '<div class="prompt-text">' + esc(result.text) + '</div>' +
-        '<div class="prompt-notice">Player must resolve this entry before continuing.</div>' +
-      '</div>';
-    setStatus('ok', 'Turn ' + result.turn + ' awaiting resolution');
-  } else if (result.error === 'all_prompts_exhausted') {
-    section.innerHTML =
-      '<div class="prompt-card prompt-gameover">' +
-        '<div class="prompt-label">🏛️ All Prompts Exhausted</div>' +
-        '<div class="prompt-text" style="font-size:16px;">The vampire has lived a full thousand years.</div>' +
-      '</div>';
-    setStatus('ok', 'All prompts exhausted');
-  } else {
-    const diceStr = result.dice
-      ? '<div class="prompt-dice">Roll: d10=' + result.dice.d10 + ', d6=' + result.dice.d6 + ' → +' + result.dice.offset + '</div>'
-      : '';
-    section.innerHTML =
-      '<div class="prompt-card prompt-success">' +
-        '<div class="prompt-label">🎲 Next Prompt</div>' +
-        diceStr +
-        '<div class="prompt-dice" style="color:white;font-size:13px;margin-bottom:4px;">Turn ' + result.turn + ' — Prompt ' + result.prompt + ' · Entry ' + result.entry + '</div>' +
-        '<div class="prompt-text">' + esc(result.text) + '</div>' +
-        '<div class="prompt-notice">Saved to vampire.json — load it to see changes.</div>' +
-      '</div>';
-    setStatus('ok', 'Prompt ' + result.prompt + ', entry ' + result.entry + ' updated vampire.json');
-  }
-}
-
-// Main handler: compute + update + display
-async function getAndSetNextPrompt() {
-  const token = getVaultKey();
-  if (!token) { openKeyPanel(); alert('Please enter your vault key (🔑 icon) first.'); return; }
-
-  const sel = document.getElementById('game-select');
-  if (!sel.value) { alert('Select a vampire first.'); return; }
-
-  const filename = sel.value;
-  setStatus('busy', 'Computing next prompt.:.');
-
-  try {
-    // Load current vampire state
-    const fileUrl = GITHUB_API + '/' + encodeURIComponent(filename);
-    const loadResp = await fetch(fileUrl, {
-      headers: { 'Authorization': 'token ' + token }
-    });
-    if (!loadResp.ok) throw new Error('API error: ' + loadResp.status);
-    const fileData = await loadResp.json();
-    const rawContent = atob(fileData.content.replace(/\\n/g, ''));
-    const vampire = JSON.parse(rawContent);
-
-    // Compute next prompt
-    const result = computeNextPrompt(vampire);
-    displayPromptResult(result);
-
-    // If it's a new prompt (not unresolved), update vampire.json
-    if (!result.unresolved && !result.error) {
-      vampire.current_prompt = result.prompt;
-      vampire.modified = new Date().toISOString().split('T')[0];
-      if (!vampire.journal) vampire.journal = [];
-
-      // Add entry to journal
-      const maxTurn = vampire.journal.reduce((m, e) => Math.max(m, e.turn || 0), 0);
-      vampire.journal.push({
-        turn: result.turn,
-        prompt: result.prompt,
-        entry: result.entry,
-        promptText: result.text,
-        prose: '',
-        changes: '',
-        awaiting: true,
-        resolved: false
-      });
-
-      const newJson = JSON.stringify(vampire, null, 2);
-      const encoded = btoa(unescape(encodeURIComponent(newJson)));
-
-      // Commit to GitHub API
-      const putResp = await fetch(fileUrl, {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'token ' + token,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: 'TYOV: prompt ' + result.prompt + ' entry ' + result.entry + ' turn ' + result.turn,
-          content: encoded,
-          sha: fileData.sha
-        })
-      });
-
-      if (putResp.status === 409) {
-        // Merge conflict — retry with updated content
-        const retryResp = await fetch(fileUrl, {
-          headers: { 'Authorization': 'token ' + token }
-        });
-        const retryData = await retryResp.json();
-        const retryContent = JSON.parse(atob(retryData.content.replace(/\\n/g, '')));
-        retryContent.journal = retryContent.journal || [];
-        retryContent.journal.push({
-          turn: result.turn,
-          prompt: result.prompt,
-          entry: result.entry,
-          promptText: result.text,
-          prose: '',
-          changes: '',
-          awaiting: true,
-          resolved: false
-        });
-        retryContent.current_prompt = result.prompt;
-        retryContent.modified = new Date().toISOString().split('T')[0];
-        const retryJson = JSON.stringify(retryContent, null, 2);
-        const retryEncoded = btoa(unescape(encodeURIComponent(retryJson)));
-        const retryPut = await fetch(fileUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': 'token ' + token,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: 'TYOV: prompt ' + result.prompt + ' entry ' + result.entry + ' (reconciled)',
-            content: retryEncoded,
-            sha: retryData.sha
-          })
-        });
-        if (!retryPut.ok) {
-          const errMsg = await retryPut.text();
-          throw new Error('Reconcile failed: ' + retryPut.status + ' ' + errMsg);
-        }
-      } else if (!putResp.ok) {
-        const errMsg = await putResp.text();
-        throw new Error('Save failed: ' + putResp.status + ' ' + errMsg);
-      }
-
-      currentSha = fileData.sha;
-      // Re-render to show the new journal entry
-      if (parsedData) {
-        parsedData.current_prompt = result.prompt;
-        renderChronicle(parsedData);
-      }
-    }
-  } catch(e) {
-    setStatus('err', 'Prompt failed: ' + e.message);
-    alert('Get prompt failed: ' + e.message);
-  }
-}
-
-loadGameList(); // prompts load lazily on first use — no token available yet anyway
+loadGameList();
 </script>
 </body>
 </html>
