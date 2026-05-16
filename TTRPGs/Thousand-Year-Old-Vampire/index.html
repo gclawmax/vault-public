@@ -1489,14 +1489,14 @@
       try {
         const cached = sessionStorage.getItem(PROMPTS_SESSION_KEY);
         if (cached) {
-          PROMPTS_DATA = JSON.parse(cached).pages;
+          PROMPTS_DATA = JSON.parse(cached); // cache already holds just the array
           return true;
         }
       } catch (e) { /* sessionStorage unavailable — proceed to fetch */ }
 
       // Need a token to fetch from the private repo
       const token = getVaultKey();
-      if (!token) return false; // caller must prompt for key
+      if (!token) return false;
 
       const url = 'https://api.github.com/repos/gclawmax/hermes-skills/contents/thousand-year-vampire-agent/prompts.json';
       try {
@@ -1504,16 +1504,20 @@
           headers: { Authorization: 'token ' + token }
         });
         if (!resp.ok) throw new Error('Prompts fetch failed: ' + resp.status);
-        const data = await resp.json();
-        const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-        PROMPTS_DATA = JSON.parse(decoded);
 
-        // Cache for the rest of this tab session — never written to disk
+        const data = await resp.json();
+        // GitHub API returns file content as base64 — decode it to a UTF-8 string
+        const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+        // The prompts JSON is { metadata: {...}, pages: [...] } — we only need the array
+        PROMPTS_DATA = JSON.parse(decoded).pages;
+
+        // Cache just the array for the rest of this tab session
         try { sessionStorage.setItem(PROMPTS_SESSION_KEY, JSON.stringify(PROMPTS_DATA)); } catch (e) { }
 
         return true;
       } catch (e) {
-        setStatus('err', 'Failed to load prompts: ' + e.message);
+        console.error('ensurePromptsLoaded:', e);
+        setStatus('err', 'Unable to retrieve next journal entry');
         return false;
       }
     }
