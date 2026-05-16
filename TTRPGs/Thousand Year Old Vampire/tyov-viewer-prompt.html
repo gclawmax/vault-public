@@ -469,7 +469,9 @@ function resetToGameList() {
 async function refreshCurrent() {
   const sel = document.getElementById('game-select');
   if (sel.value) await loadVampire(sel.value);
-  else await 
+  else await loadGameList();
+}
+
 function loadPrompts() {
   const token = getVaultKey();
   const url = 'https://api.github.com/repos/gclawmax/hermes-skills/contents/thousand-year-vampire-agent/prompts.json';
@@ -482,9 +484,6 @@ function loadPrompts() {
     const decoded = base64ToUtf8(data.content, data.encoding);
     PROMPTS_DATA = JSON.parse(decoded);
   });
-}
-
-await loadPrompts(); loadGameList();
 }
 
 // ═══════════════════════════════════════════════
@@ -541,7 +540,7 @@ function _chkFile(url, key) {
     if (key === 'g') {
       // Game list changed — reload
       return r.json().then(function(files) {
-        await loadPrompts(); loadGameList();
+        loadGameList();
         setStatus('ok', '✓ Chronicle list refreshed — ' + new Date().toLocaleTimeString());
       });
     }
