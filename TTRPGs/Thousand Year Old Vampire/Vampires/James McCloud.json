@@ -144,10 +144,10 @@
       "turn": 1,
       "prompt": 1,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-16T18:04:59.122Z",
+      "experience": "Killed Jack",
+      "changes": "Killed Jack, Gained bloodthirsty"
     }
   ]
 }
