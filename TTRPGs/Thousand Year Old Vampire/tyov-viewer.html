@@ -293,7 +293,6 @@ body.edit-mode .section-editwrap{outline:1px dashed var(--edit-ring);outline-off
     <select id="game-select"><option value="">— Loading games… —</option></select>
     <a id="game-link" href="core-rules.html">Core Rules</a>
     <button id="refresh-btn" class="top-btn" onclick="refreshCurrent()">↻ Refresh</button>
-    <button id="next-prompt-btn" class="top-btn" onclick="getAndSetNextPrompt()" title="Get next prompt">🎲 Prompt</button>
     <button id="edit-mode-btn" class="top-btn" style="display:none;" onclick="toggleEditMode()">✎ Edit</button>
     <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
     <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
@@ -815,8 +814,12 @@ function renderChronicle(d) {
   html += `</div></div></div>`;
 
   // ── Middle: Journal ──
-  html += `<div class="journal-col section-editwrap" data-section="journal">
-    <button class="edit-section-btn" onclick="editJournal()">✎ Edit</button>`;
+html += `<div class="journal-col section-editwrap" data-section="journal">
+  <button class="edit-section-btn" onclick="editJournal()">✎ Edit</button>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <div style="font-family:'Cinzel',serif; font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-dim);">📖 Journal</div>
+    <button class="top-btn" onclick="getAndSetNextPrompt()" title="Get next prompt" style="font-size:11px; padding:5px 12px;">🎲 Next Prompt</button>
+  </div>`;
   if (d.journal.length === 0) {
     html += `<p style="color:var(--ink-faint);font-style:italic;">No journal entries yet.</p>`;
   }
