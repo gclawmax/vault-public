@@ -1234,12 +1234,12 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       if (parsedData.journal.length > 0) {
         bodyHtml += `<div class="edit-section-title">Journal Entries</div>`;
         parsedData.journal.forEach((je, idx) => {
-          bodyHtml += `<div class="edit-list-item ${je.awaiting ? '' : ''}">
-        <div class="edit-list-item-text"><strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br><span style="color:var(--ink-dim);font-size:.85rem">${esc(je.promptText || je.prose || 'No text')}</span></div>
-        <div class="edit-list-actions">
-          <button class="trash-btn" onclick="deleteJournalEntry(${idx})" title="Delete journal entry entirely">🗑</button>
-        </div>
-      </div>`;
+          bodyHtml += `<div class="edit-list-item">
+    <div class="edit-list-item-text"><strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br><span style="color:var(--ink-dim);font-size:.85rem">${esc(getPromptText(je.prompt, je.entry) || je.prose || 'No text')}</span></div>
+    <div class="edit-list-actions">
+      <button class="trash-btn" onclick="deleteJournalEntry(${idx})" title="Delete journal entry entirely">🗑</button>
+    </div>
+  </div>`;
         });
         bodyHtml += `<hr class="edit-divider">`;
       }
@@ -1247,35 +1247,31 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       if (topEntry && topEntry.awaiting) {
         // Resolve current prompt
         bodyHtml += `<div class="edit-section-title" style="color:var(--blood);">Resolve Current Prompt — Turn ${topEntry.turn}</div>
-      <div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:14px;font-size:.88rem;color:var(--ink-dim);">${esc(topEntry.promptText)}</div>
-      <div class="form-row">
-        <label class="form-label">Journal Prose</label>
-        <textarea class="form-textarea" id="ed-j-prose" style="min-height:100px;">${esc(topEntry.prose)}</textarea>
-        <div class="form-hint">Your character's experience resolving this prompt.</div>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Changes (mechanical summary)</label>
-        <input class="form-input" id="ed-j-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty.">
-        <div class="form-hint">Required. Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>
-      </div>
-      <hr class="edit-divider">`;
+  <div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:14px;font-size:.88rem;color:var(--ink-dim);">${esc(getPromptText(topEntry.prompt, topEntry.entry))}</div>
+  <div class="form-row">
+    <label class="form-label">Journal Prose</label>
+    <textarea class="form-textarea" id="ed-j-prose" style="min-height:100px;">${esc(topEntry.prose)}</textarea>
+    <div class="form-hint">Your character's experience resolving this prompt.</div>
+  </div>
+  <div class="form-row">
+    <label class="form-label">Changes (mechanical summary)</label>
+    <input class="form-input" id="ed-j-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty.">
+    <div class="form-hint">Required. Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>
+  </div>
+  <hr class="edit-divider">`;
       }
 
-      // Add new prompt entry
+      // Add new prompt entry — no prompt text field, looked up dynamically
       bodyHtml += `<div class="edit-section-title">Add New Journal Entry</div>
-    <div class="form-row">
-      <label class="form-label">Prompt Number (1–80)</label>
-      <input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5">
-    </div>
-    <div class="form-row">
-      <label class="form-label">Entry Number</label>
-      <input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1">
-      <div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>
-    </div>
-    <div class="form-row">
-      <label class="form-label">Prompt Text (exact, from prompts.json)</label>
-      <textarea class="form-textarea" id="ed-j-ptext" style="min-height:60px;" placeholder="Paste the exact prompt text here…"></textarea>
-    </div>`;
+<div class="form-row">
+  <label class="form-label">Prompt Number (1–80)</label>
+  <input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5">
+</div>
+<div class="form-row">
+  <label class="form-label">Entry Number</label>
+  <input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1">
+  <div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>
+</div>`;
 
       openModal('Edit Journal', bodyHtml, () => {
         let changed = false;
@@ -1290,17 +1286,15 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             changed = true;
           }
         }
-        // Add new entry
+        // Add new entry — no promptText stored
         const promptNum = parseInt(document.getElementById('ed-j-prompt').value || '0');
         const entryNum = parseInt(document.getElementById('ed-j-entry').value || '1');
-        const pText = document.getElementById('ed-j-ptext').value.trim();
-        if (promptNum >= 1 && pText) {
+        if (promptNum >= 1) {
           const maxTurn = parsedData.journal.length > 0 ? Math.max(...parsedData.journal.map(j => j.turn)) : 0;
           parsedData.journal.push({
             turn: maxTurn + 1,
             prompt: promptNum,
             entry: entryNum,
-            promptText: pText,
             prose: '',
             changes: '',
             awaiting: true
@@ -1309,7 +1303,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
           changed = true;
         }
         if (changed) markUnsaved();
-      }); // modalConfirm() handles re-render after Update is clicked
+      });
     }
 
     // ═══════════════════════════════════════════════════
