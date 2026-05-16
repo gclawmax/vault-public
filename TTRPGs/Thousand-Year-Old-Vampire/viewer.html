@@ -157,10 +157,17 @@
     async function loadGameList() {
       setStatus('busy', 'Loading chronicles…');
       try {
-        const resp = await fetch(GITHUB_API);
+        const resp = await fetch(GITHUB_API, {
+          headers: getVaultKey() ? { Authorization: 'token ' + getVaultKey() } : {}
+        });
         if (!resp.ok) throw new Error('GitHub API error: ' + resp.status);
         const files = await resp.json();
-        const jsonFiles = files.filter(f => f.name.endsWith('.json') && f.name !== 'vampire-schema.json' && !f.name.startsWith('TEST_') && !f.name.startsWith('test_'));
+        const jsonFiles = files.filter(f =>
+          f.name.endsWith('.json') &&
+          f.name !== 'vampire-schema.json' &&
+          !f.name.startsWith('TEST_') &&
+          !f.name.startsWith('test_')
+        );
         const sel = document.getElementById('game-select');
         sel.innerHTML = '<option value="">— Select a chronicle —</option>';
         jsonFiles.forEach(f => {
