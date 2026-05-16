@@ -21,7 +21,7 @@ jobs:
       - name: Build site files
         run: |
           mkdir -p _site
-          cp "TTRPGs/Thousand Year Old Vampire/tyov-viewer.html" _site/index.html
+          cp "TTRPGs/Thousand Year Old Vampire/tyov-viewer.html" _site/tyov-viewer.html
           cp "TTRPGs/Thousand Year Old Vampire/tyov-viewer.css" _site/tyov-viewer.css
           cp "TTRPGs/Thousand Year Old Vampire/core-rules.html" _site/core-rules.html
           cp "TTRPGs/Thousand Year Old Vampire/core-rules.css" _site/core-rules.css
