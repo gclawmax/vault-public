@@ -35,6 +35,8 @@
     <div id="crypt-list"></div>
   </div>
 
+  <select id="game-select" style="display:none;"></select>
+
   <!-- Main area -->
   <div id="main-wrap">
     <div id="top-bar">
@@ -307,7 +309,8 @@
 
     async function refreshCurrent() {
       const sel = document.getElementById('game-select');
-      if (sel.value) await loadVampire(sel.value);
+      const current = sel ? sel.value : currentFilename;
+      if (current) await loadVampire(current);
       else await loadGameList();
     }
 
