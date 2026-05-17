@@ -1371,50 +1371,34 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const mem = parsedData.memories[i];
       if (!mem) return;
       const preview = document.getElementById('mem-preview');
-      const newThemeWrap = document.getElementById('new-theme-wrap');
+      const loseCheck = document.getElementById('ed-je-lose-check');
+      const newThemeRow = document.getElementById('ed-je-new-theme-row');
       if (!preview) return;
 
       if (mem.experiences.length > 0) {
-        preview.textContent = 'Experiences: ' + mem.experiences.map((e, j) => (j + 1) + '. ' + e).join(' | ');
+        preview.textContent = mem.experiences.map((e, j) => (j + 1) + '. ' + e).join(' | ');
       } else {
         preview.textContent = 'No experiences yet.';
       }
-      preview.style.color = 'var(--ink-faint)';
 
-      const loseCheck = document.getElementById('ed-je-lose-check');
-      const playerChoseLose = loseCheck && loseCheck.checked;
-      const memFull = mem.experiences.length === 3;
-
-      if (memFull || playerChoseLose) {
-        const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
-        if (!newTheme) {
-          alert('Please provide a theme for the new memory that will take its place.');
-          return;
-        }
-        if (!confirm(
-          'Memory ' + mem.n + ' "' + mem.theme + '" will be lost.\n\n'
-          + 'It will be moved to Lost Memories and a new memory "'
-          + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
-        )) return;
-
-        if (!parsedData.lostMemories) parsedData.lostMemories = [];
-        parsedData.lostMemories.push({
-          n: mem.n,
-          theme: mem.theme,
-          experiences: [...mem.experiences],
-          lost_at: new Date().toISOString(),
-          lost_on_turn: je.turn
-        });
-
-        parsedData.memories[memIdx] = {
-          n: mem.n,
-          theme: newTheme,
-          experiences: [expText],
-          description: ''
-        };
+      // Auto-check and show lose fields if memory is already full
+      if (mem.experiences.length === 3) {
+        preview.textContent += ' — FULL, will be lost.';
+        preview.style.color = 'var(--blood)';
+        if (loseCheck) loseCheck.checked = true;
+        if (newThemeRow) newThemeRow.style.display = '';
       } else {
-        mem.experiences.push(expText);
+        preview.style.color = 'var(--ink-faint)';
+        // Don't uncheck — player may have manually checked it
+        if (loseCheck && !loseCheck.checked && newThemeRow) {
+          newThemeRow.style.display = 'none';
+        }
       }
+    }
+
+    function toggleLoseMemory() {
+      const checked = document.getElementById('ed-je-lose-check').checked;
+      document.getElementById('ed-je-new-theme-row').style.display = checked ? '' : 'none';
     }
 
     // ── Per-entry journal editing ───────────────────────
@@ -1503,11 +1487,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }, 0);
     }
 
-    function toggleLoseMemory() {
-      const checked = document.getElementById('ed-je-lose-check').checked;
-      document.getElementById('ed-je-new-theme-row').style.display = checked ? '' : 'none';
-    }
-
     function saveJournalEntryAsDraft(idx) {
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
@@ -1561,40 +1540,41 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
       const mem = parsedData.memories[memIdx];
 
-      if (mem.experiences.length === 3) {
-        // Memory is full — need a new theme
+      const loseCheck = document.getElementById('ed-je-lose-check');
+      const playerChoseLose = loseCheck && loseCheck.checked;
+      const shouldLose = playerChoseLose || mem.experiences.length === 3;
+
+      if (shouldLose) {
+        const newThemeEl = document.getElementById('ed-je-new-theme');
         const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
         if (!newTheme) {
-          alert('This memory is full. Please provide a theme for the new memory that will take its place.');
+          alert('Please provide a theme for the new memory that will take its place.');
           return;
         }
 
         if (!confirm(
-          'Memory ' + mem.n + ' "' + mem.theme + '" is full and will be lost.\n\n'
+          'Memory ' + mem.n + ' "' + mem.theme + '" will be lost.\n\n'
           + 'It will be moved to Lost Memories and a new memory "'
           + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
         )) return;
 
-        // Move to lost_memories
         if (!parsedData.lostMemories) parsedData.lostMemories = [];
         parsedData.lostMemories.push({
           n: mem.n,
           theme: mem.theme,
-          experiences: [...mem.experiences], // include the final experience
+          experiences: [...mem.experiences],
           lost_at: new Date().toISOString(),
           lost_on_turn: je.turn
         });
 
-        // Replace with new memory in same slot
         parsedData.memories[memIdx] = {
           n: mem.n,
           theme: newTheme,
-          experiences: [expText], // the new experience starts it
+          experiences: [expText],
           description: ''
         };
 
       } else {
-        // Memory has room — just add the experience
         mem.experiences.push(expText);
       }
 
