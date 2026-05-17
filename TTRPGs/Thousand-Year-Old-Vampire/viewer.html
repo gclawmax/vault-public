@@ -226,7 +226,7 @@
 
       list.innerHTML = sorted.map(c => {
         const isActive = c.name === currentVal;
-        return '<div class="crypt-entry' + (isActive ? ' active' : '') + '" onclick="selectChronicle(\'' + c.name.replace(/'/g, "\\'") + '\')">'
+        '<div class="crypt-entry' + (isActive ? ' active' : '') + '" onclick="selectChronicle(this, \'' + c.name.replace(/'/g, "\\'") + '\')">'
           + '<div class="crypt-entry-name">' + esc(c.display) + '</div>'
           + (c.modified ? '<div class="crypt-entry-date">' + c.modified + '</div>' : '<div class="crypt-entry-date">—</div>')
           + '<div class="crypt-entry-rune">✦</div>'
@@ -234,14 +234,13 @@
       }).join('');
     }
 
-    async function selectChronicle(filename) {
+    async function selectChronicle(el, filename) {
       if (editMode && hasUnsaved) {
         if (!confirm('You have unsaved changes. Discard them?')) return;
       }
       document.getElementById('game-select').value = filename;
-      // Update active state immediately
-      document.querySelectorAll('.crypt-entry').forEach(el => el.classList.remove('active'));
-      event.currentTarget && event.currentTarget.classList.add('active');
+      document.querySelectorAll('.crypt-entry').forEach(e => e.classList.remove('active'));
+      el.classList.add('active');
       await loadVampire(filename);
     }
 
