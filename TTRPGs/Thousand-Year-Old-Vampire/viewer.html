@@ -967,7 +967,7 @@
       <div class="edit-list-item-text">${esc(sk.name)}</div>
       <div class="edit-list-actions">
         <select class="form-select" id="sk-status-${i}" style="width:130px;font-size:13px;" onchange="updateSkillStatus(${i}, this.value)">
-          <option value="unchecked" ${sk.status === 'unchecked' ? 'selected' : ''}>✅ Unchecked</option>
+          <option value="unchecked" ${sk.status === 'unchecked' ? 'selected' : ''}>☐ Unchecked</option>
           <option value="checked" ${sk.status === 'checked' ? 'selected' : ''}>☑ Checked</option>
           <option value="lost" ${sk.status === 'lost' ? 'selected' : ''}>~~lost~~</option>
         </select>
@@ -984,7 +984,7 @@
     <div class="form-row">
       <label class="form-label">Initial Status</label>
       <select class="form-select" id="ed-skill-status">
-        <option value="unchecked">✅ Unchecked</option>
+        <option value="unchecked">☐ Unchecked</option>
         <option value="checked">☑ Checked</option>
       </select>
     </div>`;
