@@ -1373,14 +1373,47 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const preview = document.getElementById('mem-preview');
       const newThemeWrap = document.getElementById('new-theme-wrap');
       if (!preview) return;
-      if (mem.experiences.length === 3) {
-        preview.textContent = 'This memory is full. Adding an experience will move it to Lost Memories and start a new memory with the same slot.';
-        preview.style.color = 'var(--blood)';
-        if (newThemeWrap) newThemeWrap.style.display = '';
+
+      if (mem.experiences.length > 0) {
+        preview.textContent = 'Experiences: ' + mem.experiences.map((e, j) => (j + 1) + '. ' + e).join(' | ');
       } else {
-        preview.textContent = 'Experiences: ' + mem.experiences.map((e, i) => (i + 1) + '. ' + e).join(' | ');
-        preview.style.color = 'var(--ink-faint)';
-        if (newThemeWrap) newThemeWrap.style.display = 'none';
+        preview.textContent = 'No experiences yet.';
+      }
+      preview.style.color = 'var(--ink-faint)';
+
+      const loseCheck = document.getElementById('ed-je-lose-check');
+      const playerChoseLose = loseCheck && loseCheck.checked;
+      const memFull = mem.experiences.length === 3;
+
+      if (memFull || playerChoseLose) {
+        const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
+        if (!newTheme) {
+          alert('Please provide a theme for the new memory that will take its place.');
+          return;
+        }
+        if (!confirm(
+          'Memory ' + mem.n + ' "' + mem.theme + '" will be lost.\n\n'
+          + 'It will be moved to Lost Memories and a new memory "'
+          + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
+        )) return;
+
+        if (!parsedData.lostMemories) parsedData.lostMemories = [];
+        parsedData.lostMemories.push({
+          n: mem.n,
+          theme: mem.theme,
+          experiences: [...mem.experiences],
+          lost_at: new Date().toISOString(),
+          lost_on_turn: je.turn
+        });
+
+        parsedData.memories[memIdx] = {
+          n: mem.n,
+          theme: newTheme,
+          experiences: [expText],
+          description: ''
+        };
+      } else {
+        mem.experiences.push(expText);
       }
     }
 
@@ -1419,7 +1452,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
               '<option value="' + i + '">'
               + 'Memory ' + m.n + ' — ' + esc(m.theme)
               + ' (' + m.experiences.length + '/3 experiences)'
-              + (m.experiences.length === 3 ? ' ⚠ FULL — will be lost' : '')
               + '</option>'
             ).join('')
             + '</select>'
@@ -1429,12 +1461,20 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             + '<label class="form-label">New Experience</label>'
             + '<textarea class="form-textarea" id="ed-je-exp-text" style="min-height:80px;" placeholder="A few sentences summarising this memory experience…"></textarea>'
             + '</div>'
-            + '<div id="new-theme-wrap" style="display:none;">'
+            + '<div id="new-theme-wrap">'
+            + '<div class="form-row" style="margin-bottom:8px;">'
+            + '<label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;">'
+            + '<input type="checkbox" id="ed-je-lose-check" onchange="toggleLoseMemory()">'
+            + ' Lose this memory (move to Lost Memories and start a new one)'
+            + '</label>'
+            + '</div>'
+            + '<div id="ed-je-new-theme-row" style="display:none;">'
             + '<div class="form-row">'
-            + '<label class="form-label" style="color:var(--blood);">New Memory Theme (required — this memory will be lost)</label>'
+            + '<label class="form-label" style="color:var(--blood);">New Memory Theme (required)</label>'
             + '<input class="form-input" id="ed-je-new-theme" placeholder="Theme for the new memory that takes its place…">'
             + '</div>'
-            + '</div>';
+            + '</div>'
+            + '</div>'
         }
       }
 
@@ -1461,6 +1501,11 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         const sel = document.getElementById('ed-je-exp-mem');
         if (sel) previewMemoryState(sel.value);
       }, 0);
+    }
+
+    function toggleLoseMemory() {
+      const checked = document.getElementById('ed-je-lose-check').checked;
+      document.getElementById('ed-je-new-theme-row').style.display = checked ? '' : 'none';
     }
 
     function saveJournalEntryAsDraft(idx) {
@@ -1535,7 +1580,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         parsedData.lostMemories.push({
           n: mem.n,
           theme: mem.theme,
-          experiences: [...mem.experiences, expText], // include the final experience
+          experiences: [...mem.experiences], // include the final experience
           lost_at: new Date().toISOString(),
           lost_on_turn: je.turn
         });
