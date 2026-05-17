@@ -231,6 +231,7 @@
       } catch (e) {
         setStatus('err', 'Load failed: ' + e.message);
       }
+      localStorage.setItem('tyov-last-chronicle', filename);
     }
 
     function resetToGameList() {
@@ -1775,7 +1776,10 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
     }
 
-    loadGameList(); // prompts load lazily on first use — no token available yet anyway
+    loadGameList().then(() => {
+      const last = localStorage.getItem('tyov-last-chronicle');
+      if (last) loadVampire(last).catch(() => localStorage.removeItem('tyov-last-chronicle'));
+    });
   </script>
 </body>
 
