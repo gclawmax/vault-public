@@ -395,27 +395,24 @@
         subtitle: json.vampire_desc || '',
         mortalSelf: json.mortal_self || '',
         epithet: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
-        marks: (json.marks || []).map(m => ({ desc: m.description || '', concealment: m.concealment || '', struck: m.status === 'struck' })),
-        memories: (json.memories || []).map((mem, idx) => {
-          // Parse experiences — schema says they are raw strings, but in practice they may be objects {text, struck}
-          const normalisedExps = [];
-          ((mem.experiences || []).map(e => {
-            if (typeof e === 'string') {
-              normalisedExps.push({ text: e, struck: false });
-            } else {
-              // e is an object like { text, struck }
-              normalisedExps.push({ text: e.text || e.description || '', struck: !!e.struck });
-            }
-          }));
-          return {
-            n: mem.n || idx + 1,
-            theme: mem.name || '',
-            experiences: normalisedExps,
-            struck: mem.status === 'struck',
-            inDiary: !!mem.in_diary,
-            description: mem.description || ''    // ← schema field, currently not rendered
-          };
-        }),
+        marks: (json.marks || []).map(m => ({
+          desc: m.description || '',
+          concealment: m.concealment || '',
+          struck: m.status === 'struck'
+        })),
+        memories: (json.memories || []).map((mem, idx) => ({
+          n: mem.n || idx + 1,
+          theme: mem.theme || mem.name || '',
+          experiences: (mem.experiences || []).map(e => typeof e === 'string' ? e : (e.text || '')),
+          description: mem.description || ''
+        })),
+        lostMemories: (json.lost_memories || []).map(m => ({
+          n: m.n,
+          theme: m.theme || m.name || '',
+          experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : (e.text || '')),
+          lost_at: m.lost_at || null,
+          lost_on_turn: m.lost_on_turn || null
+        })),
         diary: {
           exists: Array.isArray(json.diary?.memories) && json.diary.memories.length > 0,
           memories: (json.diary?.memories || []).map((mem, idx) => {
@@ -427,8 +424,17 @@
             return { n: mem.n || idx + 1, theme: name, experiences: exps };
           })
         },
-        skills: (json.skills || []).map(sk => ({ name: sk.name || '', description: sk.description || '', status: sk.status === 'available' ? 'unchecked' : sk.status === 'spent' ? 'checked' : 'lost' })),
-        resources: (json.resources || []).map(r => ({ name: r.name || '', description: r.description || '', type: r.type || 'portable', status: r.status === 'available' ? 'active' : 'lost' })),
+        skills: (json.skills || []).map(sk => ({
+          name: sk.name || '',
+          description: sk.description || '',
+          status: sk.status === 'available' ? 'unchecked' : sk.status === 'spent' ? 'checked' : 'lost'
+        })),
+        resources: (json.resources || []).map(r => ({
+          name: r.name || '',
+          description: r.description || '',
+          type: r.type || 'portable',
+          status: r.status === 'available' ? 'active' : 'lost'
+        })),
         mortals: [],
         immortals: [],
         journal: (json.journal || []).map(j => ({
@@ -437,8 +443,8 @@
           entry: j.entry,
           prose: j.experience || '',
           changes: j.changes || '',
-          resolved_at: j.resolved_at || null,
-          awaiting: j.resolved === false
+          awaiting: j.resolved === false,
+          resolved_at: j.resolved_at || null
         })),
         epitaph: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
         gameOver: !!json.game_over,
@@ -447,7 +453,13 @@
       };
 
       (json.characters || []).forEach(c => {
-        const entry = { name: c.name || '', desc: c.description || '', description: c.description || '', dead: c.status === 'dead', death_reason: c.death_reason || '' };
+        const entry = {
+          name: c.name || '',
+          desc: c.description || '',
+          description: c.description || '',
+          dead: c.status === 'dead',
+          death_reason: c.death_reason || ''
+        };
         if (c.type === 'mortal') data.mortals.push(entry);
         else data.immortals.push(entry);
       });
@@ -481,14 +493,17 @@
         prompts_resolved: d.frontmatter.prompts_resolved ? parseInt(d.frontmatter.prompts_resolved, 10) : 0,
         marks: (d.marks || []).map(m => ({ description: m.desc || '', concealment: m.concealment || '', status: m.struck ? 'struck' : 'available' })),
         memories: (d.memories || []).map(mem => ({
-          name: mem.theme || `Memory ${mem.n || ''}`,
+          n: mem.n,
+          theme: mem.theme || '',
           description: mem.description || '',
-          experiences: (mem.experiences || []).map(exp => {
-            // The schema says experiences is string[]; store pure strings on save
-            return typeof exp.text === 'string' ? exp.text : String(exp.text || '');
-          }),
-          status: mem.struck ? 'struck' : 'available',
-          in_diary: !!mem.inDiary
+          experiences: (mem.experiences || []).map(e => typeof e === 'string' ? e : String(e || ''))
+        })),
+        lost_memories: (d.lostMemories || []).map(m => ({
+          n: m.n,
+          theme: m.theme || '',
+          experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : String(e || '')),
+          lost_at: m.lost_at || null,
+          lost_on_turn: m.lost_on_turn || null
         })),
         diary: {
           memories: (d.diary?.memories || []),
@@ -631,7 +646,7 @@
       journalDisplay.forEach(j => {
         const trueIdx = d.journal.indexOf(j);
         html += '<div class="journal-entry" data-entry-idx="' + trueIdx + '" '
-          + (em ? 'onclick="event.stopPropagation();editJournalEntryEntry(' + trueIdx + ')" title="Click to edit this entry"' : '') + '>'
+          + (em ? 'onclick="event.stopPropagation();editjournalentry(' + trueIdx + ')" title="Click to edit this entry"' : '') + '>'
           + '<div class="journal-turn">Turn ' + j.turn + ' — Prompt ' + j.prompt + ', Entry ' + j.entry + '</div>'
           + '<div class="journal-scrap">'
           + '<div class="journal-prompt-text">' + esc(getPromptText(j.prompt, j.entry)) + '</div>'
@@ -682,8 +697,8 @@
         html += '<div class="memory-block ' + cls + '">'
           + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme) + tag + '</div>'
           + '<ol>';
-        mem.experiences.forEach(exp => {
-          html += '<li' + (exp.struck ? ' style="text-decoration:line-through;opacity:.5"' : '') + '>' + esc(exp.text) + '</li>';
+        mem.experiences.forEach((exp, j) => {
+          html += '<li>' + esc(exp) + '</li>';  // no struck check — just render the string
         });
         html += '</ol></div>';
       });
@@ -703,6 +718,29 @@
         });
       }
       html += '</div></div>';
+
+      // Lost Memories
+      if (d.lostMemories && d.lostMemories.length > 0) {
+        const sorted = [...d.lostMemories].sort((a, b) => new Date(a.lost_at) - new Date(b.lost_at));
+        html += '<div class="memories-section section-editwrap" data-section="lost-memories">'
+          + '<div class="memories-section-label"><span class="section-icon">💀</span> Lost Memories</div>'
+          + '<div class="memories-grid">';
+        sorted.forEach(mem => {
+          const ld = new Date(mem.lost_at);
+          const lostDate = String(ld.getDate()).padStart(2, '0') + '-'
+            + String(ld.getMonth() + 1).padStart(2, '0') + '-'
+            + ld.getFullYear();
+          html += '<div class="memory-block forgotten">'
+            + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme)
+            + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + ' · ' + lostDate + '</span></div>'
+            + '<ol>';
+          mem.experiences.forEach(exp => {
+            html += '<li>' + esc(exp) + '</li>';
+          });
+          html += '</ol></div>';
+        });
+        html += '</div></div>';
+      }
 
       el.innerHTML = html;
     }
@@ -1066,67 +1104,48 @@
     // ── Memories ──────────────────────────────────────
     function editMemories() {
       if (!editMode) return;
-      let bodyHtml = `<div class="edit-section-title">Memories (max 5 active)</div>`;
+      let bodyHtml = '<div class="edit-section-title">Active Memories (' + parsedData.memories.length + '/5)</div>';
+
       parsedData.memories.forEach((mem, i) => {
-        bodyHtml += `<div class="edit-list-item ${mem.struck ? 'struck-item' : ''}" style="flex-direction:column;align-items:stretch;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <strong class="${mem.struck ? 'struck-text' : ''}">Memory ${mem.n} — ${esc(mem.theme)}</strong>
-        <div style="display:flex;gap:6px;">
-          <button class="strike-btn ${mem.struck ? 'struck' : ''}" onclick="toggleMemStruck(${i})">${mem.struck ? 'Restore' : 'Forget'}</button>
-          <button class="trash-btn" onclick="deleteMemory(${i})" title="Delete memory entirely">🗑</button>
-          <button class="strike-btn" onclick="addMemExp(${i})" ${mem.experiences.length >= 3 ? 'disabled style="opacity:.4"' : ''}>+ Exp</button>
-        </div>
-      </div>`;
+        bodyHtml += '<div class="edit-list-item" style="flex-direction:column;align-items:stretch;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+          + '<strong>Memory ' + mem.n + ' — ' + esc(mem.theme) + '</strong>'
+          + '<button class="trash-btn" onclick="deleteMemory(' + i + ')" title="Delete memory entirely">🗑</button>'
+          + '</div>';
         mem.experiences.forEach((exp, j) => {
-          bodyHtml += `<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;padding-left:12px;">
-        <span class="${exp.struck ? 'struck-text' : ''}" style="flex:1;font-size:.88rem;">${j + 1}. ${esc(exp.text)}</span>
-        <button class="strike-btn ${exp.struck ? 'struck' : ''}" onclick="toggleExpStruck(${i},${j})">${exp.struck ? 'Restore' : 'Cross out'}</button>
-      </div>`;
+          bodyHtml += '<div style="font-size:.88rem;padding-left:12px;margin-bottom:3px;">'
+            + (j + 1) + '. ' + esc(exp) + '</div>';
         });
-        bodyHtml += `</div>`;
+        if (mem.experiences.length === 0) {
+          bodyHtml += '<div style="font-size:.85rem;color:var(--ink-faint);padding-left:12px;font-style:italic;">No experiences yet.</div>';
+        }
+        bodyHtml += '</div>';
       });
 
-      const activeCount = parsedData.memories.filter(m => !m.struck).length;
-      if (activeCount < 5) {
-        bodyHtml += `<hr class="edit-divider">
-      <div class="edit-section-title">Add Memory (${activeCount}/5 active)</div>
-      <div class="form-row">
-        <label class="form-label">Theme</label>
-        <input class="form-input" id="ed-mem-theme" placeholder="e.g. The Scholarly Curate">
-      </div>
-      <div class="form-row">
-        <label class="form-label">First Experience</label>
-        <textarea class="form-textarea" id="ed-mem-exp" style="min-height:60px;" placeholder="First memory experience…"></textarea>
-      </div>`;
+      if (parsedData.memories.length < 5) {
+        bodyHtml += '<hr class="edit-divider">'
+          + '<div class="edit-section-title">Add New Memory</div>'
+          + '<div class="form-row">'
+          + '<label class="form-label">Theme</label>'
+          + '<input class="form-input" id="ed-mem-theme" placeholder="e.g. The Scholarly Curate">'
+          + '</div>'
+          + '<div class="form-row">'
+          + '<label class="form-label">First Experience</label>'
+          + '<textarea class="form-textarea" id="ed-mem-exp" style="min-height:60px;" placeholder="First memory experience…"></textarea>'
+          + '</div>';
       } else {
-        bodyHtml += `<p style="margin-top:12px;color:var(--blood);font-size:.85rem;font-style:italic;">Memory cap reached (5/5). Forget or move a memory to diary first.</p>`;
+        bodyHtml += '<p style="margin-top:12px;color:var(--blood);font-size:.85rem;font-style:italic;">Memory cap reached (5/5).</p>';
       }
 
       openModal('Edit Memories', bodyHtml, () => {
         const theme = document.getElementById('ed-mem-theme') ? document.getElementById('ed-mem-theme').value.trim() : '';
         const expText = document.getElementById('ed-mem-exp') ? document.getElementById('ed-mem-exp').value.trim() : '';
         if (theme && expText) {
-          const newN = (parsedData.memories.length > 0 ? Math.max(...parsedData.memories.map(m => m.n)) : 0) + 1;
-          parsedData.memories.push({ n: newN, theme, experiences: [{ text: expText, struck: false }], struck: false, inDiary: false });
+          const newN = parsedData.memories.length > 0 ? Math.max(...parsedData.memories.map(m => m.n)) + 1 : 1;
+          parsedData.memories.push({ n: newN, theme, experiences: [expText], description: '' });
           markUnsaved();
         }
-      }); // modalConfirm() handles re-render after Update is clicked
-    }
-
-    function toggleMemStruck(i) {
-      parsedData.memories[i].struck = !parsedData.memories[i].struck;
-      editMemories();
-    }
-    function toggleExpStruck(i, j) {
-      parsedData.memories[i].experiences[j].struck = !parsedData.memories[i].experiences[j].struck;
-      editMemories();
-    }
-    function addMemExp(i) {
-      const text = prompt('New experience text:');
-      if (text && text.trim()) {
-        parsedData.memories[i].experiences.push({ text: text.trim(), struck: false });
-        markUnsaved(); editMemories();
-      }
+      });
     }
 
     // ── Diary ─────────────────────────────────────────
@@ -1238,27 +1257,8 @@ This is an admin action — it removes the character entirely from the sheet, di
     function deleteMemory(i) {
       if (!editMode) return;
       const mem = parsedData.memories[i];
-      const label = mem.inDiary ? ' (in diary)' : '';
-      if (!confirm(`Delete Memory ${mem.n} — "${mem.theme || ('Memory ' + mem.n)}"${label}?
-
-This is an admin action — it removes the entire memory (and all its experiences) from the sheet.
-If this memory has an entry in the diary, it will also be removed there.`)) return;
-      if (mem.inDiary) {
-        const diaryIdx = parsedData.diary.memories.findIndex(d => d.theme === mem.theme);
-        if (diaryIdx !== -1) {
-          parsedData.diary.memories.splice(diaryIdx, 1);
-          parsedData.diary.memories.forEach((m, idx) => { m.n = idx + 1; });
-          if (parsedData.diary.memories.length === 0) {
-            parsedData.diary.exists = false;
-          }
-          // Clean up frontmatter
-          parsedData.frontmatter.diary_exists = 'true';
-          parsedData.frontmatter.diary_name = 'Diary';
-          parsedData.diary.exists = true;
-        }
-      }
+      if (!confirm('Delete Memory ' + mem.n + ' — "' + (mem.theme || 'Memory ' + mem.n) + '"?\n\nThis removes it entirely.')) return;
       parsedData.memories.splice(i, 1);
-      parsedData.memories.forEach((m, idx) => { m.n = idx + 1; });
       markUnsaved();
       setStatus('ok', 'Memory deleted');
       editMemories();
@@ -1366,28 +1366,80 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       });
     }
 
+    function previewMemoryState(memIdxStr) {
+      const i = parseInt(memIdxStr);
+      const mem = parsedData.memories[i];
+      if (!mem) return;
+      const preview = document.getElementById('mem-preview');
+      const newThemeWrap = document.getElementById('new-theme-wrap');
+      if (!preview) return;
+      if (mem.experiences.length === 3) {
+        preview.textContent = 'This memory is full. Adding an experience will move it to Lost Memories and start a new memory with the same slot.';
+        preview.style.color = 'var(--blood)';
+        if (newThemeWrap) newThemeWrap.style.display = '';
+      } else {
+        preview.textContent = 'Experiences: ' + mem.experiences.map((e, i) => (i + 1) + '. ' + e).join(' | ');
+        preview.style.color = 'var(--ink-faint)';
+        if (newThemeWrap) newThemeWrap.style.display = 'none';
+      }
+    }
+
     // ── Per-entry journal editing ───────────────────────
-    function editJournalEntryEntry(idx) {
+    function editjournalentry(idx) {
       if (!editMode) return;
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
-      const canResolve = hasUnexperiencedMemory();
 
-      let bodyHtml = `<div class="edit-section-title">Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</div>
-<div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:14px;font-size:.88rem;color:var(--ink-dim);margin-bottom:16px;">${esc(getPromptText(je.prompt, je.entry))}</div>
-<div class="form-row">
-  <label class="form-label">Journal Prose</label>
-  <textarea class="form-textarea" id="ed-je-prose" style="min-height:120px;">${esc(je.prose)}</textarea>
-  <div class="form-hint">Your character's experience with this prompt.</div>
-</div>
-<div class="form-row">
-  <label class="form-label">Changes (mechanical summary)</label>
-  <input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="${esc(je.changes)}">
-  <div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>
-</div>`;
+      let bodyHtml = '<div class="edit-section-title">Turn ' + je.turn + ' — Prompt ' + je.prompt + ', Entry ' + je.entry + '</div>'
+        + '<div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:16px;font-size:.88rem;color:var(--ink-dim);">'
+        + esc(getPromptText(je.prompt, je.entry))
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Journal Prose</label>'
+        + '<textarea class="form-textarea" id="ed-je-prose" style="min-height:120px;">' + esc(je.prose) + '</textarea>'
+        + '<div class="form-hint">Your character\'s experience with this prompt.</div>'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Changes (mechanical summary)</label>'
+        + '<input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="' + esc(je.changes) + '">'
+        + '<div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>'
+        + '</div>';
+
+      if (je.awaiting) {
+        bodyHtml += '<hr class="edit-divider">'
+          + '<div class="edit-section-title" style="color:var(--blood);">Record Memory Experience (required to resolve)</div>';
+
+        if (parsedData.memories.length === 0) {
+          bodyHtml += '<p style="color:var(--blood);font-size:.88rem;font-style:italic;">No active memories. Add a memory first via the Memories section.</p>';
+        } else {
+          bodyHtml += '<div class="form-row">'
+            + '<label class="form-label">Choose Memory</label>'
+            + '<select class="form-select" id="ed-je-exp-mem" onchange="previewMemoryState(this.value)">'
+            + parsedData.memories.map((m, i) =>
+              '<option value="' + i + '">'
+              + 'Memory ' + m.n + ' — ' + esc(m.theme)
+              + ' (' + m.experiences.length + '/3 experiences)'
+              + (m.experiences.length === 3 ? ' ⚠ FULL — will be lost' : '')
+              + '</option>'
+            ).join('')
+            + '</select>'
+            + '</div>'
+            + '<div id="mem-preview" style="font-size:.82rem;color:var(--ink-faint);padding:6px 0 10px 2px;font-style:italic;"></div>'
+            + '<div class="form-row">'
+            + '<label class="form-label">New Experience</label>'
+            + '<textarea class="form-textarea" id="ed-je-exp-text" style="min-height:80px;" placeholder="A few sentences summarising this memory experience…"></textarea>'
+            + '</div>'
+            + '<div id="new-theme-wrap" style="display:none;">'
+            + '<div class="form-row">'
+            + '<label class="form-label" style="color:var(--blood);">New Memory Theme (required — this memory will be lost)</label>'
+            + '<input class="form-input" id="ed-je-new-theme" placeholder="Theme for the new memory that takes its place…">'
+            + '</div>'
+            + '</div>';
+        }
+      }
 
       const isAwaiting = je.awaiting === true;
-      const resolveDisabled = !isAwaiting || !canResolve;
+      const resolveDisabled = !isAwaiting || parsedData.memories.length === 0;
 
       const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
         + (!isAwaiting ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
@@ -1398,41 +1450,19 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         + '>✓ Resolve This Entry</button>';
 
       openModal('Edit Journal Entry', bodyHtml, () => {
-        const prose = document.getElementById('ed-je-prose') ? document.getElementById('ed-je-prose').value.trim() : '';
-        const changes = document.getElementById('ed-je-changes') ? document.getElementById('ed-je-changes').value.trim() : '';
-        je.prose = prose;
-        je.changes = changes;
+        const proseEl = document.getElementById('ed-je-prose');
+        const changesEl = document.getElementById('ed-je-changes');
+        if (proseEl) je.prose = proseEl.value.trim();
+        if (changesEl) je.changes = changesEl.value.trim();
         markUnsaved();
       }, footerHtml);
+
+      setTimeout(() => {
+        const sel = document.getElementById('ed-je-exp-mem');
+        if (sel) previewMemoryState(sel.value);
+      }, 0);
     }
 
-    function recordMemoryExperienceAndDraft(idx) {
-      const expTextEl = document.getElementById('ed-je-exp-text');
-      const expMemEl = document.getElementById('ed-je-exp-mem');
-      if (!expTextEl || !expMemEl || !expTextEl.value.trim()) {
-        alert('Please write a memory experience before recording.');
-        return;
-      }
-      const memIdx = parseInt(expMemEl.value);
-      if (isNaN(memIdx) || memIdx < 0 || memIdx >= parsedData.memories.length) {
-        alert('No valid memory selected.');
-        return;
-      }
-      parsedData.memories[memIdx].experiences.push({ text: expTextEl.value.trim(), struck: false });
-      markUnsaved();
-      setStatus('ok', 'Memory experience recorded.');
-      editJournalEntryEntry(idx); // refresh — now should show Resolve
-    }
-
-    function hasUnexperiencedMemory() {
-      for (const mem of parsedData.memories) {
-        if (mem.struck) continue;
-        for (const exp of mem.experiences) {
-          if (!exp.struck) return true;
-        }
-      }
-      return false;
-    }
     function saveJournalEntryAsDraft(idx) {
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
@@ -1450,24 +1480,86 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
     function resolveJournalEntry(idx) {
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
+
+      // Read prose + changes from DOM
       const proseEl = document.getElementById('ed-je-prose');
       const changesEl = document.getElementById('ed-je-changes');
       if (proseEl) je.prose = proseEl.value.trim();
       if (changesEl) je.changes = changesEl.value.trim();
+
       if (!je.prose) {
         alert('Cannot resolve: prose must be written first.');
         return;
       }
-      if (!hasUnexperiencedMemory()) {
-        alert('Cannot resolve: the vampire must record a memory experience before resolving a prompt.');
+
+      // Read memory experience from DOM
+      const memSelEl = document.getElementById('ed-je-exp-mem');
+      const expTextEl = document.getElementById('ed-je-exp-text');
+      const newThemeEl = document.getElementById('ed-je-new-theme');
+
+      if (!memSelEl || !expTextEl) {
+        alert('Cannot resolve: no active memories available. Add a memory first.');
         return;
       }
-      if (!confirm('Resolve journal entry Turn ' + je.turn + '?\n\nThis marks the entry as resolved.')) return;
+
+      const memIdx = parseInt(memSelEl.value);
+      const expText = expTextEl.value.trim();
+
+      if (isNaN(memIdx) || memIdx < 0 || memIdx >= parsedData.memories.length) {
+        alert('Cannot resolve: please select a valid memory.');
+        return;
+      }
+      if (!expText) {
+        alert('Cannot resolve: please write a memory experience.');
+        return;
+      }
+
+      const mem = parsedData.memories[memIdx];
+
+      if (mem.experiences.length === 3) {
+        // Memory is full — need a new theme
+        const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
+        if (!newTheme) {
+          alert('This memory is full. Please provide a theme for the new memory that will take its place.');
+          return;
+        }
+
+        if (!confirm(
+          'Memory ' + mem.n + ' "' + mem.theme + '" is full and will be lost.\n\n'
+          + 'It will be moved to Lost Memories and a new memory "'
+          + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
+        )) return;
+
+        // Move to lost_memories
+        if (!parsedData.lostMemories) parsedData.lostMemories = [];
+        parsedData.lostMemories.push({
+          n: mem.n,
+          theme: mem.theme,
+          experiences: [...mem.experiences, expText], // include the final experience
+          lost_at: new Date().toISOString(),
+          lost_on_turn: je.turn
+        });
+
+        // Replace with new memory in same slot
+        parsedData.memories[memIdx] = {
+          n: mem.n,
+          theme: newTheme,
+          experiences: [expText], // the new experience starts it
+          description: ''
+        };
+
+      } else {
+        // Memory has room — just add the experience
+        mem.experiences.push(expText);
+      }
+
+      // Mark resolved
       je.awaiting = false;
       je.resolved_at = new Date().toISOString();
+
       markUnsaved();
-      renderChronicle(parsedData);
       closeModal();
+      renderChronicle(parsedData);
       setStatus('ok', 'Turn ' + je.turn + ' resolved.');
     }
 
@@ -1477,7 +1569,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       if (!confirm(`Unresolve Turn ${je.turn}? This marks the entry as awaiting resolution again.`)) return;
       je.awaiting = true;
       markUnsaved();
-      editJournalEntryEntry(idx); // re-open refreshed
+      editjournalentry(idx); // re-open refreshed
     }
 
     function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
