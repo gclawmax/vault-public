@@ -434,8 +434,18 @@
           name: r.name || '',
           description: r.description || '',
           type: r.type || 'portable',
-          status: r.status === 'available' ? 'active' : 'lost'
+          status: r.status === 'available' ? 'active' : r.status === 'lost' ? 'lost' : 'active'
         })),
+        diaryMemories: Object.fromEntries(
+          Object.entries(json.diary_memories || {}).map(([k, v]) => [
+            k,
+            (v || []).map(m => ({
+              n: m.n,
+              theme: m.theme || '',
+              experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : (e.text || ''))
+            }))
+          ])
+        ),
         mortals: [],
         immortals: [],
         journal: (json.journal || []).map(j => ({
@@ -506,12 +516,23 @@
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
-        diary: {
-          memories: (d.diary?.memories || []),
-        },
         skills: (d.skills || []).map(sk => ({ name: sk.name || '', description: sk.description || '', status: sk.status === 'checked' ? 'spent' : sk.status === 'lost' ? 'struck' : 'available' })),
-        resources: (d.resources || []).map(r => ({ name: r.name || '', description: r.description || '', type: r.type || 'portable', status: r.status === 'active' ? 'available' : 'struck' })),
-        characters: [
+        resources: (d.resources || []).map(r => ({
+          name: r.name || '',
+          description: r.description || '',
+          type: r.type || 'portable',
+          status: r.status === 'active' ? 'available' : 'lost'
+        })),
+        diary_memories: Object.fromEntries(
+          Object.entries(d.diaryMemories || {}).map(([k, v]) => [
+            k,
+            (v || []).map(m => ({
+              n: m.n,
+              theme: m.theme || '',
+              experiences: m.experiences || []
+            }))
+          ])
+        ), characters: [
           ...(d.mortals || []).map(c => ({ name: c.name || '', type: 'mortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '' })),
           ...(d.immortals || []).map(c => ({ name: c.name || '', type: 'immortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '' }))
         ],
@@ -596,10 +617,14 @@
         + '<div class="strip-label"><span class="section-icon">🏚</span> Resources</div>'
         + '<div class="resources-inline">';
       d.resources.forEach(r => {
-        const cls = r.status === 'lost' ? 'lost' : r.type;
-        const icon = r.type === 'portable' ? '📦' : r.type === 'stationary' ? '📍' : '○';
-        html += '<span class="resource-chip ' + cls + '" title="' + r.type + '"><span class="resource-type-icon">' + esc(icon) + '</span>' + esc(r.name) + '</span>';
+        const cls = r.status === 'lost' ? 'lost' : '';
+        const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
+        html += '<span class="resource-chip ' + cls + '" title="' + esc(r.type) + '">'
+          + '<span class="resource-type-icon">' + icon + '</span>'
+          + esc(r.name)
+          + '</span>';
       });
+      if (d.resources.length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
       html += '</div></div>';
 
       html += '</div>'; // dashboard-strip
@@ -688,37 +713,49 @@
       html += '</div>'; // main-layout
 
       // Memories
+      // Active memories
       html += '<div class="memories-section section-editwrap" data-section="memories" '
         + (em ? 'onclick="editMemories()" title="Click to edit memories"' : '') + '>'
         + '<div class="memories-section-label"><span class="section-icon">🧠</span> Memories</div>'
         + '<div class="memories-grid">';
       d.memories.forEach(mem => {
-        const cls = mem.struck ? 'forgotten' : '';
-        const tag = mem.inDiary ? ' <span style="font-size:.75em;color:var(--blood)">(in diary)</span>' : '';
-        html += '<div class="memory-block ' + cls + '">'
-          + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme) + tag + '</div>'
-          + '<ol>';
-        mem.experiences.forEach((exp, j) => {
-          html += '<li>' + esc(exp) + '</li>';  // no struck check — just render the string
-        });
-        html += '</ol></div>';
+        const isEmpty = !mem.theme && mem.experiences.length === 0;
+        const cls = isEmpty ? 'memory-block empty-slot' : 'memory-block';
+        html += '<div class="' + cls + '">'
+          + '<div class="memory-title">'
+          + (isEmpty ? 'Empty — Slot ' + mem.n : 'Memory ' + mem.n + ' — ' + esc(mem.theme))
+          + '</div>';
+        if (!isEmpty) {
+          html += '<ol>';
+          mem.experiences.forEach(exp => { html += '<li>' + esc(exp) + '</li>'; });
+          html += '</ol>';
+        } else {
+          html += '<p style="font-size:.85rem;color:var(--ink-faint);font-style:italic;">Awaiting new memory.</p>';
+        }
+        html += '</div>';
       });
       html += '</div></div>';
 
-      // Diary
-      html += '<div class="diary-strip section-editwrap" data-section="diary" '
-        + (em ? 'onclick="editDiary()" title="Click to edit diary"' : '') + '>'
-        + '<div class="diary-label">📖 Diary</div>'
-        + '<div class="diary-block">';
-      if (!d.diary.exists || d.diary.memories.length === 0) {
-        html += '<p style="font-style:italic;color:var(--ink-faint)">No diary yet.</p>';
-      } else {
-        d.diary.memories.forEach(mem => {
-          html += '<p><strong>' + esc(mem.theme) + '</strong></p>';
-          mem.experiences.forEach(e => html += '<p style="padding-left:1em">— ' + esc(e.text) + '</p>');
+      // Diary memories — one section per active diary
+      const activeDiaries = d.resources.filter(r => r.type === 'diary' && r.status === 'active');
+      activeDiaries.forEach(diary => {
+        const mems = d.diaryMemories[diary.name] || [];
+        html += '<div class="memories-section section-editwrap" data-section="diary-memories-' + esc(diary.name) + '" '
+          + (em ? 'onclick="editDiaryMemories(\'' + esc(diary.name) + '\')" title="Click to edit diary memories"' : '') + '>'
+          + '<div class="memories-section-label"><span class="section-icon">📖</span> ' + esc(diary.name) + '</div>'
+          + '<div class="memories-grid">';
+        if (mems.length === 0) {
+          html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary.</p>';
+        }
+        mems.forEach(mem => {
+          html += '<div class="memory-block">'
+            + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme) + '</div>'
+            + '<ol>';
+          mem.experiences.forEach(exp => { html += '<li>' + esc(exp) + '</li>'; });
+          html += '</ol></div>';
         });
-      }
-      html += '</div></div>';
+        html += '</div></div>';
+      });
 
       // Lost Memories
       if (d.lostMemories && d.lostMemories.length > 0) {
@@ -1003,45 +1040,149 @@
     // ── Resources ─────────────────────────────────────
     function editResources() {
       if (!editMode) return;
-      let bodyHtml = `<div class="edit-section-title">Existing Resources</div>`;
+      let bodyHtml = '<div class="edit-section-title">Resources</div>';
+
       parsedData.resources.forEach((r, i) => {
-        bodyHtml += `<div class="edit-list-item">
-      <div class="edit-list-item-text">${esc(r.name)} <span style="color:var(--ink-faint);font-size:.8rem">(${r.type})</span></div>
-      <div class="edit-list-actions">
-        <select class="form-select" id="res-status-${i}" style="width:110px;font-size:13px;" onchange="updateResourceStatus(${i}, this.value)">
-          <option value="active" ${r.status === 'active' ? 'selected' : ''}>✅ Active</option>
-          <option value="lost" ${r.status === 'lost' ? 'selected' : ''}>~~Lost~~</option>
-        </select>
-        <button class="trash-btn" onclick="deleteResource(${i})" title="Delete resource entirely">🗑</button>
-      </div>
-    </div>`;
+        const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
+        bodyHtml += '<div class="edit-list-item">'
+          + '<div class="edit-list-item-text">'
+          + '<strong>' + icon + ' ' + esc(r.name) + '</strong>'
+          + (r.description ? '<br><span style="font-size:.85rem;color:var(--ink-faint)">' + esc(r.description) + '</span>' : '')
+          + '<br><span style="font-size:.82rem;color:var(--ink-faint);">' + r.type + ' · ' + r.status + '</span>'
+          + '</div>'
+          + '<div class="edit-list-actions">'
+          + (r.status === 'active'
+            ? '<button class="strike-btn" onclick="loseResource(' + i + ')">Lose</button>'
+            : '<button class="strike-btn struck" onclick="restoreResource(' + i + ')">Restore</button>')
+          + '<button class="trash-btn" onclick="deleteResource(' + i + ')">🗑</button>'
+          + '</div>'
+          + '</div>';
       });
-      bodyHtml += `<hr class="edit-divider">
-    <div class="edit-section-title">Add New Resource</div>
-    <div class="form-row">
-      <label class="form-label">Name</label>
-      <input class="form-input" id="ed-res-name" placeholder="e.g. The Herbarium">
-    </div>
-    <div class="form-row">
-      <label class="form-label">Type</label>
-      <select class="form-select" id="ed-res-type">
-        <option value="portable">Portable</option>
-        <option value="stationary">📍 Stationary</option>
-      </select>
-    </div>`;
+
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add Resource</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Type</label>'
+        + '<select class="form-select" id="ed-res-type">'
+        + '<option value="portable">📦 Portable</option>'
+        + '<option value="stationary">📍 Stationary</option>'
+        + '<option value="diary">📖 Diary</option>'
+        + '</select>'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Name</label>'
+        + '<input class="form-input" id="ed-res-name" placeholder="e.g. The Red Diary">'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Description</label>'
+        + '<input class="form-input" id="ed-res-desc" placeholder="Brief description…">'
+        + '</div>';
+
       openModal('Edit Resources', bodyHtml, () => {
         const name = document.getElementById('ed-res-name').value.trim();
+        const desc = document.getElementById('ed-res-desc').value.trim();
         const type = document.getElementById('ed-res-type').value;
         if (name) {
-          parsedData.resources.push({ name, type, status: 'active' });
+          parsedData.resources.push({ name, description: desc, type, status: 'active' });
+          if (type === 'diary' && !parsedData.diaryMemories[name]) {
+            parsedData.diaryMemories[name] = [];
+          }
           markUnsaved();
         }
-      }); // modalConfirm() handles modalClose, markUnsaved, and re-render after Update is clicked
+      });
     }
 
     function updateResourceStatus(i, val) {
       parsedData.resources[i].status = val;
       markUnsaved();
+    }
+
+    function loseResource(i) {
+      if (!editMode) return;
+      const r = parsedData.resources[i];
+      if (r.type === 'diary') {
+        const mems = parsedData.diaryMemories[r.name] || [];
+        if (mems.length > 0) {
+          if (!confirm('Lose "' + r.name + '"?\n\nAll ' + mems.length + ' memories stored in this diary will be moved to Lost Memories.')) return;
+          const turn = parsedData.journal.length > 0
+            ? Math.max(...parsedData.journal.map(j => j.turn))
+            : null;
+          const now = new Date().toISOString();
+          if (!parsedData.lostMemories) parsedData.lostMemories = [];
+          mems.forEach(m => {
+            parsedData.lostMemories.push({
+              n: m.n,
+              theme: m.theme,
+              experiences: [...m.experiences],
+              lost_at: now,
+              lost_on_turn: turn
+            });
+          });
+          parsedData.diaryMemories[r.name] = [];
+        } else {
+          if (!confirm('Lose "' + r.name + '"?')) return;
+        }
+      } else {
+        if (!confirm('Lose "' + r.name + '"?')) return;
+      }
+      r.status = 'lost';
+      markUnsaved();
+      renderChronicle(parsedData);
+      editResources();
+    }
+
+    // ── Diary Memories ─────────────────────────────────────
+
+    function editDiaryMemories(diaryName) {
+      if (!editMode) return;
+      if (!parsedData.diaryMemories) parsedData.diaryMemories = {};
+      const mems = parsedData.diaryMemories[diaryName] || [];
+
+      let bodyHtml = '<div class="edit-section-title">' + esc(diaryName) + ' (' + mems.length + '/4 memories)</div>';
+
+      if (mems.length === 0) {
+        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary yet.</p>';
+      }
+
+      mems.forEach((m, i) => {
+        bodyHtml += '<div class="edit-list-item" style="flex-direction:column;align-items:stretch;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+          + '<strong>Memory ' + m.n + ' — ' + esc(m.theme) + '</strong>'
+          + '<button class="trash-btn" onclick="removeDiaryMemory(\'' + diaryName.replace(/'/g, "\\'") + '\',' + i + ')" title="Remove from diary to Lost Memories">🗑</button>'
+          + '</div>';
+        m.experiences.forEach((exp, j) => {
+          bodyHtml += '<div style="font-size:.88rem;padding-left:12px;margin-bottom:3px;">' + (j + 1) + '. ' + esc(exp) + '</div>';
+        });
+        bodyHtml += '</div>';
+      });
+
+      openModal('Diary — ' + diaryName, bodyHtml, () => { });
+    }
+
+    function removeDiaryMemory(diaryName, idx) {
+      if (!editMode) return;
+      const mems = parsedData.diaryMemories[diaryName] || [];
+      const m = mems[idx];
+      if (!m) return;
+      if (!confirm('Remove Memory ' + m.n + ' "' + m.theme + '" from ' + diaryName + '?\n\nIt will be moved to Lost Memories.')) return;
+
+      const turn = parsedData.journal.length > 0
+        ? Math.max(...parsedData.journal.map(j => j.turn))
+        : null;
+
+      if (!parsedData.lostMemories) parsedData.lostMemories = [];
+      parsedData.lostMemories.push({
+        n: m.n,
+        theme: m.theme,
+        experiences: [...m.experiences],
+        lost_at: new Date().toISOString(),
+        lost_on_turn: turn
+      });
+
+      mems.splice(idx, 1);
+      parsedData.diaryMemories[diaryName] = mems;
+      markUnsaved();
+      renderChronicle(parsedData);
+      editDiaryMemories(diaryName);
     }
 
     // ── Characters ────────────────────────────────────
@@ -1120,6 +1261,22 @@
         if (mem.experiences.length === 0) {
           bodyHtml += '<div style="font-size:.85rem;color:var(--ink-faint);padding-left:12px;font-style:italic;">No experiences yet.</div>';
         }
+        const activeDiaries = parsedData.resources.filter(r => r.type === 'diary' && r.status === 'active');
+        if (activeDiaries.length > 0 && mem.theme && mem.experiences.length > 0) {
+          const availableDiaries = activeDiaries.filter(d =>
+            (parsedData.diaryMemories[d.name] || []).length < 4
+          );
+          bodyHtml += '<div style="margin-top:8px;">';
+          if (availableDiaries.length === 0) {
+            bodyHtml += '<span style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">All diaries full.</span>';
+          } else {
+            bodyHtml += '<select class="form-select" id="ed-mem-diary-' + i + '" style="font-size:.82rem;padding:4px 8px;width:auto;display:inline-block;margin-right:6px;">'
+              + availableDiaries.map(d => '<option value="' + esc(d.name) + '">' + esc(d.name) + ' (' + (parsedData.diaryMemories[d.name] || []).length + '/4)</option>').join('')
+              + '</select>'
+              + '<button class="strike-btn" onclick="moveMemoryToDiary(' + i + ', document.getElementById(\'ed-mem-diary-' + i + '\').value)">📖 Move to Diary</button>';
+          }
+          bodyHtml += '</div>';
+        }
         bodyHtml += '</div>';
       });
 
@@ -1150,6 +1307,30 @@
     }
 
     // ── Diary ─────────────────────────────────────────
+    function moveMemoryToDiary(memIdx, diaryName) {
+      if (!editMode) return;
+      const mem = parsedData.memories[memIdx];
+      if (!mem || !mem.theme) return;
+      const diaryMems = parsedData.diaryMemories[diaryName] || [];
+      if (diaryMems.length >= 4) {
+        alert(diaryName + ' is full (4/4 memories).');
+        return;
+      }
+      if (!confirm('Move Memory ' + mem.n + ' "' + mem.theme + '" into ' + diaryName + '?\n\nThe memory slot will become empty.')) return;
+
+      // Copy to diary
+      diaryMems.push({ n: mem.n, theme: mem.theme, experiences: [...mem.experiences] });
+      parsedData.diaryMemories[diaryName] = diaryMems;
+
+      // Empty the slot
+      parsedData.memories[memIdx] = { n: mem.n, theme: '', experiences: [], description: '' };
+
+      markUnsaved();
+      closeModal();
+      renderChronicle(parsedData);
+    }
+
+
     function editDiary() {
       if (!editMode) return;
       let bodyHtml = `<div class="edit-section-title">Diary Memories (max 4)</div>`;

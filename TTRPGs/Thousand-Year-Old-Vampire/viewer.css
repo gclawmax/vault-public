@@ -1090,6 +1090,18 @@ body.edit-mode .section-editwrap {
   box-shadow: 1px 2px 5px var(--shadow);
 }
 
+.memory-block.empty-slot {
+  opacity: .4;
+  border-style: dashed;
+  border-color: var(--border);
+  background: var(--bg2);
+}
+
+.memory-block.empty-slot .memory-title {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
 .memory-block.forgotten {
   opacity: .4;
   border-style: dashed;
