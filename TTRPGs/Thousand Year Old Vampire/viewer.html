@@ -414,17 +414,6 @@
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
-        diary: {
-          exists: Array.isArray(json.diary?.memories) && json.diary.memories.length > 0,
-          memories: (json.diary?.memories || []).map((mem, idx) => {
-            const name = typeof mem === 'string' ? mem : (mem.name || '');
-            const exps = typeof mem === 'string' ? [] : (mem.experiences || []).map(e => {
-              if (typeof e === 'string') return { text: e };
-              return { text: e.text || e.description || '' };
-            });
-            return { n: mem.n || idx + 1, theme: name, experiences: exps };
-          })
-        },
         skills: (json.skills || []).map(sk => ({
           name: sk.name || '',
           description: sk.description || '',

@@ -143,18 +143,6 @@
         "additionalProperties": false
       }
     },
-    "diary": {
-      "type": "object",
-      "properties": {
-        "memories": {
-          "type": "array",
-          "maxItems": 4,
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "skills": {
       "type": "array",
       "items": {
