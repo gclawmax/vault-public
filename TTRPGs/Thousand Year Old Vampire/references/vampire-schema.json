@@ -198,7 +198,8 @@
             "type": "string",
             "enum": [
               "portable",
-              "stationary"
+              "stationary",
+              "diary"
             ]
           },
           "status": {
