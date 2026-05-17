@@ -19,35 +19,27 @@
   "memories": [
     {
       "n": 1,
-      "theme": "Pokemon?",
+      "theme": "",
       "description": "",
-      "experiences": [
-        "Pokemon invaded"
-      ]
+      "experiences": []
     },
     {
       "n": 2,
-      "theme": "Memory 2",
-      "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
-      "experiences": [
-        "The banner of a rival house burned over the borderlands, and in the reek of smoke and blood your swordsmanship became the final word your enemies heard; you felt nothing but the old warmth of the blade doing what it was forged to do."
-      ]
+      "theme": "",
+      "description": "",
+      "experiences": []
     },
     {
       "n": 3,
-      "theme": "Memory 3",
-      "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
-      "experiences": [
-        "Elspeth begged you to spare the villages your raids had reduced to ghosts, and you let her have that mercy â not for her sake, but because her voice was one thread in the tapestry of cruelty you had learned to love that still held your hand."
-      ]
+      "theme": "",
+      "description": "",
+      "experiences": []
     },
     {
       "n": 4,
-      "theme": "Memory 4",
-      "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
-      "experiences": [
-        "Jack's own retinue deserted him when your tactics stripped his lands bare, and you found his last letter burning in the hearth before you had to answer his challenge; the gem in your blade drank the light one last time."
-      ]
+      "theme": "",
+      "description": "",
+      "experiences": []
     },
     {
       "n": 5,
@@ -69,9 +61,6 @@
       "lost_on_turn": 2
     }
   ],
-  "diary": {
-    "memories": []
-  },
   "skills": [
     {
       "name": "Swordsmanship",
@@ -113,8 +102,46 @@
       "description": "",
       "type": "portable",
       "status": "available"
+    },
+    {
+      "name": "Red Diary",
+      "description": "It's red...",
+      "type": "diary",
+      "status": "available"
     }
   ],
+  "diary_memories": {
+    "Red Diary": [
+      {
+        "n": 1,
+        "theme": "Pokemon?",
+        "experiences": [
+          "Pokemon invaded"
+        ]
+      },
+      {
+        "n": 2,
+        "theme": "Memory 2",
+        "experiences": [
+          "The banner of a rival house burned over the borderlands, and in the reek of smoke and blood your swordsmanship became the final word your enemies heard; you felt nothing but the old warmth of the blade doing what it was forged to do."
+        ]
+      },
+      {
+        "n": 3,
+        "theme": "Memory 3",
+        "experiences": [
+          "Elspeth begged you to spare the villages your raids had reduced to ghosts, and you let her have that mercy â not for her sake, but because her voice was one thread in the tapestry of cruelty you had learned to love that still held your hand."
+        ]
+      },
+      {
+        "n": 4,
+        "theme": "Memory 4",
+        "experiences": [
+          "Jack's own retinue deserted him when your tactics stripped his lands bare, and you found his last letter burning in the hearth before you had to answer his challenge; the gem in your blade drank the light one last time."
+        ]
+      }
+    ]
+  },
   "characters": [
     {
       "name": "Elspeth",
