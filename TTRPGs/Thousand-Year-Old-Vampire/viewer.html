@@ -26,36 +26,56 @@
   <!-- Edit Mode Banner -->
   <div id="edit-mode-banner">✎ Edit Mode Active — Changes are local until you save</div>
 
-  <div id="top-bar">
-    <div id="picker-row">
-      <span id="picker-label">Chronicle</span>
-      <select id="game-select">
-        <option value="">— Loading games… —</option>
-      </select>
-      <a id="game-link" href="core-rules.html">Core Rules</a>
-      <button id="refresh-btn" class="top-btn" onclick="refreshCurrent()">↻ Refresh</button>
-      <button id="edit-mode-btn" class="top-btn" style="display:none;" onclick="toggleEditMode()">✎ Edit</button>
-      <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
-      <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
-      <div id="skin-switcher">
-        <button class="skin-btn active" data-s="book"></button>
-        <button class="skin-btn" data-s="dark"></button>
-        <button class="skin-btn" data-s="scholar"></button>
-      </div>
+  <!-- Crypt Panel -->
+  <div id="crypt-panel">
+    <div id="crypt-header">
+      <span class="crypt-title">⚰ Chronicles</span>
+      <button class="top-btn" onclick="refreshCurrent()" title="Refresh">↻</button>
     </div>
-    <div id="status-row">
-      <div id="status-dot"></div>
-      <span id="status-text">Loading game list…</span>
-    </div>
+    <div id="crypt-list"></div>
   </div>
 
-  <div id="app">
-    <div id="empty-state">
-      <h2>Thousand Year Old Vampire</h2>
-      <p>Select a chronicle to begin.</p>
+  <!-- Main area -->
+  <div id="main-wrap">
+    <div id="top-bar">
+      <div id="identity-row">
+        <div id="identity-name-block">
+          <span id="identity-name"></span>
+          <span id="identity-subtitle"></span>
+        </div>
+        <div id="identity-meta">
+          <span id="identity-pills"></span>
+          <div id="top-controls">
+            <a id="game-link" href="core-rules.html">Core Rules</a>
+            <button id="edit-mode-btn" class="top-btn" style="display:none;" onclick="toggleEditMode()">✎ Edit</button>
+            <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
+            <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
+            <div id="skin-switcher">
+              <button class="skin-btn active" data-s="book"></button>
+              <button class="skin-btn" data-s="dark"></button>
+              <button class="skin-btn" data-s="scholar"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="identity-epitaph-row" style="display:none;">
+        <span id="identity-epitaph"></span>
+      </div>
+      <div id="status-row">
+        <div id="status-dot"></div>
+        <span id="status-text">Loading chronicles…</span>
+      </div>
+      <div id="edit-mode-banner">✎ Edit Mode Active — Changes are local until you save</div>
     </div>
-    <div id="content" style="display:none;">
-      <div class="prompt-section" id="prompt-section"></div>
+
+    <div id="app">
+      <div id="empty-state">
+        <h2>Thousand Year Old Vampire</h2>
+        <p>Select a chronicle from the left.</p>
+      </div>
+      <div id="content" style="display:none;">
+        <div class="prompt-section" id="prompt-section"></div>
+      </div>
     </div>
   </div>
 
@@ -168,18 +188,59 @@
           !f.name.startsWith('TEST_') &&
           !f.name.startsWith('test_')
         );
-        const sel = document.getElementById('game-select');
-        sel.innerHTML = '<option value="">— Select a chronicle —</option>';
-        jsonFiles.forEach(f => {
-          const o = document.createElement('option');
-          o.value = f.name;
-          o.textContent = f.name.replace('.json', '');
-          sel.appendChild(o);
-        });
-        setStatus('ok', `${jsonFiles.length} chronicle${jsonFiles.length !== 1 ? 's' : ''} found`);
+
+        // Fetch modified dates — use the sha as a cache key, store name+modified
+        const chronicles = jsonFiles.map(f => ({
+          name: f.name,
+          display: f.name.replace('.json', ''),
+          modified: null
+        }));
+
+        renderCrypt(chronicles);
+        setStatus('ok', chronicles.length + ' chronicle' + (chronicles.length !== 1 ? 's' : '') + ' found');
       } catch (e) {
-        setStatus('err', 'Failed to load game list: ' + e.message);
+        setStatus('err', 'Failed to load chronicles: ' + e.message);
       }
+    }
+
+    function renderCrypt(chronicles) {
+      const list = document.getElementById('crypt-list');
+      if (!list) return;
+
+      if (chronicles.length === 0) {
+        list.innerHTML = '<div class="crypt-empty">No chronicles found.</div>';
+        return;
+      }
+
+      // Sort by modified descending — nulls at bottom
+      const sorted = [...chronicles].sort((a, b) => {
+        if (!a.modified && !b.modified) return a.display.localeCompare(b.display);
+        if (!a.modified) return 1;
+        if (!b.modified) return -1;
+        return new Date(b.modified) - new Date(a.modified);
+      });
+
+      const currentVal = document.getElementById('game-select').value;
+
+      list.innerHTML = sorted.map(c => {
+        const isActive = c.name === currentVal;
+        return '<div class="crypt-entry' + (isActive ? ' active' : '') + '" onclick="selectChronicle(\'' + c.name.replace(/'/g, "\\'") + '\')">'
+          + '<div class="crypt-entry-name">' + esc(c.display) + '</div>'
+          + (c.modified ? '<div class="crypt-entry-date">' + c.modified + '</div>' : '<div class="crypt-entry-date">—</div>')
+          + '<div class="crypt-entry-rune">✦</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    async function selectChronicle(filename) {
+      if (editMode && hasUnsaved) {
+        if (!confirm('You have unsaved changes. Discard them?')) return;
+      }
+      document.getElementById('game-select').value = filename;
+      // Update active state immediately
+      document.querySelectorAll('.crypt-entry').forEach(el => el.classList.remove('active'));
+      event.currentTarget && event.currentTarget.classList.add('active');
+      await loadVampire(filename);
     }
 
     document.getElementById('game-select').addEventListener('change', async (e) => {
@@ -188,7 +249,7 @@
     });
 
     async function loadVampire(filename) {
-      setStatus('busy', `Loading ${filename}…`);
+      setStatus('busy', 'Loading ' + filename + '…');
       try {
         const url = GITHUB_API + '/' + encodeURIComponent(filename);
         const resp = await fetch(url, {
@@ -200,37 +261,36 @@
         currentFileUrl = url;
         currentFilename = filename;
         currentJson = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-
+        workingJson = currentJson;
+        parsedData = parseSource(currentJson);
         await ensurePromptsLoaded();
 
-        // Check for a localStorage draft
-        const draft = loadDraft();
-        if (draft) {
-          const resume = confirm('You have unsaved edits for this chronicle. Resume editing?');
-          if (resume) {
-            parsedData = parseSource(draft);
-            editMode = true;
-            applyEditModeUI();
-          } else {
-            clearDraft();
-            parsedData = parseSource(currentJson);
-          }
-        } else {
-          parsedData = parseSource(currentJson);
-        }
-
-        if (!parsedData.lastPlayed && data.committed_date) {
-          parsedData.lastPlayed = data.committed_date.slice(0, 10);
-        }
+        updateIdentityStrip(parsedData);
 
         renderChronicle(parsedData);
         document.getElementById('empty-state').style.display = 'none';
         document.getElementById('content').style.display = 'block';
         document.getElementById('edit-mode-btn').style.display = '';
-        setStatus('ok', draft && editMode ? `Resumed draft: ${filename}` : `Loaded: ${filename}`);
+        setStatus('ok', 'Loaded: ' + filename);
       } catch (e) {
         setStatus('err', 'Load failed: ' + e.message);
       }
+    }
+
+    function updateIdentityStrip(d) {
+      document.getElementById('identity-name').textContent = d.vampireName || '';
+      document.getElementById('identity-subtitle').textContent = d.subtitle || '';
+      const epitaph = d.epithet || d.epitaph || '';
+      const epitaphRow = document.getElementById('identity-epitaph-row');
+      document.getElementById('identity-epitaph').textContent = epitaph;
+      epitaphRow.style.display = epitaph ? '' : 'none';
+
+      const fm = d.frontmatter;
+      let pills = '';
+      if (fm.game_start) pills += '<span class="meta-pill">Started <span>' + esc(fm.game_start) + '</span></span>';
+      if (fm.game_over === 'true') pills += '<span class="meta-pill" style="color:var(--blood)">Game Over</span>';
+      if (d.lastPlayed) pills += '<span class="meta-pill">Last played <span>' + esc(d.lastPlayed) + '</span></span>';
+      document.getElementById('identity-pills').innerHTML = pills;
     }
 
     function resetToGameList() {
@@ -537,32 +597,9 @@
       const fm = d.frontmatter;
       const em = editMode;
 
-      function editAttr(fn) {
-        return em ? 'onclick="event.stopPropagation();' + fn + '" style="cursor:pointer;"' : '';
-      }
-
-      const hasUnresolved = d.journal.some(j => j.awaiting === true);
-      const promptBtnDisabled = em || hasUnresolved;
+      updateIdentityStrip(d); // keep identity strip in sync
 
       let html = '';
-
-      // ── Header ──
-      html += '<div class="section-editwrap" data-section="header" ' + (em ? 'onclick="editHeader()" title="Click to edit header"' : '') + '>'
-        + '<div class="vamp-header">'
-        + '<div class="vamp-name-wrap">'
-        + '<div class="vamp-rule"><span></span><span></span></div>'
-        + '<div class="vamp-name">' + esc(d.vampireName) + '</div>'
-        + '<div class="vamp-rule"><span></span><span></span></div>'
-        + '</div>'
-        + '<div class="vamp-subtitle">A Thousand Year Old Vampire</div>'
-        + '<div class="vamp-epitaph">' + esc(d.subtitle) + '</div>'
-        + '<div class="meta-row">'
-        + (fm.game_start ? '<span class="meta-pill">Started <span>' + fm.game_start + '</span></span>' : '')
-        + (fm.game_over === 'true' ? '<span class="meta-pill" style="color:var(--blood)">Game Over</span>' : '')
-        + (d.lastPlayed ? '<span class="meta-pill">Last played <span>' + d.lastPlayed + '</span></span>' : '')
-        + '</div>'
-        + '</div>'
-        + '</div>';
 
       // ── Dashboard ──
       html += '<div class="dashboard-strip">';
