@@ -94,286 +94,29 @@ body {
   min-height: 100vh;
 }
 
-/* ── Layout shell ── */
-body {
-  display: flex;
-  flex-direction: row;
-  min-height: 100vh;
-  overflow: hidden;
-}
-
-#crypt-panel {
-  width: 220px;
-  min-width: 220px;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  background: var(--bg2);
-  border-right: 2px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 50;
-}
-
-#crypt-header {
-  padding: 16px 14px 12px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--bg3);
-  flex-shrink: 0;
-}
-
-.crypt-title {
-  font-family: 'Cinzel', serif;
-  font-size: 9px;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  color: var(--blood);
-}
-
-#crypt-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 0;
-}
-
-.crypt-entry {
-  padding: 12px 14px 10px;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  position: relative;
-  transition: background .15s;
-  border-left: 3px solid transparent;
-}
-
-.crypt-entry:hover {
-  background: var(--surface);
-}
-
-.crypt-entry.active {
-  background: var(--surface);
-  border-left-color: var(--blood);
-}
-
-.crypt-entry-name {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: .08em;
-  color: var(--ink);
-  line-height: 1.3;
-  margin-bottom: 3px;
-}
-
-.crypt-entry.active .crypt-entry-name {
-  color: var(--blood);
-}
-
-.crypt-entry-date {
-  font-size: 10px;
-  color: var(--ink-faint);
-  font-family: 'EB Garamond', serif;
-}
-
-.crypt-entry-rune {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 8px;
-  color: var(--border);
-  transition: color .15s;
-}
-
-.crypt-entry:hover .crypt-entry-rune,
-.crypt-entry.active .crypt-entry-rune {
-  color: var(--blood);
-}
-
-.crypt-empty {
-  padding: 20px 14px;
-  font-size: .88rem;
-  color: var(--ink-faint);
-  font-style: italic;
-}
-
-/* ── Main wrap ── */
-#main-wrap {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-/* ── Top bar (identity strip) ── */
-#top-bar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--topbar-bg);
-  border-bottom: 1px solid var(--topbar-border);
-  backdrop-filter: blur(8px);
-  flex-shrink: 0;
-}
-
-#identity-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px 6px;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-#identity-name-block {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  min-width: 0;
-}
-
-#identity-name {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1rem, 2.2vw, 1.6rem);
-  color: var(--blood);
-  letter-spacing: .04em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#identity-subtitle {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(.65rem, 1.1vw, .85rem);
-  color: var(--ink-faint);
-  letter-spacing: .08em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#identity-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-#identity-pills {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-#top-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#identity-epitaph-row {
-  padding: 0 16px 8px;
-  font-style: italic;
-  font-size: .88rem;
-  color: var(--ink-dim);
-  border-left: 2px solid var(--blood);
-  margin: 0 16px 4px;
-}
-
-/* ── App ── */
-#app {
-  flex: 1;
-  padding: 0 0 40px;
-}
-
-/* Remove old picker row — no longer needed */
-#picker-row { display: none; }
-#game-select { display: none; }
-
-/* ── Edit mode banner moves inside top-bar ── */
-#edit-mode-banner {
-  display: none;
-  background: var(--blood);
-  color: white;
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  padding: 4px 16px;
-  text-align: center;
-}
-
-#edit-mode-banner.visible {
-  display: block;
-}
-
-/* ── Remove old vamp-header — identity is now in top bar ── */
-.vamp-header { display: none; }
-
-/* ── Responsive — collapse crypt panel on narrow screens ── */
-@media (max-width: 860px) {
-  body { flex-direction: column; }
-  #crypt-panel {
-    width: 100%;
-    height: auto;
-    min-width: 0;
-    position: relative;
-    border-right: none;
-    border-bottom: 2px solid var(--border);
-  }
-  #crypt-list {
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 0;
-  }
-  .crypt-entry {
-    min-width: 140px;
-    border-bottom: none;
-    border-right: 1px solid var(--border);
-    border-left: none;
-    border-top: 3px solid transparent;
-  }
-  .crypt-entry.active {
-    border-top-color: var(--blood);
-    border-left-color: transparent;
-  }
-  #main-wrap {
-    height: auto;
-    overflow-y: visible;
-  }
-}
-
 /* ── Key Panel ── */
 #key-panel {
   position: fixed;
-  right: -320px;
+  left: -320px;
   top: 0;
   width: 300px;
   height: 100vh;
   background: var(--bg2);
-  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
   padding: 20px;
   z-index: 200;
-  transition: right .3s ease;
+  transition: left .3s ease;
   overflow-y: auto;
-  box-shadow: -2px 0 15px var(--shadow);
+  box-shadow: 2px 0 15px var(--shadow);
 }
 
 #key-panel.open {
-  right: 0;
+  left: 0;
 }
 
 #key-toggle {
   position: fixed;
-  right: 10px;
+  left: 10px;
   top: 120px;
   z-index: 199;
   background: var(--blood);
@@ -387,7 +130,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: right .3s ease;
+  transition: left .3s ease;
 }
 
 #key-toggle.hidden {
