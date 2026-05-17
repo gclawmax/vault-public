@@ -4,7 +4,7 @@
   "mortal_self": "James McCloud, born 1050 AD in Scotland. A rich noble, pampered by slaves and surrounded by sycophants. Arrogant and soft.",
   "game_over": false,
   "game_start": "2026-05-14",
-  "modified": "2026-05-16",
+  "modified": "2026-05-17",
   "game_completed": "",
   "show_suggestions": true,
   "current_prompt": 6,
@@ -18,49 +18,55 @@
   ],
   "memories": [
     {
-      "name": "Memory 1",
-      "description": "Your mortal life â broad overview of who you were before the nights began.",
+      "n": 1,
+      "theme": "Pokemon?",
+      "description": "",
       "experiences": [
-        "I was born into silk and sycophants in the misty highlands around 1050 AD â surrounded by those who flattered every whim, I grew arrogant in the knowledge that the world would bend or break for me, not the other way round."
-      ],
-      "status": "available",
-      "in_diary": false
+        "Pokemon invaded"
+      ]
     },
     {
-      "name": "Memory 2",
+      "n": 2,
+      "theme": "Memory 2",
       "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
       "experiences": [
         "The banner of a rival house burned over the borderlands, and in the reek of smoke and blood your swordsmanship became the final word your enemies heard; you felt nothing but the old warmth of the blade doing what it was forged to do."
-      ],
-      "status": "available",
-      "in_diary": false
+      ]
     },
     {
-      "name": "Memory 3",
+      "n": 3,
+      "theme": "Memory 3",
       "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
       "experiences": [
         "Elspeth begged you to spare the villages your raids had reduced to ghosts, and you let her have that mercy â not for her sake, but because her voice was one thread in the tapestry of cruelty you had learned to love that still held your hand."
-      ],
-      "status": "available",
-      "in_diary": false
+      ]
     },
     {
-      "name": "Memory 4",
+      "n": 4,
+      "theme": "Memory 4",
       "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
       "experiences": [
         "Jack's own retinue deserted him when your tactics stripped his lands bare, and you found his last letter burning in the hearth before you had to answer his challenge; the gem in your blade drank the light one last time."
-      ],
-      "status": "available",
-      "in_diary": false
+      ]
     },
     {
-      "name": "Memory 5",
+      "n": 5,
+      "theme": "Memory 5",
       "description": "A memory in your immortal life â holds one Experience (two selected traits woven together).",
       "experiences": [
         "Sister Seraphina pressed the cold of the borderlands into your mouth and tasted the emptiness beneath your pride â there, where the leprosy ate her like slow fire, you found a hunger that would outlast the centuries, and you drank until the world sharpened and the wind in the highlands learned your name."
+      ]
+    }
+  ],
+  "lost_memories": [
+    {
+      "n": 1,
+      "theme": "Memory 1",
+      "experiences": [
+        "I was born into silk and sycophants in the misty highlands around 1050 AD â surrounded by those who flattered every whim, I grew arrogant in the knowledge that the world would bend or break for me, not the other way round."
       ],
-      "status": "available",
-      "in_diary": false
+      "lost_at": "2026-05-17T17:21:51.861Z",
+      "lost_on_turn": 2
     }
   ],
   "diary": {
@@ -153,10 +159,10 @@
       "turn": 2,
       "prompt": 6,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-17T17:21:51.861Z",
+      "experience": "A wild pikachu appears!",
+      "changes": "pika!"
     }
   ]
 }
