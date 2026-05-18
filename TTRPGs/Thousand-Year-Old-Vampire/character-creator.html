@@ -412,7 +412,10 @@
             return false;
           }
           characterData.name = document.getElementById('mortal-name').value;
-          characterData.memories[0].experiences.push(document.getElementById('mortal-life').value);
+          // Only add the mortal experience if it hasn't been added yet
+          if (characterData.memories[0].experiences.length === 0) {
+            characterData.memories[0].experiences.push(document.getElementById('mortal-life').value);
+          }
           return true;
         case 2:
           if (characterData.characters.length < 3) {
@@ -440,9 +443,12 @@
             alert('Please fill in all three Experiences.');
             return false;
           }
-          characterData.memories[1].experiences.push(exp2);
-          characterData.memories[2].experiences.push(exp3);
-          characterData.memories[3].experiences.push(exp4);
+          // Only add the experiences if they haven't been added yet
+          if (characterData.memories[1].experiences.length === 0) {
+            characterData.memories[1].experiences.push(exp2);
+            characterData.memories[2].experiences.push(exp3);
+            characterData.memories[3].experiences.push(exp4);
+          }
           return true;
         case 6:
           if (!document.getElementById('immortal-name').value.trim()) {
@@ -457,18 +463,24 @@
             alert('Please describe your transformation.');
             return false;
           }
-          // Add immortal character
-          characterData.characters.push({
-            name: document.getElementById('immortal-name').value,
-            description: document.getElementById('immortal-desc').value,
-            type: 'immortal'
-          });
-          // Add mark
-          characterData.marks.push({
-            mark: document.getElementById('mark').value
-          });
-          // Add final experience
-          characterData.memories[4].experiences.push(document.getElementById('exp-5').value);
+          // Add immortal character (only if not already added)
+          if (!characterData.characters.some(c => c.type === 'immortal')) {
+            characterData.characters.push({
+              name: document.getElementById('immortal-name').value,
+              description: document.getElementById('immortal-desc').value,
+              type: 'immortal'
+            });
+          }
+          // Add mark (only if not already added)
+          if (characterData.marks.length === 0) {
+            characterData.marks.push({
+              mark: document.getElementById('mark').value
+            });
+          }
+          // Add final experience (only if not already added)
+          if (characterData.memories[4].experiences.length === 0) {
+            characterData.memories[4].experiences.push(document.getElementById('exp-5').value);
+          }
           return true;
       }
       return true;
