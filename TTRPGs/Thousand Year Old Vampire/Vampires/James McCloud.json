@@ -72,9 +72,9 @@
     {
       "name": "Falconry",
       "description": "A noble pastime and a discipline of patience and control over the wild.",
-      "status": "available",
+      "status": "struck",
       "gained_turn": null,
-      "lost_turn": null
+      "lost_turn": 2
     },
     {
       "name": "Tactics and Command",
