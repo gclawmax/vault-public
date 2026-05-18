@@ -22,46 +22,6 @@ A nicer UX experience for Vampire selection
 
 Important Field-Level Findings
 
-2. Skill status is asymmetric
-
-Persisted JSON:
-
-"available" | "spent" | "struck"
-
-Runtime:
-
-available -> unchecked
-spent -> checked
-anything else -> lost
-
-Serialization:
-
-checked -> spent
-lost -> struck
-otherwise -> available
-
-So runtime enum is:
-
-"unchecked" | "checked" | "lost"
-3. Resource status collapses unknown states
-
-Read:
-
-available -> active
-lost -> lost
-everything else -> active
-
-Write:
-
-active -> available
-everything else -> lost
-
-Runtime enum:
-
-"active" | "lost"
-
-Any unknown persisted status becomes "active".
-
 4. Character typing is bifurcated
 
 Persisted:
