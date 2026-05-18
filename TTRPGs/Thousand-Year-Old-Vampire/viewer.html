@@ -117,6 +117,14 @@
       return Math.max(...parsedData.journal.map(j => j.turn));
     }
 
+    function formatDateShort(iso) {
+      if (!iso) return '';
+      try {
+        const d = new Date(iso);
+        return String(d.getDate()).padStart(2, '0') + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + d.getFullYear();
+      } catch (e) { return iso; }
+    }
+
     function setStatus(state, msg) {
       document.getElementById('status-dot').className = state;
       document.getElementById('status-text').textContent = msg;
@@ -478,6 +486,7 @@
           description: c.description || '',
           dead: c.status === 'dead',
           death_reason: c.death_reason || '',
+          death_epitaph: c.death_epitaph || '',
           gained_turn: c.gained_turn || null,
           lost_turn: c.lost_turn || null
         };
@@ -553,11 +562,11 @@
         ), characters: [
           ...(d.mortals || []).map(c => ({
             name: c.name || '', type: 'mortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
-            lost_turn: c.lost_turn || null
+              lost_turn: c.lost_turn || null, death_epitaph: c.death_epitaph || ''
           })),
           ...(d.immortals || []).map(c => ({
             name: c.name || '', type: 'immortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
-            lost_turn: c.lost_turn || null
+              lost_turn: c.lost_turn || null, death_epitaph: c.death_epitaph || ''
           }))
         ],
         journal: (d.journal || []).map(j => ({
@@ -863,6 +872,7 @@
             + '</span></div>'
             + (c.desc ? '<p style="font-size:.88rem;margin-bottom:6px;">' + esc(c.desc) + '</p>' : '')
             + (c.death_reason ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">' + esc(c.death_reason) + '</p>' : '')
+            + (c.death_epitaph ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;margin-top:6px;">"' + esc(c.death_epitaph) + '"</p>' : '')
             + '</div>';
         });
         html += '</div></div>';
@@ -1394,10 +1404,26 @@
       const arr = type === 'mortal' ? parsedData.mortals : parsedData.immortals;
       const c = arr[i];
       if (!confirm('Kill ' + c.name + '?')) return;
-      c.dead = true;
-      c.lost_turn = currentTurn();
-      markUnsaved();
-      editCharacters();
+      const bodyHtml = '<div class="form-row"><label class="form-label">Death Reason (required)</label>'
+        + '<input class="form-input" id="ed-death-reason" placeholder="e.g. Slain by Lydia Thorne">'
+        + '</div>'
+        + '<div class="form-row"><label class="form-label">Epitaph (optional)</label>'
+        + '<input class="form-input" id="ed-death-epitaph" placeholder="Short epitaph to display in obituary">'
+        + '</div>';
+
+      openModal('Record Death — ' + esc(c.name), bodyHtml, function () {
+        const reasonEl = document.getElementById('ed-death-reason');
+        const epitaphEl = document.getElementById('ed-death-epitaph');
+        const reasonVal = reasonEl ? reasonEl.value.trim() : '';
+        const epitaphVal = epitaphEl ? epitaphEl.value.trim() : '';
+        if (!reasonVal) { alert('Please provide a death reason.'); return; }
+        c.dead = true;
+        c.lost_turn = currentTurn();
+        c.death_reason = reasonVal;
+        if (epitaphVal) c.death_epitaph = epitaphVal;
+        // Re-open the characters editor after modal flow completes
+        setTimeout(() => { editCharacters(); }, 0);
+      });
     }
 
     function restoreCharacter(type, i) {
