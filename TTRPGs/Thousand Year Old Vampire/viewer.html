@@ -798,12 +798,9 @@
           + '<div class="memories-grid">';
         sorted.forEach(mem => {
           const ld = new Date(mem.lost_at);
-          const lostDate = String(ld.getDate()).padStart(2, '0') + '-'
-            + String(ld.getMonth() + 1).padStart(2, '0') + '-'
-            + ld.getFullYear();
           html += '<div class="memory-block forgotten">'
             + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme)
-            + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + ' · ' + lostDate + '</span></div>'
+            + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + '</span></div>'
             + '<ol>';
           mem.experiences.forEach(exp => {
             html += '<li>' + esc(exp) + '</li>';

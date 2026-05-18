@@ -537,35 +537,6 @@ body.edit-mode .section-editwrap {
   margin-bottom: 0;
 }
 
-/* ── Strike button style ── */
-.strike-btn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--ink-faint);
-  padding: 3px 8px;
-  cursor: pointer;
-  font-size: 11px;
-  font-family: 'Cinzel', serif;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.strike-btn.struck {
-  background: var(--blood);
-  color: white;
-  border-color: var(--blood);
-  opacity: .7;
-}
-
-.strike-btn:hover {
-  border-color: var(--blood);
-  color: var(--blood);
-}
-
-.strike-btn.struck:hover {
-  opacity: 1;
-}
-
 /* ── Delete / trashcan button ── */
 .trash-btn {
   background: none;
@@ -596,19 +567,10 @@ body.edit-mode .section-editwrap {
   margin-bottom: 6px;
 }
 
-.edit-list-item.struck-item {
-  opacity: .5;
-}
-
 .edit-list-item-text {
   flex: 1;
   font-size: .97rem;
   line-height: 1.5;
-}
-
-.edit-list-item-text.struck-text {
-  text-decoration: none;
-  opacity: .5;
 }
 
 .edit-list-actions {
@@ -1106,7 +1068,6 @@ body.edit-mode .section-editwrap {
 }
 
 .memory-block.forgotten .memory-title {
-  text-decoration: line-through;
   text-decoration-color: var(--blood);
 }
 
