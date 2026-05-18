@@ -8,10 +8,12 @@
 
   ## Mortality
   --------
-  We need to track when we meet people. And or when they died. For the fun.
+  ~~We need to track when we meet people. And or when they died. For the fun.~~
+  ~~Keep only active people and immortals near the top. Create a new "dead people" section. Give each mortal that dies a reason in the same font as Resolved 17-05-2026 18:21~~
+  ~~Order active people by met date. Newest at the top. Order dead people by date of death, newest at the top.~~
+
   With that in mind. Track the turn we meet them on. 4 or 5 prompts, drop a reminder that some mortal we knew probably died...
-  Keep only active people and immortals near the top. Create a new "dead people" section. Give each mortal that dies a reason in the same font as Resolved 17-05-2026 18:21
-  Order active people by met date. Newest at the top. Order dead people by date of death, newest at the top.
+
 
   ## Ordering and tidying long games
   -------------------------------
