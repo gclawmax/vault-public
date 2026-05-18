@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thousand Year Old Vampire — Character Creator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=UnifrakturMaguntia&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./viewer.css">
+  <link rel="stylesheet" href="./character-creator.css">
+</head>
+
+<body>
+
+  <div id="top-bar">
+    <div id="picker-row">
+      <span id="picker-label">Character Creator</span>
+      <a id="title-link" href="viewer.html">Chronicle Viewer</a>
+      <a id="core-link" href="core-rules.html">Core Rules</a>
+      <div id="skin-switcher">
+        <button class="skin-btn active" data-s="book" title="Book skin"></button>
+        <button class="skin-btn" data-s="dark" title="Dark skin"></button>
+        <button class="skin-btn" data-s="scholar" title="Scholar skin"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app">
+    <div class="creator-header">
+      <h1>Character Creation</h1>
+      <p>Begin your immortal chronicle. Follow each step in order.</p>
+    </div>
+
+    <div class="step-indicator" id="step-indicator"></div>
+
+    <!-- Step 1: Create the Mortal Self -->
+    <div class="step active" id="step-1">
+      <h2>Step 1: Create Your Mortal Self</h2>
+      <p class="step-subtitle">Define who you were before the curse</p>
+      <p class="step-description">
+        Imagine a person in the distant past — a Roman emperor, a Mesopotamian midwife, a French knight. Write one Experience encapsulating their history. This is a broad summary of their mortal life, not a single event.
+      </p>
+      <div class="form-group">
+        <label for="mortal-name">Name</label>
+        <input type="text" id="mortal-name" placeholder="Your mortal name (e.g., Marcus Aurelius)">
+      </div>
+      <div class="form-group">
+        <label for="mortal-time">Time Period</label>
+        <input type="text" id="mortal-time" placeholder="e.g., 1st Century Rome, 12th Century France">
+      </div>
+      <div class="form-group">
+        <label for="mortal-life">Your Mortal Life (Experience)</label>
+        <textarea id="mortal-life" placeholder="A broad summary of your mortal existence. Be poetic or practical as suits you..."></textarea>
+      </div>
+
+      <div class="form-navigation">
+        <button class="btn" onclick="nextStep()">Continue to Step 2</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Create Mortal Characters -->
+    <div class="step" id="step-2">
+      <h2>Step 2: Mortal Characters</h2>
+      <p class="step-subtitle">The people who shaped your mortal life</p>
+      <p class="step-description">
+        Create at least three Characters: relatives, friends, lovers, enemies, mentors, or debtors. Add them one at a time with a short description.
+      </p>
+      <div class="item-list" id="character-list"></div>
+      <button class="add-item-btn" onclick="showCharacterForm()">+ Add Character</button>
+
+      <div id="character-form-container" style="display:none;">
+        <div class="character-form">
+          <div class="form-group">
+            <label for="char-name">Character Name</label>
+            <input type="text" id="char-name" placeholder="e.g., Helena, My Brother Marcus">
+          </div>
+          <div class="form-group">
+            <label for="char-desc">Description</label>
+            <textarea id="char-desc" placeholder="A short description (relationship, traits, role)"></textarea>
+          </div>
+          <div class="trait-form-controls">
+            <button class="trait-form-add" onclick="addCharacter()">Add Character</button>
+            <button class="trait-form-cancel" onclick="hideCharacterForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-navigation">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn" onclick="nextStep()" id="step2-next" disabled>Continue to Step 3</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Skills -->
+    <div class="step" id="step-3">
+      <h2>Step 3: Skills</h2>
+      <p class="step-subtitle">What your vampire can do</p>
+      <p class="step-description">
+        Give your vampire three Skills that fit their mortal life and historical context. Examples: Swordplay, Relaxing Banter, Operate Heavy Machinery, or evocative phrases like "I Do Not Blink The Sand Away".
+      </p>
+      <div class="item-list" id="skill-list"></div>
+      <button class="add-item-btn" onclick="showSkillForm()">+ Add Skill</button>
+
+      <div id="skill-form-container" style="display:none;">
+        <div class="trait-form">
+          <div class="form-group">
+            <label for="skill-name">Skill</label>
+            <input type="text" id="skill-name" placeholder="e.g., Swordplay, Ancient Wisdom, Dissemble">
+          </div>
+          <div class="trait-form-controls">
+            <button class="trait-form-add" onclick="addSkill()">Add Skill</button>
+            <button class="trait-form-cancel" onclick="hideSkillForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-navigation">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn" onclick="nextStep()" id="step3-next" disabled>Continue to Step 4</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Resources -->
+    <div class="step" id="step-4">
+      <h2>Step 4: Resources</h2>
+      <p class="step-subtitle">What your vampire possesses</p>
+      <p class="step-description">
+        Give your vampire three Resources: assets, structures, or items of value. Size doesn't matter — an obsidian knife or a fleet of warships both work. Examples: A lucky penny, Castle Umbrecht, A business empire, A carboy of acid.
+      </p>
+      <div class="item-list" id="resource-list"></div>
+      <button class="add-item-btn" onclick="showResourceForm()">+ Add Resource</button>
+
+      <div id="resource-form-container" style="display:none;">
+        <div class="trait-form">
+          <div class="form-group">
+            <label for="resource-name">Resource</label>
+            <input type="text" id="resource-name" placeholder="e.g., A diamond tiara, Ancient family crypt">
+          </div>
+          <div class="form-group">
+            <label for="resource-stationary">
+              <input type="checkbox" id="resource-stationary"> Stationary (cannot be hauled away)</label>
+          </div>
+          <div class="trait-form-controls">
+            <button class="trait-form-add" onclick="addResource()">Add Resource</button>
+            <button class="trait-form-cancel" onclick="hideResourceForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-navigation">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn" onclick="nextStep()" id="step4-next" disabled>Continue to Step 5</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Three More Experiences -->
+    <div class="step" id="step-5">
+      <h2>Step 5: Three More Experiences</h2>
+      <p class="step-subtitle">Memories that define you</p>
+      <p class="step-description">
+        Create three Experiences, one for each of Memories 2–4. Each should combine two of your existing traits (a Character with a Skill, a Resource with a Skill, etc.).
+      </p>
+
+      <div id="experience-forms">
+        <div class="form-group" style="margin-bottom: 32px;">
+          <label for="exp-2">Memory 2 — Experience</label>
+          <textarea id="exp-2" placeholder="Combine two of your traits in this experience..."></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom: 32px;">
+          <label for="exp-3">Memory 3 — Experience</label>
+          <textarea id="exp-3" placeholder="Combine two of your traits in this experience..."></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom: 32px;">
+          <label for="exp-4">Memory 4 — Experience</label>
+          <textarea id="exp-4" placeholder="Combine two of your traits in this experience..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-navigation">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn" onclick="nextStep()">Continue to Step 6</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Become a Vampire -->
+    <div class="step" id="step-6">
+      <h2>Step 6: Become a Vampire</h2>
+      <p class="step-subtitle">The curse and the mark</p>
+      <p class="step-description">
+        Create an Immortal — the creature that cursed you. Then create a Mark (visible indicator of your undying state) and describe how you became a creature of the night. This completes your fifth Memory.
+      </p>
+
+      <div class="summary-section">
+        <h3>Your Immortal Sire</h3>
+        <p class="step-description">Who or what cursed you? Name and describe them.</p>
+        <div class="form-group">
+          <label for="immortal-name">Immortal Name</label>
+          <input type="text" id="immortal-name" placeholder="e.g., The Dark Countess, The Thing in the Well">
+        </div>
+        <div class="form-group">
+          <label for="immortal-desc">Description</label>
+          <textarea id="immortal-desc" placeholder="What is this being? How do they appear? What is their nature?"></textarea>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <h3>Your Mark</h3>
+        <p class="step-description">A visible indication of your undying state or what sets you apart. Include how you conceal it.</p>
+        <div class="form-group">
+          <label for="mark">Your Mark</label>
+          <textarea id="mark" placeholder="e.g., A pair of great bat wings — I cut them off with a saw but the stubs remain"></textarea>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <h3>Your Transformation</h3>
+        <p class="step-description">Describe how you became a vampire. This is Memory 5 — your final foundational Experience.</p>
+        <div class="form-group">
+          <label for="exp-5">Memory 5 — The Transformation</label>
+          <textarea id="exp-5" placeholder="How did the curse take hold? What changed? How do you feel about your new existence?"></textarea>
+        </div>
+      </div>
+
+      <div class="form-navigation">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn" onclick="reviewAndSave()">Review & Create Chronicle</button>
+      </div>
+    </div>
+
+    <!-- Step 7: Review & Save -->
+    <div class="step" id="step-7">
+      <h2>Review Your Chronicle</h2>
+      <p class="step-subtitle">Before you begin your eternal journey...</p>
+
+      <div id="review-content"></div>
+
+      <div class="form-navigation">
+        <button class="btn btn-secondary" onclick="prevStep()">Back to Edit</button>
+        <button class="btn" onclick="saveCharacter()">✓ Create Chronicle</button>
+      </div>
+    </div>
+
+    <!-- Step 8: Completion -->
+    <div class="step" id="step-8">
+      <div class="completion-box">
+        <h3>Your Chronicle Awaits</h3>
+        <p>Your vampire has been born into the endless night. Now begins a tale of centuries, suffering, and strange victories.</p>
+        <div class="completion-actions">
+          <button class="btn" onclick="downloadCharacter()">⬇ Download JSON</button>
+          <button class="btn btn-secondary" onclick="copyCharacterCode()">📋 Copy as Text</button>
+          <button class="btn btn-secondary" onclick="startNew()">✚ Create Another</button>
+          <button class="btn btn-secondary" onclick="window.location.href='viewer.html'">👁 View Chronicles</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════
+    let currentStep = 1;
+    let characterData = {
+      name: '',
+      player: 'Solo',
+      created: new Date().toISOString(),
+      memories: [
+        { label: '1', experiences: [] },
+        { label: '2', experiences: [] },
+        { label: '3', experiences: [] },
+        { label: '4', experiences: [] },
+        { label: '5', experiences: [] }
+      ],
+      skills: [],
+      resources: [],
+      characters: [],
+      marks: [],
+      journal: []
+    };
+
+    // ═══════════════════════════════════════════════════
+    // SKIN SWITCHER
+    // ═══════════════════════════════════════════════════
+    document.querySelectorAll('.skin-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeAttribute('data-skin');
+        if (btn.dataset.s !== 'book') document.body.setAttribute('data-skin', btn.dataset.s);
+        document.querySelectorAll('.skin-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // ═══════════════════════════════════════════════════
+    // STEP NAVIGATION
+    // ═══════════════════════════════════════════════════
+    function initStepIndicator() {
+      const indicator = document.getElementById('step-indicator');
+      indicator.innerHTML = '';
+      for (let i = 1; i <= 8; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'step-dot';
+        if (i === currentStep) dot.classList.add('active');
+        if (i < currentStep) dot.classList.add('completed');
+        dot.addEventListener('click', () => goToStep(i));
+        indicator.appendChild(dot);
+      }
+    }
+
+    function goToStep(step) {
+      // Validate before moving forward
+      if (step > currentStep && !validateStep(currentStep)) {
+        return;
+      }
+      currentStep = step;
+      showStep(step);
+      initStepIndicator();
+    }
+
+    function showStep(step) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById(`step-${step}`).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextStep() {
+      if (validateStep(currentStep)) {
+        currentStep++;
+        if (currentStep === 7) {
+          generateReview();
+        }
+        showStep(currentStep);
+        initStepIndicator();
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+        initStepIndicator();
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // VALIDATION
+    // ═══════════════════════════════════════════════════
+    function validateStep(step) {
+      switch (step) {
+        case 1:
+          if (!document.getElementById('mortal-name').value.trim()) {
+            alert('Please enter your mortal name.');
+            return false;
+          }
+          if (!document.getElementById('mortal-life').value.trim()) {
+            alert('Please describe your mortal life.');
+            return false;
+          }
+          characterData.name = document.getElementById('mortal-name').value;
+          characterData.memories[0].experiences.push(document.getElementById('mortal-life').value);
+          return true;
+        case 2:
+          if (characterData.characters.length < 3) {
+            alert('You need at least three Characters.');
+            return false;
+          }
+          return true;
+        case 3:
+          if (characterData.skills.length < 3) {
+            alert('You need exactly three Skills.');
+            return false;
+          }
+          return true;
+        case 4:
+          if (characterData.resources.length < 3) {
+            alert('You need exactly three Resources.');
+            return false;
+          }
+          return true;
+        case 5:
+          const exp2 = document.getElementById('exp-2').value.trim();
+          const exp3 = document.getElementById('exp-3').value.trim();
+          const exp4 = document.getElementById('exp-4').value.trim();
+          if (!exp2 || !exp3 || !exp4) {
+            alert('Please fill in all three Experiences.');
+            return false;
+          }
+          characterData.memories[1].experiences.push(exp2);
+          characterData.memories[2].experiences.push(exp3);
+          characterData.memories[3].experiences.push(exp4);
+          return true;
+        case 6:
+          if (!document.getElementById('immortal-name').value.trim()) {
+            alert('Please name your Immortal sire.');
+            return false;
+          }
+          if (!document.getElementById('mark').value.trim()) {
+            alert('Please describe your Mark.');
+            return false;
+          }
+          if (!document.getElementById('exp-5').value.trim()) {
+            alert('Please describe your transformation.');
+            return false;
+          }
+          // Add immortal character
+          characterData.characters.push({
+            name: document.getElementById('immortal-name').value,
+            description: document.getElementById('immortal-desc').value,
+            type: 'immortal'
+          });
+          // Add mark
+          characterData.marks.push({
+            mark: document.getElementById('mark').value
+          });
+          // Add final experience
+          characterData.memories[4].experiences.push(document.getElementById('exp-5').value);
+          return true;
+      }
+      return true;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // CHARACTER MANAGEMENT
+    // ═══════════════════════════════════════════════════
+    function showCharacterForm() {
+      document.getElementById('character-form-container').style.display = 'block';
+      document.getElementById('char-name').focus();
+    }
+
+    function hideCharacterForm() {
+      document.getElementById('character-form-container').style.display = 'none';
+      document.getElementById('char-name').value = '';
+      document.getElementById('char-desc').value = '';
+    }
+
+    function addCharacter() {
+      const name = document.getElementById('char-name').value.trim();
+      const desc = document.getElementById('char-desc').value.trim();
+      if (!name) {
+        alert('Please enter a character name.');
+        return;
+      }
+      characterData.characters.push({ name, description: desc, type: 'mortal' });
+      renderCharacters();
+      hideCharacterForm();
+      updateStep2Next();
+    }
+
+    function removeCharacter(index) {
+      characterData.characters.splice(index, 1);
+      renderCharacters();
+      updateStep2Next();
+    }
+
+    function renderCharacters() {
+      const list = document.getElementById('character-list');
+      list.innerHTML = characterData.characters
+        .map((char, i) => `
+        <div class="item-card">
+          <div>
+            <h4>${char.name}</h4>
+            <p>${char.description || '(no description)'}</p>
+          </div>
+          <button class="item-remove" onclick="removeCharacter(${i})">×</button>
+        </div>
+      `).join('');
+    }
+
+    function updateStep2Next() {
+      document.getElementById('step2-next').disabled = characterData.characters.length < 3;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // SKILL MANAGEMENT
+    // ═══════════════════════════════════════════════════
+    function showSkillForm() {
+      document.getElementById('skill-form-container').style.display = 'block';
+      document.getElementById('skill-name').focus();
+    }
+
+    function hideSkillForm() {
+      document.getElementById('skill-form-container').style.display = 'none';
+      document.getElementById('skill-name').value = '';
+    }
+
+    function addSkill() {
+      const name = document.getElementById('skill-name').value.trim();
+      if (!name) {
+        alert('Please enter a skill name.');
+        return;
+      }
+      if (characterData.skills.length >= 3) {
+        alert('You can only have three Skills.');
+        return;
+      }
+      characterData.skills.push({ skill: name });
+      renderSkills();
+      hideSkillForm();
+      updateStep3Next();
+    }
+
+    function removeSkill(index) {
+      characterData.skills.splice(index, 1);
+      renderSkills();
+      updateStep3Next();
+    }
+
+    function renderSkills() {
+      const list = document.getElementById('skill-list');
+      list.innerHTML = characterData.skills
+        .map((skill, i) => `
+        <div class="item-card">
+          <div>
+            <h4>${skill.skill}</h4>
+          </div>
+          <button class="item-remove" onclick="removeSkill(${i})">×</button>
+        </div>
+      `).join('');
+    }
+
+    function updateStep3Next() {
+      document.getElementById('step3-next').disabled = characterData.skills.length < 3;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // RESOURCE MANAGEMENT
+    // ═══════════════════════════════════════════════════
+    function showResourceForm() {
+      document.getElementById('resource-form-container').style.display = 'block';
+      document.getElementById('resource-name').focus();
+    }
+
+    function hideResourceForm() {
+      document.getElementById('resource-form-container').style.display = 'none';
+      document.getElementById('resource-name').value = '';
+      document.getElementById('resource-stationary').checked = false;
+    }
+
+    function addResource() {
+      const name = document.getElementById('resource-name').value.trim();
+      const stationary = document.getElementById('resource-stationary').checked;
+      if (!name) {
+        alert('Please enter a resource name.');
+        return;
+      }
+      if (characterData.resources.length >= 3) {
+        alert('You can only have three Resources.');
+        return;
+      }
+      characterData.resources.push({ resource: name, stationary });
+      renderResources();
+      hideResourceForm();
+      updateStep4Next();
+    }
+
+    function removeResource(index) {
+      characterData.resources.splice(index, 1);
+      renderResources();
+      updateStep4Next();
+    }
+
+    function renderResources() {
+      const list = document.getElementById('resource-list');
+      list.innerHTML = characterData.resources
+        .map((res, i) => `
+        <div class="item-card">
+          <div>
+            <h4>${res.resource}</h4>
+            ${res.stationary ? '<p><em>Stationary</em></p>' : ''}
+          </div>
+          <button class="item-remove" onclick="removeResource(${i})">×</button>
+        </div>
+      `).join('');
+    }
+
+    function updateStep4Next() {
+      document.getElementById('step4-next').disabled = characterData.resources.length < 3;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // REVIEW & SAVE
+    // ═══════════════════════════════════════════════════
+    function generateReview() {
+      const review = document.getElementById('review-content');
+      review.innerHTML = `
+        <div class="summary-section">
+          <h3>Character Name</h3>
+          <div class="summary-item">${characterData.name}</div>
+        </div>
+
+        <div class="summary-section">
+          <h3>Memories & Experiences</h3>
+          ${characterData.memories.map((mem, i) => `
+            <div style="margin-bottom: 16px;">
+              <strong style="color: var(--blood);">Memory ${i + 1}:</strong>
+              ${mem.experiences.map(exp => `<div class="summary-item">${exp}</div>`).join('')}
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="summary-section">
+          <h3>Skills (${characterData.skills.length})</h3>
+          ${characterData.skills.map(skill => `<div class="summary-item">${skill.skill}</div>`).join('')}
+        </div>
+
+        <div class="summary-section">
+          <h3>Resources (${characterData.resources.length})</h3>
+          ${characterData.resources.map(res => `<div class="summary-item">${res.resource}${res.stationary ? ' <em>(stationary)</em>' : ''}</div>`).join('')}
+        </div>
+
+        <div class="summary-section">
+          <h3>Characters (${characterData.characters.length})</h3>
+          ${characterData.characters.map(char => `
+            <div style="margin-bottom: 12px;">
+              <strong>${char.name}</strong> <em>(${char.type})</em><br>
+              <span style="color: var(--ink-faint);">${char.description}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="summary-section">
+          <h3>Marks (${characterData.marks.length})</h3>
+          ${characterData.marks.map(mark => `<div class="summary-item">${mark.mark}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    function reviewAndSave() {
+      if (validateStep(6)) {
+        nextStep();
+      }
+    }
+
+    function saveCharacter() {
+      const json = JSON.stringify(characterData, null, 2);
+      localStorage.setItem('tyov-draft-' + characterData.name, json);
+      currentStep++;
+      showStep(currentStep);
+      initStepIndicator();
+    }
+
+    function downloadCharacter() {
+      const json = JSON.stringify(characterData, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = characterData.name + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyCharacterCode() {
+      const json = JSON.stringify(characterData, null, 2);
+      navigator.clipboard.writeText(json).then(() => {
+        alert('Character data copied to clipboard!');
+      });
+    }
+
+    function startNew() {
+      window.location.reload();
+    }
+
+    // ═══════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════
+    initStepIndicator();
+  </script>
+
+</body>
+
+</html>
