@@ -3,7 +3,7 @@
 
   ## Diary
   -----
-  Diaries should have gained and lost turn properties. 
+  ~~Diaries should have gained and lost turn properties~~
   Memories moved to a diary should show something of this? How? Name of diary in memory?
 
   ## Mortality
@@ -15,8 +15,8 @@
 
   ## Ordering and tidying long games
   -------------------------------
-  Same thing with resources, gained and lost dates. Lost section. Active at the top. (gained and lost turns?)
-  Same with skills, gained and lost dates, lost section. Active at the top. (gained and lost turns?)
+  ~~Same thing with resources, gained and lost dates. Lost section. Active at the top. (gained and lost turns?)~~
+  ~~Same with skills, gained and lost dates, lost section. Active at the top. (gained and lost turns?)~~
 
   Journal search bar?
 
@@ -25,10 +25,11 @@
 # Known Bugs
 ---------
 - Strikethrough marks deletes them?
-- Weird UX discrepancy between resources and skills.
+~~- Weird UX discrepancy between resources and skills.~~
 - Cache retains current mortal, next prompt button doesn't.
 - Resources don't need a description unless you're going to use it properly.
 
 # Future Aspirations
 ------------------
+New Game Wizard or something.
 A nicer UX experience for Vampire selection

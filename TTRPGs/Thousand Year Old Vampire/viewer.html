@@ -454,8 +454,6 @@
             }))
           ])
         ),
-        mortals: [],
-        immortals: [],
         journal: (json.journal || []).map(j => ({
           turn: j.turn,
           prompt: j.prompt,
@@ -477,7 +475,9 @@
           desc: c.description || '',
           description: c.description || '',
           dead: c.status === 'dead',
-          death_reason: c.death_reason || ''
+          death_reason: c.death_reason || '',
+          gained_turn: c.gained_turn || null,
+          lost_turn: c.lost_turn || null
         };
         if (c.type === 'mortal') data.mortals.push(entry);
         else data.immortals.push(entry);
@@ -549,8 +549,14 @@
             }))
           ])
         ), characters: [
-          ...(d.mortals || []).map(c => ({ name: c.name || '', type: 'mortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '' })),
-          ...(d.immortals || []).map(c => ({ name: c.name || '', type: 'immortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '' }))
+          ...(d.mortals || []).map(c => ({
+            name: c.name || '', type: 'mortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
+            lost_turn: c.lost_turn || null
+          })),
+          ...(d.immortals || []).map(c => ({
+            name: c.name || '', type: 'immortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
+            lost_turn: c.lost_turn || null
+          }))
         ],
         journal: (d.journal || []).map(j => ({
           turn: j.turn,
@@ -655,14 +661,15 @@
       // ── Main layout ──
       html += '<div class="main-layout">';
 
-      // Mortal Characters
+      // Mortal Characters — living only
       html += '<div class="char-col section-editwrap" data-section="characters-mortal" '
         + (em ? 'onclick="editCharacters()" title="Click to edit characters"' : '') + '>'
         + '<div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧑</span> Mortal Characters</div>'
         + '<div class="char-list">';
-      if (d.mortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
-      d.mortals.forEach(c => {
-        html += '<div class="char-row ' + (c.dead ? 'dead' : '') + '">'
+      const livingMortals = d.mortals.filter(c => !c.dead);
+      if (livingMortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
+      livingMortals.forEach(c => {
+        html += '<div class="char-row">'
           + '<div class="char-row-name">' + esc(c.name) + '</div>'
           + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
           + '</div>';
@@ -719,14 +726,15 @@
       });
       html += '</div>'; // journal-col
 
-      // Immortal Characters
+      // Immortal Characters — living only
       html += '<div class="char-col section-editwrap" data-section="characters-immortal" '
         + (em ? 'onclick="editCharacters()" title="Click to edit characters"' : '') + '>'
         + '<div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧛</span> Immortal Characters</div>'
         + '<div class="char-list">';
-      if (d.immortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
-      d.immortals.forEach(c => {
-        html += '<div class="char-row ' + (c.dead ? 'dead' : '') + '">'
+      const livingImmortals = d.immortals.filter(c => !c.dead);
+      if (livingImmortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
+      livingImmortals.forEach(c => {
+        html += '<div class="char-row">'
           + '<div class="char-row-name">' + esc(c.name) + '</div>'
           + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
           + '</div>';
@@ -784,7 +792,7 @@
       if (d.lostMemories && d.lostMemories.length > 0) {
         const sorted = [...d.lostMemories].sort((a, b) => new Date(a.lost_at) - new Date(b.lost_at));
         html += '<div class="memories-section section-editwrap" data-section="lost-memories">'
-          + '<div class="memories-section-label"><span class="section-icon">💀</span> Lost Memories</div>'
+          + '<div class="memories-section-label"><span class="section-icon">🌒</span> Lost Memories</div>'
           + '<div class="memories-grid">';
         sorted.forEach(mem => {
           const ld = new Date(mem.lost_at);
@@ -835,6 +843,27 @@
             + (r.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + r.lost_turn + '</span>' : '')
             + '</div>'
             + (r.description ? '<p style="font-size:.88rem;">' + esc(r.description) + '</p>' : '')
+            + '</div>';
+        });
+        html += '</div></div>';
+      }
+
+      // ── Obituary ──
+      const deadChars = [...d.mortals.filter(c => c.dead), ...d.immortals.filter(c => c.dead)]
+        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
+      if (deadChars.length > 0) {
+        html += '<div class="memories-section">'
+          + '<div class="memories-section-label"><span class="section-icon">🪦</span> Obituary</div>'
+          + '<div class="memories-grid">';
+        deadChars.forEach(c => {
+          const type = d.mortals.includes(c) ? 'Mortal' : 'Immortal';
+          html += '<div class="memory-block forgotten">'
+            + '<div class="memory-title">' + esc(c.name)
+            + ' <span style="font-size:.75em;color:var(--ink-faint);">— ' + type
+            + (c.lost_turn ? ' · died turn ' + c.lost_turn : '')
+            + '</span></div>'
+            + (c.desc ? '<p style="font-size:.88rem;margin-bottom:6px;">' + esc(c.desc) + '</p>' : '')
+            + (c.death_reason ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">' + esc(c.death_reason) + '</p>' : '')
             + '</div>';
         });
         html += '</div></div>';
@@ -1290,59 +1319,94 @@
     // ── Characters ────────────────────────────────────
     function editCharacters() {
       if (!editMode) return;
-      let bodyHtml = `<div class="edit-section-title">Mortals</div>`;
-      parsedData.mortals.forEach((c, i) => {
-        bodyHtml += `<div class="edit-list-item ${c.dead ? 'struck-item' : ''}">
-      <div class="edit-list-item-text ${c.dead ? 'struck-text' : ''}"><strong>${esc(c.name)}</strong> — ${esc(c.desc)}</div>
-      <div class="edit-list-actions">
-        <button class="strike-btn ${c.dead ? 'struck' : ''}" onclick="toggleCharDead('mortal',${i})">${c.dead ? 'Revive' : 'Kill'}</button>
-        <button class="trash-btn" onclick="deleteChar('mortal',${i})" title="Delete character entirely">🗑</button>
-      </div>
-    </div>`;
+      const allChars = [
+        ...parsedData.mortals.map(c => ({ ...c, type: 'mortal' })),
+        ...parsedData.immortals.map(c => ({ ...c, type: 'immortal' }))
+      ];
+      const living = allChars.filter(c => !c.dead)
+        .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
+      const dead = allChars.filter(c => c.dead)
+        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
+
+      let bodyHtml = '<div class="edit-section-title">Living Characters</div>';
+      if (living.length === 0) {
+        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No living characters.</p>';
+      }
+      living.forEach(c => {
+        const arr = c.type === 'mortal' ? parsedData.mortals : parsedData.immortals;
+        const i = arr.findIndex(x => x.name === c.name && x.desc === c.desc);
+        bodyHtml += '<div class="edit-list-item">'
+          + '<div class="edit-list-item-text">'
+          + '<strong>' + esc(c.name) + '</strong>'
+          + ' <span style="font-size:.8rem;color:var(--ink-faint);">' + c.type
+          + (c.gained_turn ? ' · met turn ' + c.gained_turn : '') + '</span>'
+          + (c.desc ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(c.desc) + '</span>' : '')
+          + '</div>'
+          + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="killCharacter(\'' + c.type + '\',' + i + ')">Kill</button>'
+          + '<button class="trash-btn" onclick="deleteCharacter(\'' + c.type + '\',' + i + ')">🗑</button>'
+          + '</div></div>';
       });
-      bodyHtml += `<div class="edit-section-title" style="margin-top:14px;">Immortals</div>`;
-      parsedData.immortals.forEach((c, i) => {
-        bodyHtml += `<div class="edit-list-item ${c.dead ? 'struck-item' : ''}">
-      <div class="edit-list-item-text ${c.dead ? 'struck-text' : ''}"><strong>${esc(c.name)}</strong> — ${esc(c.desc)}</div>
-      <div class="edit-list-actions">
-        <button class="strike-btn ${c.dead ? 'struck' : ''}" onclick="toggleCharDead('immortal',${i})">${c.dead ? 'Revive' : 'Kill'}</button>
-        <button class="trash-btn" onclick="deleteChar('immortal',${i})" title="Delete character entirely">🗑</button>
-      </div>
-    </div>`;
-      });
-      bodyHtml += `<hr class="edit-divider">
-    <div class="edit-section-title">Add Character</div>
-    <div class="form-row">
-      <label class="form-label">Name</label>
-      <input class="form-input" id="ed-char-name" placeholder="Character name">
-    </div>
-    <div class="form-row">
-      <label class="form-label">Description</label>
-      <textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea>
-    </div>
-    <div class="form-row">
-      <label class="form-label">Type</label>
-      <select class="form-select" id="ed-char-type">
-        <option value="mortal">Mortal</option>
-        <option value="immortal">Immortal</option>
-      </select>
-    </div>`;
+
+      if (dead.length > 0) {
+        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Dead Characters</div>';
+        dead.forEach(c => {
+          const arr = c.type === 'mortal' ? parsedData.mortals : parsedData.immortals;
+          const i = arr.findIndex(x => x.name === c.name && x.desc === c.desc);
+          bodyHtml += '<div class="edit-list-item struck-item">'
+            + '<div class="edit-list-item-text">'
+            + '<strong>' + esc(c.name) + '</strong>'
+            + ' <span style="font-size:.8rem;color:var(--ink-faint);">' + c.type
+            + (c.lost_turn ? ' · died turn ' + c.lost_turn : '') + '</span>'
+            + (c.desc ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(c.desc) + '</span>' : '')
+            + '</div>'
+            + '<div class="edit-list-actions">'
+            + '<button class="strike-btn" onclick="restoreCharacter(\'' + c.type + '\',' + i + ')">Restore</button>'
+            + '<button class="trash-btn" onclick="deleteCharacter(\'' + c.type + '\',' + i + ')">🗑</button>'
+            + '</div></div>';
+        });
+      }
+
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add Character</div>'
+        + '<div class="form-row"><label class="form-label">Name</label>'
+        + '<input class="form-input" id="ed-char-name" placeholder="e.g. Sister Agatha"></div>'
+        + '<div class="form-row"><label class="form-label">Description</label>'
+        + '<textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea></div>'
+        + '<div class="form-row"><label class="form-label">Type</label>'
+        + '<select class="form-select" id="ed-char-type">'
+        + '<option value="mortal">🧑 Mortal</option>'
+        + '<option value="immortal">🧛 Immortal</option>'
+        + '</select></div>';
+
       openModal('Edit Characters', bodyHtml, () => {
         const name = document.getElementById('ed-char-name').value.trim();
         const desc = document.getElementById('ed-char-desc').value.trim();
         const type = document.getElementById('ed-char-type').value;
-        if (name && desc) {
-          if (type === 'mortal') parsedData.mortals.push({ name, desc, dead: false });
-          else parsedData.immortals.push({ name, desc, dead: false });
+        if (name) {
+          const entry = { name, desc, description: desc, dead: false, death_reason: '', gained_turn: currentTurn(), lost_turn: null };
+          if (type === 'mortal') parsedData.mortals.push(entry);
+          else parsedData.immortals.push(entry);
           markUnsaved();
         }
-      }); // modalConfirm() handles re-render after Update is clicked
+      });
     }
 
-    function toggleCharDead(type, i) {
-      if (type === 'mortal') parsedData.mortals[i].dead = !parsedData.mortals[i].dead;
-      else parsedData.immortals[i].dead = !parsedData.immortals[i].dead;
-      editCharacters(); // re-open modal refreshed
+    function killCharacter(type, i) {
+      const arr = type === 'mortal' ? parsedData.mortals : parsedData.immortals;
+      const c = arr[i];
+      if (!confirm('Kill ' + c.name + '?')) return;
+      c.dead = true;
+      c.lost_turn = currentTurn();
+      markUnsaved();
+      editCharacters();
+    }
+
+    function restoreCharacter(type, i) {
+      const arr = type === 'mortal' ? parsedData.mortals : parsedData.immortals;
+      arr[i].dead = false;
+      arr[i].lost_turn = null;
+      markUnsaved();
+      editCharacters();
     }
 
     // ── Memories ──────────────────────────────────────
