@@ -421,7 +421,6 @@
         vampireName: json.name || '',
         subtitle: json.vampire_desc || '',
         mortalSelf: json.mortal_self || '',
-        epithet: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
         marks: (json.marks || []).map(m => ({
           desc: m.description || '',
           concealment: m.concealment || '',
@@ -1014,7 +1013,7 @@
     // SECTION EDITORS
     // ═══════════════════════════════════════════════════
 
-    // ── Header / Epithet ──────────────────────────────
+    // ── Header  ──────────────────────────────
     function editHeader() {
       if (!editMode) return;
       openModal('Edit Header', `
