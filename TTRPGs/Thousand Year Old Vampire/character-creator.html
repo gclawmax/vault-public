@@ -309,19 +309,26 @@
     let currentStep = 1;
     let characterData = {
       name: '',
-      player: 'Solo',
-      created: new Date().toISOString(),
+      vampire_desc: '',
+      mortal_self: '',
+      game_over: false,
+      game_start: new Date().toISOString().slice(0, 10),
+      modified: new Date().toISOString().slice(0, 10),
+      game_completed: "",
+      current_prompt: 0,
+      prompts_resolved: 0,
+      marks: [],
       memories: [
-        { label: '1', experiences: [] },
-        { label: '2', experiences: [] },
-        { label: '3', experiences: [] },
-        { label: '4', experiences: [] },
-        { label: '5', experiences: [] }
+        { n: '1', "theme": "", "description": "", "experiences": [] },
+        { n: '2', "theme": "", "description": "", "experiences": [] },
+        { n: '3', "theme": "", "description": "", "experiences": [] },
+        { n: '4', "theme": "", "description": "", "experiences": [] },
+        { n: '5', "theme": "", "description": "", "experiences": [] }
       ],
+      lost_memories: [],
       skills: [],
       resources: [],
       characters: [],
-      marks: [],
       journal: []
     };
 
@@ -436,6 +443,8 @@
             return false;
           }
           characterData.name = document.getElementById('mortal-name').value;
+          characterData.mortal_self = document.getElementById('mortal-life').value;
+          characterData.vampire_desc = `A vampire who was once ${characterData.mortal_self}`;
           // Only add the mortal experience if it hasn't been added yet
           if (characterData.memories[0].experiences.length === 0) {
             characterData.memories[0].experiences.push(document.getElementById('mortal-life').value);
@@ -498,7 +507,9 @@
           // Add mark (only if not already added)
           if (characterData.marks.length === 0) {
             characterData.marks.push({
-              mark: document.getElementById('mark').value
+              description: document.getElementById('mark').value,
+              status: 'available',
+              concealment: ""
             });
           }
           // Add final experience (only if not already added)
@@ -531,7 +542,7 @@
         alert('Please enter a character name.');
         return;
       }
-      characterData.characters.push({ name, description: desc, type: 'mortal' });
+      characterData.characters.push({ name, description: desc, type: 'mortal', status: 'alive', death_reason: '', gained_turn: 0, lost_turn: null });
       renderCharacters();
       hideCharacterForm();
       updateStep2Next();
@@ -584,7 +595,7 @@
         alert('You can only have three Skills.');
         return;
       }
-      characterData.skills.push({ skill: name });
+      characterData.skills.push({ name: name, description: "", status: "available", "gained_turn": 0, "lost_turn": null });
       renderSkills();
       hideSkillForm();
       updateStep3Next();
@@ -602,7 +613,8 @@
         .map((skill, i) => `
         <div class="item-card">
           <div>
-            <h4>${skill.skill}</h4>
+            <h4>${skill.name}</h4>
+            <p>${skill.description || '(no description)'}</p>
           </div>
           <button class="item-remove" onclick="removeSkill(${i})">×</button>
         </div>
@@ -638,7 +650,7 @@
         alert('You can only have three Resources.');
         return;
       }
-      characterData.resources.push({ resource: name, stationary });
+      characterData.resources.push({ name: name, description: "", type: document.getElementById('resource-stationary').checked ? 'stationary' : 'portable', status: "available", "gained_turn": 0, "lost_turn": null });
       renderResources();
       hideResourceForm();
       updateStep4Next();
@@ -656,8 +668,9 @@
         .map((res, i) => `
         <div class="item-card">
           <div>
-            <h4>${res.resource}</h4>
-            ${res.stationary ? '<p><em>Stationary</em></p>' : ''}
+            <h4>${res.name}</h4>
+            <p>${res.description || '(no description)'}</p>
+            ${res.type === 'stationary' ? '<p><em>Stationary</em></p>' : ''}
           </div>
           <button class="item-remove" onclick="removeResource(${i})">×</button>
         </div>
@@ -674,11 +687,11 @@
         : '<p class="overview-empty">Add at least three Characters in Step 2.</p>';
 
       skillContainer.innerHTML = characterData.skills.length
-        ? characterData.skills.map(skill => `<div class="overview-item">${skill.skill}</div>`).join('')
+        ? characterData.skills.map(skill => `<div class="overview-item">${skill.name}</div>`).join('')
         : '<p class="overview-empty">Add three Skills in Step 3.</p>';
 
       resourceContainer.innerHTML = characterData.resources.length
-        ? characterData.resources.map(res => `<div class="overview-item">${res.resource}${res.stationary ? ' <em>(stationary)</em>' : ''}</div>`).join('')
+        ? characterData.resources.map(res => `<div class="overview-item">${res.name}${res.type === 'stationary' ? ' <em>(stationary)</em>' : ''}</div>`).join('')
         : '<p class="overview-empty">Add three Resources in Step 4.</p>';
     }
 
@@ -709,12 +722,12 @@
 
         <div class="summary-section">
           <h3>Skills (${characterData.skills.length})</h3>
-          ${characterData.skills.map(skill => `<div class="summary-item">${skill.skill}</div>`).join('')}
+          ${characterData.skills.map(skill => `<div class="summary-item">${skill.name}</div>`).join('')}
         </div>
 
         <div class="summary-section">
           <h3>Resources (${characterData.resources.length})</h3>
-          ${characterData.resources.map(res => `<div class="summary-item">${res.resource}${res.stationary ? ' <em>(stationary)</em>' : ''}</div>`).join('')}
+          ${characterData.resources.map(res => `<div class="summary-item">${res.name}${res.type === 'stationary' ? ' <em>(stationary)</em>' : ''}</div>`).join('')}
         </div>
 
         <div class="summary-section">
