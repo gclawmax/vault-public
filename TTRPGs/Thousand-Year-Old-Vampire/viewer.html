@@ -628,7 +628,7 @@
       const activeSkills = d.skills.filter(sk => sk.status !== 'lost')
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
 
-      html += '<div class="strip-cell section-editwrap" data-section="skills">'
+      html += '<div class="strip-cell section-editwrap" data-section="skills" '
         + (em ? 'onclick="editSkills()" title="Click to edit skills"' : '') + '>'
         + '<div class="strip-label"><span class="section-icon">⚔</span> Skills</div>'
         + '<div class="skills-inline">';
@@ -645,7 +645,7 @@
       const activeResources = d.resources.filter(r => r.status === 'active')
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
 
-      html += '<div class="strip-cell section-editwrap" data-section="resources">'
+      html += '<div class="strip-cell section-editwrap" data-section="resources" '
         + (em ? 'onclick="editResources()" title="Click to edit resources"' : '') + '>'
         + '<div class="strip-label"><span class="section-icon">🏚</span> Resources</div>'
         + '<div class="resources-inline">';
