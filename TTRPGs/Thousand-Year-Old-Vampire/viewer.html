@@ -442,7 +442,7 @@
         skills: (json.skills || []).map(sk => ({
           name: sk.name || '',
           description: sk.description || '',
-          status: sk.status || 'unchecked',
+          status: sk.status === 'available' ? 'unchecked' : sk.status === 'spent' ? 'checked' : 'lost',
           gained_turn: sk.gained_turn || null,
           lost_turn: sk.lost_turn || null
         })),
@@ -450,7 +450,7 @@
           name: r.name || '',
           description: r.description || '',
           type: r.type || 'portable',
-          status: r.status || 'active',
+          status: r.status === 'available' ? 'active' : r.status === 'lost' ? 'lost' : 'active',
           gained_turn: r.gained_turn || null,
           lost_turn: r.lost_turn || null
         })),
@@ -540,7 +540,7 @@
         skills: (d.skills || []).map(sk => ({
           name: sk.name || '',
           description: sk.description || '',
-          status: sk.status || 'unchecked',
+          status: sk.status === 'checked' ? 'spent' : sk.status === 'lost' ? 'struck' : 'available',
           gained_turn: sk.gained_turn || null,
           lost_turn: sk.lost_turn || null
         })),
@@ -548,7 +548,7 @@
           name: r.name || '',
           description: r.description || '',
           type: r.type || 'portable',
-          status: r.status || 'active',
+          status: r.status === 'active' ? 'available' : 'lost',
           gained_turn: r.gained_turn || null,
           lost_turn: r.lost_turn || null
         })),
