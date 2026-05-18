@@ -247,6 +247,8 @@
         }
 
         renderChronicle(parsedData);
+        const select = document.getElementById('game-select');
+        if (select) select.value = filename;
         document.getElementById('empty-state').style.display = 'none';
         document.getElementById('content').style.display = 'block';
         document.getElementById('edit-mode-btn').style.display = '';
