@@ -1,0 +1,514 @@
+#top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--topbar-border);
+  backdrop-filter: blur(8px);
+}
+
+#picker-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 16px;
+  flex-wrap: wrap;
+}
+
+#picker-label {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--accent-dim);
+  text-transform: uppercase;
+}
+
+#title-link {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(.7rem, 1.3vw, .95rem);
+  color: var(--blood);
+  text-decoration: none;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+#title-link:hover {
+  text-decoration: underline;
+}
+
+#core-link {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(.7rem, 1.3vw, .95rem);
+  color: var(--blood);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#core-link:hover {
+  text-decoration: underline;
+}
+
+.top-btn {
+  background: transparent;
+  border: 1px solid var(--border-bright);
+  color: var(--accent);
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  transition: all .2s ease;
+}
+
+.top-btn:hover {
+  background: var(--blood);
+  color: white;
+  border-color: var(--blood);
+}
+
+.top-btn.active {
+  background: var(--blood);
+  color: white;
+  border-color: var(--blood);
+}
+
+/* Skin switcher */
+.skin-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.skin-btn.active {
+  border-color: var(--border-bright);
+}
+
+.skin-btn[data-s="book"] {
+  background: #e8dfc8;
+}
+
+.skin-btn[data-s="dark"] {
+  background: #14100c;
+}
+
+.skin-btn[data-s="scholar"] {
+  background: #f5f0e8;
+}
+
+#skin-switcher {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+/* Main container */
+#app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.creator-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.creator-header h1 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 36px;
+  color: var(--ink);
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+
+.creator-header p {
+  font-size: 16px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+/* Step indicator */
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 48px;
+  gap: 8px;
+}
+
+.step-dot {
+  flex: 1;
+  height: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all .3s ease;
+  position: relative;
+}
+
+.step-dot.active {
+  background: var(--blood);
+  border-color: var(--blood);
+}
+
+.step-dot.completed {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.step-dot:hover {
+  background: var(--blood-bright);
+}
+
+/* Step content */
+.step {
+  display: none;
+}
+
+.step.active {
+  display: block;
+  animation: fadeIn .3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.step h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
+  color: var(--ink);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.step-subtitle {
+  font-size: 14px;
+  color: var(--ink-faint);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+.step-description {
+  font-size: 16px;
+  color: var(--ink-dim);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* Form controls */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-dim);
+  margin-bottom: 6px;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  padding: 12px;
+  font-family: 'EB Garamond', serif;
+  font-size: 18px;
+  line-height: 1.6;
+  transition: border-color .2s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--blood);
+  box-shadow: 0 0 8px var(--edit-ring);
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Multi-item list */
+.item-list {
+  margin-bottom: 24px;
+}
+
+.item-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--blood);
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.item-card h4 {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.item-card p {
+  font-size: 15px;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+.item-remove {
+  background: var(--blood);
+  color: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .2s ease;
+}
+
+.item-remove:hover {
+  background: var(--blood-bright);
+}
+
+.add-item-btn {
+  background: transparent;
+  border: 2px dashed var(--border);
+  color: var(--ink-dim);
+  padding: 12px 16px;
+  cursor: pointer;
+  width: 100%;
+  font-family: 'EB Garamond', serif;
+  font-size: 16px;
+  transition: all .2s ease;
+}
+
+.add-item-btn:hover {
+  border-color: var(--blood);
+  color: var(--blood);
+  background: var(--edit-ring);
+}
+
+/* Step 2: Multiple character form */
+.character-form {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* Step 3 & 4: Skill/Resource form */
+.trait-form {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.trait-form .form-group {
+  margin-bottom: 12px;
+}
+
+.trait-form-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.trait-form-add {
+  flex: 1;
+  background: var(--blood);
+  color: white;
+  border: 1px solid var(--blood);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  transition: background .2s ease;
+}
+
+.trait-form-add:hover {
+  background: var(--blood-bright);
+}
+
+.trait-form-cancel {
+  background: transparent;
+  color: var(--ink-dim);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  transition: all .2s ease;
+}
+
+.trait-form-cancel:hover {
+  background: var(--bg3);
+}
+
+/* Navigation */
+.form-navigation {
+  display: flex;
+  gap: 16px;
+  margin-top: 48px;
+  justify-content: space-between;
+}
+
+.btn {
+  background: var(--blood);
+  color: white;
+  border: 1px solid var(--blood);
+  padding: 12px 24px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: all .2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--blood-bright);
+  border-color: var(--blood-bright);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--ink-dim);
+  border: 1px solid var(--border-bright);
+}
+
+.btn-secondary:hover {
+  background: var(--bg3);
+}
+
+/* Summary/Review */
+.summary-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--blood);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.summary-section h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  color: var(--blood);
+}
+
+.summary-item {
+  font-size: 15px;
+  color: var(--ink-dim);
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.summary-item:before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--blood);
+}
+
+/* Completion state */
+.completion-box {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.completion-box h3 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 28px;
+  color: var(--blood);
+  margin-bottom: 16px;
+}
+
+.completion-box p {
+  font-size: 16px;
+  color: var(--ink-dim);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.completion-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.completion-actions .btn {
+  flex: 0 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  #app {
+    padding: 16px 12px;
+  }
+
+  .creator-header h1 {
+    font-size: 28px;
+  }
+
+  .step-indicator {
+    margin-bottom: 32px;
+  }
+
+  .step h2 {
+    font-size: 20px;
+  }
+
+  .form-navigation {
+    flex-direction: column-reverse;
+  }
+
+  .form-navigation .btn {
+    width: 100%;
+  }
+
+  .item-card {
+    flex-direction: column;
+  }
+}
