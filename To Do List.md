@@ -35,20 +35,6 @@ immortals: ParsedCharacter[]
 
 Serialization merges them back together.
 
-5. theme and name are aliases
-
-Reader:
-
-theme: mem.theme || mem.name || ''
-
-Writer always emits:
-
-theme
-
-So:
-
-name is legacy compatibility
-canonical persisted field is theme
 6. Experiences normalize objects to strings
 
 Input accepted:
