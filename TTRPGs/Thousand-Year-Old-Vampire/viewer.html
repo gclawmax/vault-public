@@ -428,7 +428,7 @@
         })),
         memories: (json.memories || []).map((mem, idx) => ({
           n: mem.n || idx + 1,
-          theme: mem.theme || mem.name || '',
+          theme: mem.theme || '',
           experiences: (mem.experiences || []).map(e => typeof e === 'string' ? e : (e.text || '')),
           description: mem.description || ''
         })),
