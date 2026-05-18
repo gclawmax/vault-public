@@ -1745,6 +1745,12 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         preview.style.color = 'var(--blood)';
         if (loseCheck) loseCheck.checked = true;
         if (newThemeRow) newThemeRow.style.display = '';
+      } else if (mem.experiences.length === 0) {
+        // If the selected memory has no experiences yet, require a new theme
+        // (this uses the same UI as when replacing a full memory).
+        preview.style.color = 'var(--ink-faint)';
+        if (loseCheck) loseCheck.checked = false;
+        if (newThemeRow) newThemeRow.style.display = '';
       } else {
         preview.style.color = 'var(--ink-faint)';
         // Don't uncheck — player may have manually checked it
@@ -1898,42 +1904,57 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
       const mem = parsedData.memories[memIdx];
 
-      const loseCheck = document.getElementById('ed-je-lose-check');
-      const playerChoseLose = loseCheck && loseCheck.checked;
-      const shouldLose = playerChoseLose || mem.experiences.length === 3;
-
-      if (shouldLose) {
-        const newThemeEl = document.getElementById('ed-je-new-theme');
+      // If the selected memory slot exists but has no experiences yet,
+      // require a new theme for the memory and create it (same flow as
+      // replacing a full memory, but without the confirmation).
+      if (Array.isArray(mem.experiences) && mem.experiences.length === 0) {
         const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
         if (!newTheme) {
           alert('Please provide a theme for the new memory that will take its place.');
           return;
         }
-
-        if (!confirm(
-          'Memory ' + mem.n + ' "' + mem.theme + '" will be lost.\n\n'
-          + 'It will be moved to Lost Memories and a new memory "'
-          + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
-        )) return;
-
-        if (!parsedData.lostMemories) parsedData.lostMemories = [];
-        parsedData.lostMemories.push({
-          n: mem.n,
-          theme: mem.theme,
-          experiences: [...mem.experiences],
-          lost_at: new Date().toISOString(),
-          lost_on_turn: je.turn
-        });
-
         parsedData.memories[memIdx] = {
           n: mem.n,
           theme: newTheme,
           experiences: [expText],
           description: ''
         };
-
       } else {
-        mem.experiences.push(expText);
+        const loseCheck = document.getElementById('ed-je-lose-check');
+        const playerChoseLose = loseCheck && loseCheck.checked;
+        const shouldLose = playerChoseLose || mem.experiences.length === 3;
+
+        if (shouldLose) {
+          const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
+          if (!newTheme) {
+            alert('Please provide a theme for the new memory that will take its place.');
+            return;
+          }
+
+          if (!confirm(
+            'Memory ' + mem.n + ' "' + mem.theme + '" will be lost.\n\n'
+            + 'It will be moved to Lost Memories and a new memory "'
+            + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
+          )) return;
+
+          if (!parsedData.lostMemories) parsedData.lostMemories = [];
+          parsedData.lostMemories.push({
+            n: mem.n,
+            theme: mem.theme,
+            experiences: [...mem.experiences],
+            lost_at: new Date().toISOString(),
+            lost_on_turn: je.turn
+          });
+
+          parsedData.memories[memIdx] = {
+            n: mem.n,
+            theme: newTheme,
+            experiences: [expText],
+            description: ''
+          };
+        } else {
+          mem.experiences.push(expText);
+        }
       }
 
       // Mark resolved
