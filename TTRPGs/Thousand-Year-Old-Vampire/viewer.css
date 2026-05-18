@@ -637,13 +637,16 @@ body.edit-mode .section-editwrap {
   cursor: pointer;
   transition: outline 0.1s;
 }
+
 .edit-mode .section-editwrap:hover {
   outline: 1px dashed var(--accent-dim);
 }
+
 .edit-mode .journal-entry {
   cursor: pointer;
   transition: outline 0.1s;
 }
+
 .edit-mode .journal-entry:hover {
   outline: 1px dashed var(--accent-dim);
 }
@@ -1186,6 +1189,15 @@ body.edit-mode .section-editwrap {
 
   .strip-cell:last-child {
     border-bottom: none;
+  }
+
+  .strip-sublabel {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 10px 0 6px;
   }
 
   .main-layout {
