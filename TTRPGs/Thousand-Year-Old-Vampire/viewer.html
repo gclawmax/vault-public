@@ -474,19 +474,18 @@
         lastPlayed: json.modified || ''
       };
 
-      (json.characters || []).forEach(c => {
-        const entry = {
-          name: c.name || '',
-          desc: c.description || '',
-          description: c.description || '',
-          dead: c.status === 'dead',
-          death_reason: c.death_reason || '',
-          death_epitaph: c.death_epitaph || '',
-          gained_turn: c.gained_turn || null,
-          lost_turn: c.lost_turn || null,
-          type: c.type || '' // Mortal or Immortal
-        };
-      });
+      characters: (json.characters || []).map(c => ({
+        name: c.name || '',
+        description: c.description || '',
+        type: c.type || 'mortal',
+
+        dead: c.status === 'dead',
+        death_reason: c.death_reason || '',
+        death_epitaph: c.death_epitaph || '',
+
+        gained_turn: c.gained_turn || null,
+        lost_turn: c.lost_turn || null
+      }));
 
       return data;
     }
@@ -537,13 +536,13 @@
           ])
         ), characters: [
           ...(d.characters || []).map(c => ({
-            name: c.name || '', 
-            type: c.type || '', 
-            description: c.description || '', 
-            status: c.dead ? 'dead' : 'alive', 
-            death_reason: c.death_reason || '', 
+            name: c.name || '',
+            type: c.type || '',
+            description: c.description || '',
+            status: c.dead ? 'dead' : 'alive',
+            death_reason: c.death_reason || '',
             gained_turn: c.gained_turn || null,
-            lost_turn: c.lost_turn || null, 
+            lost_turn: c.lost_turn || null,
             death_epitaph: c.death_epitaph || ''
           }))
         ],
@@ -1308,8 +1307,8 @@
     function editCharacters() {
       if (!editMode) return;
       const allChars = [
-        ...parsedData.mortals.map(c => ({ ...c, type: 'mortal' })),
-        ...parsedData.immortals.map(c => ({ ...c, type: 'immortal' }))
+        ...parsedData.characters.filter(c => c.type === 'mortal'),  
+        ...parsedData.characters.filter(c => c.type === 'immortal'),  
       ];
       const living = allChars.filter(c => !c.dead)
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
