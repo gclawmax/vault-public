@@ -607,8 +607,8 @@ body.edit-mode .section-editwrap {
 }
 
 .edit-list-item-text.struck-text {
-  text-decoration: line-through;
-  text-decoration-color: var(--blood);
+  text-decoration: none;
+  opacity: .5;
 }
 
 .edit-list-actions {
@@ -837,8 +837,6 @@ body.edit-mode .section-editwrap {
 
 .skill-chip.lost {
   opacity: .4;
-  text-decoration: line-through;
-  text-decoration-color: var(--blood);
 }
 
 .skill-chip.checked {
@@ -880,8 +878,6 @@ body.edit-mode .section-editwrap {
 
 .resource-chip.lost {
   opacity: .4;
-  text-decoration: line-through;
-  text-decoration-color: var(--blood);
 }
 
 .resource-type-icon {
@@ -964,8 +960,7 @@ body.edit-mode .section-editwrap {
 }
 
 .char-row.dead .char-row-name {
-  text-decoration: line-through;
-  text-decoration-color: var(--blood);
+  opacity: .5;
 }
 
 .char-row-name {
