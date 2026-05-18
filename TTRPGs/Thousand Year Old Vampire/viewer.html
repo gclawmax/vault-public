@@ -680,8 +680,9 @@
       const livingMortals = d.mortals.filter(c => !c.dead);
       if (livingMortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
       livingMortals.forEach(c => {
+        const nameDisplay = (c._graveIcon ? '🪦 ' : '') + esc(c.name);
         html += '<div class="char-row">'
-          + '<div class="char-row-name">' + esc(c.name) + '</div>'
+          + '<div class="char-row-name">' + nameDisplay + '</div>'
           + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
           + '</div>';
       });
@@ -1392,7 +1393,8 @@
         const desc = document.getElementById('ed-char-desc').value.trim();
         const type = document.getElementById('ed-char-type').value;
         if (name) {
-          const entry = { name, desc, description: desc, dead: false, death_reason: '', gained_turn: currentTurn(), lost_turn: null };
+          const gt = currentTurn() === null ? 0 : currentTurn();
+          const entry = { name, desc, description: desc, dead: false, death_reason: '', gained_turn: gt, lost_turn: null };
           if (type === 'mortal') parsedData.mortals.push(entry);
           else parsedData.immortals.push(entry);
           markUnsaved();
@@ -2118,6 +2120,21 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         // Use parsedData for prompt computation — it reflects current state
         const vampire = JSON.parse(serializeJson(parsedData));
         const result = computeNextPrompt(vampire);
+
+        // For each living mortal, randomly decide (4 or 5 turns) whether to
+        // show the grave marker. This uses the upcoming turn number.
+        if (parsedData && Array.isArray(parsedData.mortals) && !result.error) {
+          parsedData.mortals.forEach(m => { delete m._graveIcon; });
+          parsedData.mortals.forEach(m => {
+            if (!m.dead) {
+              const gt = Number(m.gained_turn) || 0;
+              const threshold = Math.floor(Math.random() * 2) + 4; // 4 or 5
+              if (result.turn - gt >= threshold) m._graveIcon = true;
+            }
+          });
+          // Rerender immediately so the UI reflects any grave prefixes.
+          renderChronicle(parsedData);
+        }
 
         if (result.error === 'all_prompts_exhausted') {
           displayPromptResult(result);
