@@ -821,26 +821,26 @@
         html += '</div></div>';
       }
 
-      el.innerHTML = html;
-    }
+      // ── Lost Resources ──
+      const lostResources = d.resources.filter(r => r.status === 'lost')
+        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
+      if (lostResources.length > 0) {
+        html += '<div class="memories-section">'
+          + '<div class="memories-section-label"><span class="section-icon">🏚</span> Lost Resources</div>'
+          + '<div class="memories-grid">';
+        lostResources.forEach(r => {
+          const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
+          html += '<div class="memory-block forgotten">'
+            + '<div class="memory-title">' + icon + ' ' + esc(r.name)
+            + (r.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + r.lost_turn + '</span>' : '')
+            + '</div>'
+            + (r.description ? '<p style="font-size:.88rem;">' + esc(r.description) + '</p>' : '')
+            + '</div>';
+        });
+        html += '</div></div>';
+      }
 
-    // ── Lost Resources ──
-    const lostResources = d.resources.filter(r => r.status === 'lost')
-      .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
-    if (lostResources.length > 0) {
-      html += '<div class="memories-section">'
-        + '<div class="memories-section-label"><span class="section-icon">🏚</span> Lost Resources</div>'
-        + '<div class="memories-grid">';
-      lostResources.forEach(r => {
-        const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
-        html += '<div class="memory-block forgotten">'
-          + '<div class="memory-title">' + icon + ' ' + esc(r.name)
-          + (r.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + r.lost_turn + '</span>' : '')
-          + '</div>'
-          + (r.description ? '<p style="font-size:.88rem;">' + esc(r.description) + '</p>' : '')
-          + '</div>';
-      });
-      html += '</div></div>';
+      el.innerHTML = html;
     }
 
     // ═══════════════════════════════════════════════════
