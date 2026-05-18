@@ -1654,6 +1654,17 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       return null;
     }
 
+    // Returns true if there is at least one active memory slot
+    // that can accept an additional experience (i.e. theme exists
+    // and experiences.length < 3). Used to gate journal add/resolve UI.
+    function hasUnexperiencedMemory() {
+      if (!parsedData || !parsedData.memories) return false;
+      for (const m of parsedData.memories) {
+        if (m && m.theme && Array.isArray(m.experiences) && m.experiences.length < 3) return true;
+      }
+      return false;
+    }
+
     // ── Journal array-level editing ─────────────────────
     function editJournal() {
       if (!editMode) return;

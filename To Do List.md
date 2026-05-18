@@ -4,7 +4,7 @@
   ## Diary
   -----
   ~~Diaries should have gained and lost turn properties~~
-  Memories moved to a diary should show something of this? How? Name of diary in memory?
+  ~~Memories moved to a diary should show something of this? How? Name of diary in memory?~~
 
   ## Mortality
   --------
@@ -28,6 +28,7 @@
 ~~- Weird UX discrepancy between resources and skills.~~
 - Cache retains current mortal, next prompt button doesn't.
 - Resources don't need a description unless you're going to use it properly.
+- Edit Journal needs a re-write
 
 # Future Aspirations
 ------------------
