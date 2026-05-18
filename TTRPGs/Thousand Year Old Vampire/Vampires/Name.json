@@ -1,0 +1,90 @@
+{
+  "name": "Name",
+  "player": "Solo",
+  "created": "2026-05-18T19:09:22.524Z",
+  "memories": [
+    {
+      "label": "1",
+      "experiences": [
+        "Mortal Life"
+      ]
+    },
+    {
+      "label": "2",
+      "experiences": [
+        "Memory 2"
+      ]
+    },
+    {
+      "label": "3",
+      "experiences": [
+        "Memory 3"
+      ]
+    },
+    {
+      "label": "4",
+      "experiences": [
+        "Memory 4"
+      ]
+    },
+    {
+      "label": "5",
+      "experiences": [
+        "Memory 5\n"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "skill": "Skill 1"
+    },
+    {
+      "skill": "Skill 2"
+    },
+    {
+      "skill": "Skill 3"
+    }
+  ],
+  "resources": [
+    {
+      "resource": "Resource 1",
+      "stationary": true
+    },
+    {
+      "resource": "Resource 2",
+      "stationary": false
+    },
+    {
+      "resource": "Resource 3",
+      "stationary": false
+    }
+  ],
+  "characters": [
+    {
+      "name": "Character 1",
+      "description": "Description of 1",
+      "type": "mortal"
+    },
+    {
+      "name": "Character 2",
+      "description": "Description of 2",
+      "type": "mortal"
+    },
+    {
+      "name": "Character 3",
+      "description": "Description of 3",
+      "type": "mortal"
+    },
+    {
+      "name": "Immortal 1",
+      "description": "Immortal description",
+      "type": "immortal"
+    }
+  ],
+  "marks": [
+    {
+      "mark": "Mark 1"
+    }
+  ],
+  "journal": []
+}
