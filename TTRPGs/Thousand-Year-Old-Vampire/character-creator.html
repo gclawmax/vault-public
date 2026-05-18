@@ -15,6 +15,13 @@
 
 <body>
 
+  <button id="key-toggle" style="display:none;">🔑</button>
+  <div id="key-panel">
+    <div class="key-label">🔑 Vault Key</div>
+    <input type="password" id="vault-key" class="key-input" placeholder="GitHub personal access token">
+    <div class="key-info">Paste a GitHub token to save your chronicle to the repository.</div>
+    <button class="modal-btn primary" onclick="closeKeyPanel()" style="width:100%">Done</button>
+  </div>
   <div id="top-bar">
     <div id="picker-row">
       <span id="picker-label">Character Creator</span>
@@ -164,6 +171,25 @@
         Create three Experiences, one for each of Memories 2–4. Each should combine two of your existing traits (a Character with a Skill, a Resource with a Skill, etc.).
       </p>
 
+      <div class="summary-section" id="step5-overview">
+        <h3>Overview</h3>
+        <p class="step-description">See your Characters, Skills, and Resources together before you write the next Memories.</p>
+        <div class="overview-grid">
+          <div class="overview-card">
+            <h4>Characters</h4>
+            <div id="overview-characters"></div>
+          </div>
+          <div class="overview-card">
+            <h4>Skills</h4>
+            <div id="overview-skills"></div>
+          </div>
+          <div class="overview-card">
+            <h4>Resources</h4>
+            <div id="overview-resources"></div>
+          </div>
+        </div>
+      </div>
+
       <div id="experience-forms">
         <div class="form-group" style="margin-bottom: 32px;">
           <label for="exp-2">Memory 2 — Experience</label>
@@ -263,6 +289,8 @@
     // ═══════════════════════════════════════════════════
     // STATE
     // ═══════════════════════════════════════════════════
+    const GITHUB_API = 'https://api.github.com/repos/gclawmax/vault-public/contents/TTRPGs/Thousand%20Year%20Old%20Vampire/Vampires';
+
     let currentStep = 1;
     let characterData = {
       name: '',
@@ -281,6 +309,27 @@
       marks: [],
       journal: []
     };
+
+    function getVaultKey() { return document.getElementById('vault-key').value.trim(); }
+
+    function openKeyPanel() { document.getElementById('key-panel').classList.add('open'); document.getElementById('key-toggle').style.display = ''; }
+    function closeKeyPanel() { document.getElementById('key-panel').classList.remove('open'); }
+
+    function setStatus(state, msg) {
+      console.log(`[${state}] ${msg}`);
+    }
+
+    (function () {
+      const saved = localStorage.getItem('tyov-vault-key');
+      if (saved) document.getElementById('vault-key').value = saved;
+      document.getElementById('vault-key').addEventListener('change', () => {
+        localStorage.setItem('tyov-vault-key', document.getElementById('vault-key').value.trim());
+      });
+    })();
+
+    document.getElementById('key-toggle').addEventListener('click', () => {
+      document.getElementById('key-panel').classList.toggle('open');
+    });
 
     // ═══════════════════════════════════════════════════
     // SKIN SWITCHER
@@ -323,6 +372,9 @@
     function showStep(step) {
       document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
       document.getElementById(`step-${step}`).classList.add('active');
+      if (step === 5) {
+        renderStep5Overview();
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -576,6 +628,24 @@
       `).join('');
     }
 
+    function renderStep5Overview() {
+      const charContainer = document.getElementById('overview-characters');
+      const skillContainer = document.getElementById('overview-skills');
+      const resourceContainer = document.getElementById('overview-resources');
+
+      charContainer.innerHTML = characterData.characters.length
+        ? characterData.characters.map(char => `<div class="overview-item"><strong>${char.name}</strong>${char.description ? ` — ${char.description}` : ''}</div>`).join('')
+        : '<p class="overview-empty">Add at least three Characters in Step 2.</p>';
+
+      skillContainer.innerHTML = characterData.skills.length
+        ? characterData.skills.map(skill => `<div class="overview-item">${skill.skill}</div>`).join('')
+        : '<p class="overview-empty">Add three Skills in Step 3.</p>';
+
+      resourceContainer.innerHTML = characterData.resources.length
+        ? characterData.resources.map(res => `<div class="overview-item">${res.resource}${res.stationary ? ' <em>(stationary)</em>' : ''}</div>`).join('')
+        : '<p class="overview-empty">Add three Resources in Step 4.</p>';
+    }
+
     function updateStep4Next() {
       document.getElementById('step4-next').disabled = characterData.resources.length < 3;
     }
@@ -634,12 +704,66 @@
       }
     }
 
-    function saveCharacter() {
-      const json = JSON.stringify(characterData, null, 2);
-      localStorage.setItem('tyov-draft-' + characterData.name, json);
-      currentStep++;
-      showStep(currentStep);
-      initStepIndicator();
+    async function saveCharacter() {
+      const token = getVaultKey();
+      if (!token) {
+        openKeyPanel();
+        alert('Please enter your GitHub vault key first.');
+        return;
+      }
+      setStatus('busy', 'Saving to GitHub…');
+      try {
+        await pushCharacterToGitHub(token);
+        const json = JSON.stringify(characterData, null, 2);
+        localStorage.setItem('tyov-draft-' + characterData.name, json);
+        currentStep++;
+        showStep(currentStep);
+        initStepIndicator();
+        setStatus('ok', 'Saved to GitHub ✓');
+      } catch (e) {
+        setStatus('err', 'Save failed: ' + e.message);
+        alert('Save failed: ' + e.message);
+      }
+    }
+
+    async function pushCharacterToGitHub(token) {
+      const filename = sanitizeFilename(characterData.name || 'untitled') + '.json';
+      const fileUrl = `${GITHUB_API}/${encodeURIComponent(filename)}`;
+      let sha = null;
+
+      const headResp = await fetch(fileUrl, {
+        headers: { Authorization: 'token ' + token }
+      });
+      if (headResp.ok) {
+        const fileData = await headResp.json();
+        sha = fileData.sha;
+      } else if (headResp.status !== 404) {
+        const err = await headResp.json().catch(() => null);
+        throw new Error(err?.message || `GitHub HEAD failed: ${headResp.status}`);
+      }
+
+      const newJson = JSON.stringify(characterData, null, 2);
+      const encoded = btoa(unescape(encodeURIComponent(newJson)));
+      const body = { message: `Create or update ${filename} via TYOV creator`, content: encoded };
+      if (sha) body.sha = sha;
+
+      const resp = await fetch(fileUrl, {
+        method: 'PUT',
+        headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => null);
+        throw new Error(err?.message || `GitHub PUT failed: ${resp.status}`);
+      }
+    }
+
+    function sanitizeFilename(name) {
+      return String(name || '')
+        .normalize('NFKD')
+        .replace(/[\/\?%*:|"<>]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
     }
 
     function downloadCharacter() {
