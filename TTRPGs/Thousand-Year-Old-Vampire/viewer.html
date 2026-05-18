@@ -243,10 +243,6 @@
           parsedData = parseSource(currentJson);
         }
 
-        if (!parsedData.lastPlayed && data.committed_date) {
-          parsedData.lastPlayed = data.committed_date.slice(0, 10);
-        }
-
         renderChronicle(parsedData);
         const select = document.getElementById('game-select');
         if (select) select.value = filename;
@@ -429,13 +425,13 @@
         memories: (json.memories || []).map((mem, idx) => ({
           n: mem.n || idx + 1,
           theme: mem.theme || '',
-          experiences: (mem.experiences || []).map(e => typeof e === 'string' ? e : (e.text || '')),
+          experiences: (mem.experiences || []),
           description: mem.description || ''
         })),
         lostMemories: (json.lost_memories || []).map(m => ({
           n: m.n,
-          theme: m.theme || m.name || '',
-          experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : (e.text || '')),
+          theme: m.theme || '',
+          experiences: (m.experiences || []),
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
@@ -460,12 +456,10 @@
             (v || []).map(m => ({
               n: m.n,
               theme: m.theme || '',
-              experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : (e.text || ''))
+              experiences: (m.experiences || [])
             }))
           ])
         ),
-        mortals: [],
-        immortals: [],
         journal: (json.journal || []).map(j => ({
           turn: j.turn,
           prompt: j.prompt,
@@ -477,8 +471,7 @@
         })),
         epitaph: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
         gameOver: !!json.game_over,
-        lastPlayed: json.modified || '',
-        rawAfterJournal: ''
+        lastPlayed: json.modified || ''
       };
 
       (json.characters || []).forEach(c => {
@@ -490,23 +483,10 @@
           death_reason: c.death_reason || '',
           death_epitaph: c.death_epitaph || '',
           gained_turn: c.gained_turn || null,
-          lost_turn: c.lost_turn || null
+          lost_turn: c.lost_turn || null,
+          type: c.type || '' // Mortal or Immortal
         };
-        if (c.type === 'mortal') data.mortals.push(entry);
-        else data.immortals.push(entry);
       });
-
-      data.frontmatter = {
-        game_start: json.game_start || '',
-        modified: json.modified || '',
-        game_over: json.game_over ? 'true' : 'false',
-        game_completed: json.game_completed || '',
-        current_prompt: json.current_prompt !== undefined ? String(json.current_prompt) : '',
-        prompts_resolved: json.prompts_resolved !== undefined ? String(json.prompts_resolved) : '',
-        show_suggestions: json.show_suggestions ? 'true' : 'false',
-        vampire: data.vampireName,
-        vampire_desc: json.vampire_desc || ''
-      };
 
       return data;
     }
@@ -516,24 +496,18 @@
         name: d.vampireName || '',
         vampire_desc: d.subtitle || '',
         mortal_self: d.mortalSelf || '',
-        game_over: d.frontmatter.game_over === 'true',
-        game_start: d.frontmatter.game_start || '',
         modified: new Date().toISOString().slice(0, 10),
-        game_completed: d.frontmatter.game_completed || '',
-        show_suggestions: d.frontmatter.show_suggestions === 'true',
-        current_prompt: d.frontmatter.current_prompt ? parseInt(d.frontmatter.current_prompt, 10) : 0,
-        prompts_resolved: d.frontmatter.prompts_resolved ? parseInt(d.frontmatter.prompts_resolved, 10) : 0,
         marks: (d.marks || []).map(m => ({ description: m.desc || '', concealment: m.concealment || '', status: m.struck ? 'struck' : 'available' })),
         memories: (d.memories || []).map(mem => ({
           n: mem.n,
           theme: mem.theme || '',
           description: mem.description || '',
-          experiences: (mem.experiences || []).map(e => typeof e === 'string' ? e : String(e || ''))
+          experiences: (mem.experiences || [])
         })),
         lost_memories: (d.lostMemories || []).map(m => ({
           n: m.n,
           theme: m.theme || '',
-          experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : String(e || '')),
+          experiences: (m.experiences || []),
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
@@ -562,13 +536,15 @@
             }))
           ])
         ), characters: [
-          ...(d.mortals || []).map(c => ({
-            name: c.name || '', type: 'mortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
-              lost_turn: c.lost_turn || null, death_epitaph: c.death_epitaph || ''
-          })),
-          ...(d.immortals || []).map(c => ({
-            name: c.name || '', type: 'immortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
-              lost_turn: c.lost_turn || null, death_epitaph: c.death_epitaph || ''
+          ...(d.characters || []).map(c => ({
+            name: c.name || '', 
+            type: c.type || '', 
+            description: c.description || '', 
+            status: c.dead ? 'dead' : 'alive', 
+            death_reason: c.death_reason || '', 
+            gained_turn: c.gained_turn || null,
+            lost_turn: c.lost_turn || null, 
+            death_epitaph: c.death_epitaph || ''
           }))
         ],
         journal: (d.journal || []).map(j => ({
