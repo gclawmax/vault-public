@@ -480,7 +480,6 @@
             k,
             (v || []).map(m => ({
               n: m.n,
-              theme: m.theme || '',
               experiences: toStringArray(m.experiences)
             }))
           ])
@@ -553,7 +552,6 @@
             k,
             (v || []).map(m => ({
               n: m.n,
-              theme: m.theme || '',
               experiences: toStringArray(m.experiences)
             }))
           ])
@@ -792,7 +790,7 @@
         }
         mems.forEach(mem => {
           contentHtml += '<div class="memory-block">'
-            + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme) + '</div>'
+            + '<div class="memory-title">Memory ' + mem.n + '</div>'
             + '<ol>';
           mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
           contentHtml += '</ol></div>';
@@ -1316,7 +1314,7 @@
       mems.forEach((m, i) => {
         bodyHtml += '<div class="edit-list-item" style="flex-direction:column;align-items:stretch;">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
-          + '<strong>Memory ' + m.n + ' — ' + esc(m.theme) + '</strong>'
+          + '<strong>Memory ' + m.n + '</strong>'
           + '<button class="trash-btn" onclick="removeDiaryMemory(\'' + diaryName.replace(/'/g, "\\'") + '\',' + i + ')" title="Remove from diary to Lost Memories">🗑</button>'
           + '</div>';
         m.experiences.forEach((exp, j) => {
@@ -1779,13 +1777,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         preview.style.color = 'var(--ink-faint)';
         if (loseCheck) loseCheck.closest('div').style.display = 'none';
         if (newThemeRow) newThemeRow.style.display = 'none';
-        const diaryThemeWrap = document.getElementById('diary-theme-wrap');
-        if (diaryThemeWrap) diaryThemeWrap.style.display = '';
         return;
       }
-      // hide diary theme wrap for non-diary selections
-      const diaryThemeWrap = document.getElementById('diary-theme-wrap');
-      if (diaryThemeWrap) diaryThemeWrap.style.display = 'none';
 
       const i = parseInt(val);
       const mem = parsedData.memories[i];
@@ -1871,12 +1864,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
           }
 
           bodyHtml += '</select>'
-            + '</div>'
-            + '<div id="diary-theme-wrap" style="display:none;">'
-            + '<div class="form-row">'
-            + '<label class="form-label">Diary Memory Theme (required)</label>'
-            + '<input class="form-input" id="ed-je-diary-theme" placeholder="Theme for this diary memory…">'
-            + '</div>'
             + '</div>'
             + '<div id="mem-preview" style="font-size:.82rem;color:var(--ink-faint);padding:6px 0 10px 2px;font-style:italic;"></div>'
             + '<div id="diary-theme-wrap" style="display:none;">'
@@ -1985,10 +1972,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         if (!activeDiary) { alert('No active diary found.'); return; }
         const diaryMems = parsedData.diaryMemories[activeDiary.name] || [];
         if (diaryMems.length >= 4) { alert(activeDiary.name + ' is full (4/4).'); return; }
-        const diaryThemeEl = document.getElementById('ed-je-diary-theme');
-        const diaryTheme = diaryThemeEl ? diaryThemeEl.value.trim() : '';
-        if (!diaryTheme) { alert('Please provide a theme for this diary memory.'); return; }
-        diaryMems.push({ n: diaryMems.length + 1, theme: diaryTheme, experiences: [expText] });
+        diaryMems.push({ n: diaryMems.length + 1, experiences: [expText] });
         parsedData.diaryMemories[activeDiary.name] = diaryMems;
 
       } else {
