@@ -805,85 +805,113 @@
 
       // Lost Memories
       if (d.lostMemories && d.lostMemories.length > 0) {
-        const sorted = [...d.lostMemories].sort((a, b) => new Date(a.lost_at) - new Date(b.lost_at));
-        html += '<div class="memories-section section-editwrap" data-section="lost-memories">'
-          + '<div class="memories-section-label"><span class="section-icon">🌒</span> Lost Memories</div>'
-          + '<div class="memories-grid">';
+        const sorted = [...d.lostMemories].sort((a, b) => new Date(b.lost_at) - new Date(a.lost_at));
+        let contentHtml = '<div class="memories-grid">';
         sorted.forEach(mem => {
           const ld = new Date(mem.lost_at);
-          html += '<div class="memory-block forgotten">'
+          const lostDate = String(ld.getDate()).padStart(2, '0') + '-'
+            + String(ld.getMonth() + 1).padStart(2, '0') + '-' + ld.getFullYear();
+          contentHtml += '<div class="memory-block forgotten">'
             + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme)
-            + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + '</span></div>'
+            + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + ' · ' + lostDate + '</span></div>'
             + '<ol>';
-          mem.experiences.forEach(exp => {
-            html += '<li>' + esc(exp) + '</li>';
-          });
-          html += '</ol></div>';
+          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
+          contentHtml += '</ol></div>';
         });
-        html += '</div></div>';
+        contentHtml += '</div>';
+        html += collapsibleSection('lost-memories', '☽', 'Lost Memories', contentHtml, em ? 'editLostMemories()' : null);
       }
-
 
       // ── Lost Resources ──
       const lostResources = d.resources.filter(r => r.status === 'lost')
         .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
       if (lostResources.length > 0) {
-        html += '<div class="memories-section">'
-          + '<div class="memories-section-label"><span class="section-icon">🏚</span> Lost Resources</div>'
-          + '<div class="memories-grid">';
+        let contentHtml = '<div class="memories-grid">';
         lostResources.forEach(r => {
           const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
-          html += '<div class="memory-block forgotten">'
+          contentHtml += '<div class="memory-block forgotten">'
             + '<div class="memory-title">' + icon + ' ' + esc(r.name)
             + (r.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + r.lost_turn + '</span>' : '')
             + '</div>'
             + (r.description ? '<p style="font-size:.88rem;">' + esc(r.description) + '</p>' : '')
             + '</div>';
         });
-        html += '</div></div>';
+        contentHtml += '</div>';
+        html += collapsibleSection('lost-resources', '🏚', 'Lost Resources', contentHtml, em ? 'editResources()' : null);
       }
 
       // ── Checked Skills ──
       const checkedSkills = d.skills.filter(sk => sk.status === 'checked')
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
       if (checkedSkills.length > 0) {
-        html += '<div class="memories-section">'
-          + '<div class="memories-section-label"><span class="section-icon">☑</span> Checked Skills</div>'
-          + '<div class="memories-grid">';
+        let contentHtml = '<div class="memories-grid">';
         checkedSkills.forEach(sk => {
-          html += '<div class="memory-block forgotten">'
+          contentHtml += '<div class="memory-block forgotten">'
             + '<div class="memory-title">☑ ' + esc(sk.name)
             + (sk.gained_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — gained turn ' + sk.gained_turn + '</span>' : '')
             + '</div>'
             + (sk.description ? '<p style="font-size:.88rem;">' + esc(sk.description) + '</p>' : '')
             + '</div>';
         });
-        html += '</div></div>';
+        contentHtml += '</div>';
+        html += collapsibleSection('checked-skills', '☑', 'Checked Skills', contentHtml, em ? 'editSkills()' : null);
       }
 
       // ── Obituary ──
       const deadChars = d.characters.filter(c => c.dead)
         .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
       if (deadChars.length > 0) {
-        html += '<div class="memories-section section-editwrap" data-section="obituary" '
-          + (em ? 'onclick="editObituary()" title="Click to edit obituary"' : '') + '>'
-          + '<div class="memories-section-label"><span class="section-icon">💀</span> Obituary</div>'
-          + '<div class="memories-grid">';
+        let contentHtml = '<div class="memories-grid">';
         deadChars.forEach(c => {
-          html += '<div class="memory-block forgotten">'
+          contentHtml += '<div class="memory-block forgotten">'
             + '<div class="memory-title">' + esc(c.name)
             + ' <span style="font-size:.75em;color:var(--ink-faint);">— ' + c.type
-            + (c.lost_turn ? ' · died turn ' + c.lost_turn : '')
-            + '</span></div>'
+            + (c.lost_turn ? ' · died turn ' + c.lost_turn : '') + '</span></div>'
             + (c.desc ? '<p style="font-size:.88rem;margin-bottom:6px;">' + esc(c.desc) + '</p>' : '')
             + (c.death_reason ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">' + esc(c.death_reason) + '</p>' : '')
             + (c.death_epitaph ? '<p style="font-size:.82rem;color:var(--blood);font-style:italic;border-left:2px solid var(--blood);padding-left:8px;margin-top:6px;">' + esc(c.death_epitaph) + '</p>' : '')
             + '</div>';
         });
-        html += '</div></div>';
+        contentHtml += '</div>';
+        html += collapsibleSection('obituary', '💀', 'Obituary', contentHtml, em ? 'editObituary()' : null);
       }
 
       el.innerHTML = html;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // COLLAPSED SECTIONS
+    // ═══════════════════════════════════════════════════
+
+    const _collapsedSections = new Set(['lost-memories', 'lost-resources', 'checked-skills', 'obituary']);
+
+    function toggleSection(id) {
+      const content = document.getElementById('section-content-' + id);
+      const arrow = document.getElementById('section-arrow-' + id);
+      if (!content || !arrow) return;
+      if (_collapsedSections.has(id)) {
+        _collapsedSections.delete(id);
+        content.style.display = '';
+        arrow.textContent = '▾';
+      } else {
+        _collapsedSections.add(id);
+        content.style.display = 'none';
+        arrow.textContent = '▸';
+      }
+    }
+
+    function collapsibleSection(id, icon, label, contentHtml, editFn) {
+      const collapsed = _collapsedSections.has(id);
+      const arrow = collapsed ? '▸' : '▾';
+      return '<div class="memories-section section-editwrap"'
+        + (editFn ? ' onclick="' + editFn + '" title="Click to edit"' : '') + '>'
+        + '<div class="memories-section-label" onclick="event.stopPropagation();toggleSection(\'' + id + '\')" style="cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;">'
+        + '<span id="section-arrow-' + id + '" style="font-size:.8rem;color:var(--ink-faint);">' + arrow + '</span>'
+        + '<span class="section-icon">' + icon + '</span> ' + label
+        + '</div>'
+        + '<div id="section-content-' + id + '" style="display:' + (collapsed ? 'none' : '') + ';">'
+        + contentHtml
+        + '</div></div>';
     }
 
     // ═══════════════════════════════════════════════════
