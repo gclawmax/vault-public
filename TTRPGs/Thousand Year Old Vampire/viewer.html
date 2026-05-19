@@ -622,10 +622,10 @@
         + (em ? 'onclick="editMarks()" title="Click to edit marks"' : '') + '>'
         + '<div class="strip-label"><span class="section-icon">⚰</span> Marks</div>'
         + '<div class="marks-inline">';
-      d.marks.filter(m => !m.status === 'active').forEach(m => {
+      d.marks.filter(m => m.status === 'active').forEach(m => {
         html += '<span class="mark-chip" title="Concealed: ' + esc(m.concealment) + '">' + esc(m.desc) + '</span>';
       });
-      if (d.marks.filter(m => !m.status === 'active').length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
+      if (d.marks.filter(m => m.status === 'active').length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
       html += '</div></div>';
 
       // Skills
