@@ -783,25 +783,27 @@
       html += '</div></div>';
 
       // Diary memories — one section per active diary
-      const activeDiaries = d.resources.filter(r => r.type === 'diary' && r.status === 'active');
-      activeDiaries.forEach(diary => {
-        const mems = d.diaryMemories[diary.name] || [];
-        html += '<div class="memories-section section-editwrap" data-section="diary-memories-' + esc(diary.name) + '" '
-          + (em ? 'onclick="editDiaryMemories(\'' + esc(diary.name) + '\')" title="Click to edit diary memories"' : '') + '>'
-          + '<div class="memories-section-label"><span class="section-icon">📖</span> ' + esc(diary.name) + '</div>'
-          + '<div class="memories-grid">';
+      const activeDiary = d.resources.find(r => r.type === 'diary' && r.status === 'active');
+      if (activeDiary) {
+        const mems = d.diaryMemories[activeDiary.name] || [];
+        let contentHtml = '<div class="memories-grid">';
         if (mems.length === 0) {
-          html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary.</p>';
+          contentHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary.</p>';
         }
         mems.forEach(mem => {
-          html += '<div class="memory-block">'
+          contentHtml += '<div class="memory-block">'
             + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme) + '</div>'
             + '<ol>';
-          mem.experiences.forEach(exp => { html += '<li>' + esc(exp) + '</li>'; });
-          html += '</ol></div>';
+          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
+          contentHtml += '</ol></div>';
         });
-        html += '</div></div>';
-      });
+        contentHtml += '</div>';
+        html += '<div class="memories-section section-editwrap" '
+          + (em ? 'onclick="editDiaryMemories(\'' + activeDiary.name.replace(/'/g, "\\'") + '\')" title="Click to edit diary memories"' : '') + '>'
+          + '<div class="memories-section-label"><span class="section-icon">📖</span> ' + esc(activeDiary.name) + '</div>'
+          + contentHtml
+          + '</div>';
+      }
 
       // Lost Memories
       if (d.lostMemories && d.lostMemories.length > 0) {
@@ -1244,6 +1246,13 @@
         const desc = document.getElementById('ed-res-desc').value.trim();
         const type = document.getElementById('ed-res-type').value;
         if (name) {
+          if (type === 'diary') {
+            const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+            if (activeDiary) {
+              alert('You already have an active diary — "' + activeDiary.name + '". Lose it before creating a new one.');
+              return;
+            }
+          }
           parsedData.resources.push({ name, description: desc, type, status: 'active', gained_turn: currentTurn(), lost_turn: null });
           if (type === 'diary' && !parsedData.diaryMemories[name]) {
             parsedData.diaryMemories[name] = [];
@@ -1453,19 +1462,14 @@
         if (mem.experiences.length === 0) {
           bodyHtml += '<div style="font-size:.85rem;color:var(--ink-faint);padding-left:12px;font-style:italic;">No experiences yet.</div>';
         }
-        const activeDiaries = parsedData.resources.filter(r => r.type === 'diary' && r.status === 'active');
-        if (activeDiaries.length > 0 && mem.theme && mem.experiences.length > 0) {
-          const availableDiaries = activeDiaries.filter(d =>
-            (parsedData.diaryMemories[d.name] || []).length < 4
-          );
+        const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+        if (activeDiary && mem.theme && mem.experiences.length > 0) {
+          const diaryFull = (parsedData.diaryMemories[activeDiary.name] || []).length >= 4;
           bodyHtml += '<div style="margin-top:8px;">';
-          if (availableDiaries.length === 0) {
-            bodyHtml += '<span style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">All diaries full.</span>';
+          if (diaryFull) {
+            bodyHtml += '<span style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">Diary full (4/4).</span>';
           } else {
-            bodyHtml += '<select class="form-select" id="ed-mem-diary-' + i + '" style="font-size:.82rem;padding:4px 8px;width:auto;display:inline-block;margin-right:6px;">'
-              + availableDiaries.map(d => '<option value="' + esc(d.name) + '">' + esc(d.name) + ' (' + (parsedData.diaryMemories[d.name] || []).length + '/4)</option>').join('')
-              + '</select>'
-              + '<button class="strike-btn" onclick="moveMemoryToDiary(' + i + ', document.getElementById(\'ed-mem-diary-' + i + '\').value)">📖 Move to Diary</button>';
+            bodyHtml += '<button class="strike-btn" onclick="moveMemoryToDiary(' + i + ')">📖 Move to ' + esc(activeDiary.name) + '</button>';
           }
           bodyHtml += '</div>';
         }
@@ -1499,24 +1503,18 @@
     }
 
     // ── Diary ─────────────────────────────────────────
-    function moveMemoryToDiary(memIdx, diaryName) {
+    function moveMemoryToDiary(memIdx) {
       if (!editMode) return;
       const mem = parsedData.memories[memIdx];
       if (!mem || !mem.theme) return;
-      const diaryMems = parsedData.diaryMemories[diaryName] || [];
-      if (diaryMems.length >= 4) {
-        alert(diaryName + ' is full (4/4 memories).');
-        return;
-      }
-      if (!confirm('Move Memory ' + mem.n + ' "' + mem.theme + '" into ' + diaryName + '?\n\nThe memory slot will become empty.')) return;
-
-      // Copy to diary
+      const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+      if (!activeDiary) { alert('No active diary. Create a diary resource first.'); return; }
+      const diaryMems = parsedData.diaryMemories[activeDiary.name] || [];
+      if (diaryMems.length >= 4) { alert(activeDiary.name + ' is full (4/4 memories).'); return; }
+      if (!confirm('Move Memory ' + mem.n + ' "' + mem.theme + '" into ' + activeDiary.name + '?\n\nThe memory slot will become empty.')) return;
       diaryMems.push({ n: mem.n, theme: mem.theme, experiences: [...mem.experiences] });
-      parsedData.diaryMemories[diaryName] = diaryMems;
-
-      // Empty the slot
+      parsedData.diaryMemories[activeDiary.name] = diaryMems;
       parsedData.memories[memIdx] = { n: mem.n, theme: '', experiences: [], description: '' };
-
       markUnsaved();
       closeModal();
       renderChronicle(parsedData);
