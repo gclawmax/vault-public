@@ -491,7 +491,7 @@
           entry: j.entry,
           prose: j.experience || '',
           changes: j.changes || '',
-          resolved: j.resolved !== false, // default true if missing
+          resolved: j.resolved === true, // default true if missing
           resolved_at: j.resolved_at || null
         })),
         gameOver: !!json.game_over,
@@ -572,7 +572,7 @@
           turn: j.turn,
           prompt: j.prompt,
           entry: j.entry,
-          resolved: j.resolved !== false,
+          resolved: j.resolved === true,
           resolved_at: j.resolved_at || null,
           experience: j.prose || '',
           changes: j.changes || ''
@@ -594,7 +594,7 @@
         return em ? 'onclick="event.stopPropagation();' + fn + '" style="cursor:pointer;"' : '';
       }
 
-      const hasUnresolved = d.journal.some(j => !j.resolved === true);
+      const hasUnresolved = d.journal.some(j => j.resolved === false);
       const promptBtnDisabled = em || hasUnresolved;
 
       let html = '';
