@@ -1767,14 +1767,29 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       });
     }
 
-    function previewMemoryState(memIdxStr) {
-      const i = parseInt(memIdxStr);
-      const mem = parsedData.memories[i];
-      if (!mem) return;
+    function previewMemoryState(val) {
       const preview = document.getElementById('mem-preview');
+      const newThemeWrap = document.getElementById('new-theme-wrap');
       const loseCheck = document.getElementById('ed-je-lose-check');
       const newThemeRow = document.getElementById('ed-je-new-theme-row');
       if (!preview) return;
+
+      if (val === 'diary') {
+        preview.textContent = 'Experience will start a new memory in ' + (activeDiary ? activeDiary.name : 'the diary') + '.';
+        preview.style.color = 'var(--ink-faint)';
+        if (loseCheck) loseCheck.closest('div').style.display = 'none';
+        if (newThemeRow) newThemeRow.style.display = 'none';
+        const diaryThemeWrap = document.getElementById('diary-theme-wrap');
+        if (diaryThemeWrap) diaryThemeWrap.style.display = '';
+        return;
+      }
+      // hide diary theme wrap for non-diary selections
+      const diaryThemeWrap = document.getElementById('diary-theme-wrap');
+      if (diaryThemeWrap) diaryThemeWrap.style.display = 'none';
+
+      const i = parseInt(val);
+      const mem = parsedData.memories[i];
+      if (!mem) return;
 
       if (mem.experiences.length > 0) {
         preview.textContent = mem.experiences.map((e, j) => (j + 1) + '. ' + e).join(' | ');
@@ -1782,24 +1797,16 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         preview.textContent = 'No experiences yet.';
       }
 
-      // Auto-check and show lose fields if memory is already full
+      if (loseCheck) loseCheck.closest('div').style.display = '';
+
       if (mem.experiences.length === 3) {
         preview.textContent += ' — FULL, will be lost.';
         preview.style.color = 'var(--blood)';
         if (loseCheck) loseCheck.checked = true;
         if (newThemeRow) newThemeRow.style.display = '';
-      } else if (mem.experiences.length === 0) {
-        // If the selected memory has no experiences yet, require a new theme
-        // (this uses the same UI as when replacing a full memory).
-        preview.style.color = 'var(--ink-faint)';
-        if (loseCheck) loseCheck.checked = false;
-        if (newThemeRow) newThemeRow.style.display = '';
       } else {
         preview.style.color = 'var(--ink-faint)';
-        // Don't uncheck — player may have manually checked it
-        if (loseCheck && !loseCheck.checked && newThemeRow) {
-          newThemeRow.style.display = 'none';
-        }
+        if (loseCheck && !loseCheck.checked && newThemeRow) newThemeRow.style.display = 'none';
       }
     }
 
@@ -1833,21 +1840,51 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         bodyHtml += '<hr class="edit-divider">'
           + '<div class="edit-section-title" style="color:var(--blood);">Record Memory Experience (required to resolve)</div>';
 
-        if (parsedData.memories.length === 0) {
-          bodyHtml += '<p style="color:var(--blood);font-size:.88rem;font-style:italic;">No active memories. Add a memory first via the Memories section.</p>';
+        const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+        const diaryMems = activeDiary ? (parsedData.diaryMemories[activeDiary.name] || []) : [];
+        const freeDiarySlots = activeDiary ? Math.max(0, 4 - diaryMems.length) : 0;
+        const hasOptions = parsedData.memories.length > 0 || freeDiarySlots > 0;
+
+        if (!hasOptions) {
+          bodyHtml += '<p style="color:var(--blood);font-size:.88rem;font-style:italic;">No active memories and no free diary slots. Add a memory or diary first.</p>';
         } else {
           bodyHtml += '<div class="form-row">'
             + '<label class="form-label">Choose Memory</label>'
-            + '<select class="form-select" id="ed-je-exp-mem" onchange="previewMemoryState(this.value)">'
-            + parsedData.memories.map((m, i) =>
-              '<option value="' + i + '">'
-              + 'Memory ' + m.n + ' — ' + esc(m.theme)
-              + ' (' + m.experiences.length + '/3 experiences)'
-              + '</option>'
-            ).join('')
-            + '</select>'
+            + '<select class="form-select" id="ed-je-exp-mem" onchange="previewMemoryState(this.value)">';
+
+          if (parsedData.memories.length > 0) {
+            bodyHtml += '<optgroup label="Active Memories">'
+              + parsedData.memories.map((m, i) =>
+                '<option value="' + i + '">'
+                + 'Memory ' + m.n + ' — ' + (m.theme || 'Empty slot')
+                + ' (' + m.experiences.length + '/3)'
+                + (m.experiences.length === 3 ? ' ⚠ FULL' : '')
+                + '</option>'
+              ).join('')
+              + '</optgroup>';
+          }
+
+          if (freeDiarySlots > 0) {
+            bodyHtml += '<optgroup label="' + esc(activeDiary.name) + ' (' + freeDiarySlots + ' free slot' + (freeDiarySlots !== 1 ? 's' : '') + ')">'
+              + '<option value="diary">📖 Add to diary (' + diaryMems.length + '/4 memories)</option>'
+              + '</optgroup>';
+          }
+
+          bodyHtml += '</select>'
+            + '</div>'
+            + '<div id="diary-theme-wrap" style="display:none;">'
+            + '<div class="form-row">'
+            + '<label class="form-label">Diary Memory Theme (required)</label>'
+            + '<input class="form-input" id="ed-je-diary-theme" placeholder="Theme for this diary memory…">'
+            + '</div>'
             + '</div>'
             + '<div id="mem-preview" style="font-size:.82rem;color:var(--ink-faint);padding:6px 0 10px 2px;font-style:italic;"></div>'
+            + '<div id="diary-theme-wrap" style="display:none;">'
+            + '<div class="form-row">'
+            + '<label class="form-label">Diary Memory Theme (required)</label>'
+            + '<input class="form-input" id="ed-je-diary-theme" placeholder="Theme for this diary memory…">'
+            + '</div>'
+            + '</div>'
             + '<div class="form-row">'
             + '<label class="form-label">New Experience</label>'
             + '<textarea class="form-textarea" id="ed-je-exp-text" style="min-height:80px;" placeholder="A few sentences summarising this memory experience…"></textarea>'
@@ -1865,15 +1902,18 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             + '<input class="form-input" id="ed-je-new-theme" placeholder="Theme for the new memory that takes its place…">'
             + '</div>'
             + '</div>'
-            + '</div>'
+            + '</div>';
         }
       }
 
-      const isAwaiting = !je.resolved === true;
-      const resolveDisabled = !isAwaiting || parsedData.memories.length === 0;
+      const isResolved = je.resolved === true;
+      const hasMemoryOptions = parsedData.memories.length > 0
+        || (parsedData.resources.find(r => r.type === 'diary' && r.status === 'active')
+          && (parsedData.diaryMemories[parsedData.resources.find(r => r.type === 'diary' && r.status === 'active').name] || []).length < 4);
+      const resolveDisabled = isResolved || !hasMemoryOptions;
 
       const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
-        + (!isAwaiting ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
+        + (isResolved ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
         + '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>'
         + '<button class="modal-btn primary"'
         + ' style="background:var(--blood);border-color:var(--blood);' + (resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
@@ -1912,7 +1952,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
 
-      // Read prose + changes from DOM
       const proseEl = document.getElementById('ed-je-prose');
       const changesEl = document.getElementById('ed-je-changes');
       if (proseEl) je.prose = proseEl.value.trim();
@@ -1923,87 +1962,79 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         return;
       }
 
-      // Read memory experience from DOM
       const memSelEl = document.getElementById('ed-je-exp-mem');
       const expTextEl = document.getElementById('ed-je-exp-text');
       const newThemeEl = document.getElementById('ed-je-new-theme');
 
       if (!memSelEl || !expTextEl) {
-        alert('Cannot resolve: no active memories available. Add a memory first.');
+        alert('Cannot resolve: no memory options available.');
         return;
       }
 
-      const memIdx = parseInt(memSelEl.value);
+      const memVal = memSelEl.value;
       const expText = expTextEl.value.trim();
 
-      if (isNaN(memIdx) || memIdx < 0 || memIdx >= parsedData.memories.length) {
-        alert('Cannot resolve: please select a valid memory.');
-        return;
-      }
       if (!expText) {
         alert('Cannot resolve: please write a memory experience.');
         return;
       }
 
-      const mem = parsedData.memories[memIdx];
+      if (memVal === 'diary') {
+        // Add to diary as a new memory slot
+        const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+        if (!activeDiary) { alert('No active diary found.'); return; }
+        const diaryMems = parsedData.diaryMemories[activeDiary.name] || [];
+        if (diaryMems.length >= 4) { alert(activeDiary.name + ' is full (4/4).'); return; }
+        const diaryThemeEl = document.getElementById('ed-je-diary-theme');
+        const diaryTheme = diaryThemeEl ? diaryThemeEl.value.trim() : '';
+        if (!diaryTheme) { alert('Please provide a theme for this diary memory.'); return; }
+        diaryMems.push({ n: diaryMems.length + 1, theme: diaryTheme, experiences: [expText] });
+        parsedData.diaryMemories[activeDiary.name] = diaryMems;
 
-      // If the selected memory slot exists but has no experiences yet,
-      // require a new theme for the memory and create it (same flow as
-      // replacing a full memory, but without the confirmation).
-      if (Array.isArray(mem.experiences) && mem.experiences.length === 0) {
-        const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
-        if (!newTheme) {
-          alert('Please provide a theme for the new memory that will take its place.');
+      } else {
+        const memIdx = parseInt(memVal);
+        if (isNaN(memIdx) || memIdx < 0 || memIdx >= parsedData.memories.length) {
+          alert('Cannot resolve: please select a valid memory.');
           return;
         }
-        parsedData.memories[memIdx] = {
-          n: mem.n,
-          theme: newTheme,
-          experiences: [expText],
-          description: ''
-        };
-      } else {
-        const loseCheck = document.getElementById('ed-je-lose-check');
-        const playerChoseLose = loseCheck && loseCheck.checked;
-        const shouldLose = playerChoseLose || mem.experiences.length === 3;
 
-        if (shouldLose) {
+        const mem = parsedData.memories[memIdx];
+
+        if (mem.experiences.length === 0) {
+          // Empty slot — just needs a theme
           const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
-          if (!newTheme) {
-            alert('Please provide a theme for the new memory that will take its place.');
-            return;
-          }
+          if (!newTheme) { alert('Please provide a theme for this memory.'); return; }
+          parsedData.memories[memIdx] = { n: mem.n, theme: newTheme, experiences: [expText], description: '' };
 
-          if (!confirm(
-            'Memory ' + mem.n + ' "' + mem.theme + '" will be lost.\n\n'
-            + 'It will be moved to Lost Memories and a new memory "'
-            + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
-          )) return;
-
-          if (!parsedData.lostMemories) parsedData.lostMemories = [];
-          parsedData.lostMemories.push({
-            n: mem.n,
-            theme: mem.theme,
-            experiences: [...mem.experiences],
-            lost_at: new Date().toISOString(),
-            lost_on_turn: je.turn
-          });
-
-          parsedData.memories[memIdx] = {
-            n: mem.n,
-            theme: newTheme,
-            experiences: [expText],
-            description: ''
-          };
         } else {
-          mem.experiences.push(expText);
+          const loseCheck = document.getElementById('ed-je-lose-check');
+          const playerChoseLose = loseCheck && loseCheck.checked;
+          const shouldLose = playerChoseLose || mem.experiences.length === 3;
+
+          if (shouldLose) {
+            const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
+            if (!newTheme) { alert('Please provide a theme for the new memory that will take its place.'); return; }
+            if (!confirm(
+              'Memory ' + mem.n + ' "' + mem.theme + '" will be lost.\n\n'
+              + 'It will be moved to Lost Memories and a new memory "'
+              + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
+            )) return;
+            if (!parsedData.lostMemories) parsedData.lostMemories = [];
+            parsedData.lostMemories.push({
+              n: mem.n, theme: mem.theme,
+              experiences: [...mem.experiences],
+              lost_at: new Date().toISOString(),
+              lost_on_turn: je.turn
+            });
+            parsedData.memories[memIdx] = { n: mem.n, theme: newTheme, experiences: [expText], description: '' };
+          } else {
+            mem.experiences.push(expText);
+          }
         }
       }
 
-      // Mark resolved
       je.resolved = true;
       je.resolved_at = new Date().toISOString();
-
       markUnsaved();
       closeModal();
       renderChronicle(parsedData);
