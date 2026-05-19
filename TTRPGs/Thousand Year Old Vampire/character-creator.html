@@ -56,10 +56,6 @@
         <input type="text" id="mortal-name" placeholder="Your mortal name (e.g., Marcus Aurelius)">
       </div>
       <div class="form-group">
-        <label for="mortal-time">Time Period</label>
-        <input type="text" id="mortal-time" placeholder="e.g., 1st Century Rome, 12th Century France">
-      </div>
-      <div class="form-group">
         <label for="mortal-life">Your Mortal Life (Experience)</label>
         <textarea id="mortal-life"
           placeholder="A broad summary of your mortal existence. Be poetic or practical as suits you..."></textarea>
@@ -199,13 +195,25 @@
       </div>
 
       <div id="experience-forms">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="mem-2-theme">Memory 2 — Theme</label>
+          <input type="text" id="mem-2-theme" placeholder="A theme for this memory…">
+        </div>
         <div class="form-group" style="margin-bottom: 32px;">
           <label for="exp-2">Memory 2 — Experience</label>
           <textarea id="exp-2" placeholder="Combine two of your traits in this experience..."></textarea>
         </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="mem-3-theme">Memory 3 — Theme</label>
+          <input type="text" id="mem-3-theme" placeholder="A theme for this memory…">
+        </div>
         <div class="form-group" style="margin-bottom: 32px;">
           <label for="exp-3">Memory 3 — Experience</label>
           <textarea id="exp-3" placeholder="Combine two of your traits in this experience..."></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="mem-4-theme">Memory 4 — Theme</label>
+          <input type="text" id="mem-4-theme" placeholder="A theme for this memory…">
         </div>
         <div class="form-group" style="margin-bottom: 32px;">
           <label for="exp-4">Memory 4 — Experience</label>
@@ -244,12 +252,14 @@
 
       <div class="summary-section">
         <h3>Your Mark</h3>
-        <p class="step-description">A visible indication of your undying state or what sets you apart. Include how you
-          conceal it.</p>
+        <p class="step-description">A visible indication of your undying state or what sets you apart.</p>
         <div class="form-group">
           <label for="mark">Your Mark</label>
-          <textarea id="mark"
-            placeholder="e.g., A pair of great bat wings — I cut them off with a saw but the stubs remain"></textarea>
+          <textarea id="mark" placeholder="e.g., A pair of great bat wings"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="mark-concealment">How is it concealed?</label>
+          <input type="text" id="mark-concealment" placeholder="e.g. I saw them off each night">
         </div>
       </div>
 
@@ -258,9 +268,12 @@
         <p class="step-description">Describe how you became a vampire. This is Memory 5 — your final foundational
           Experience.</p>
         <div class="form-group">
+          <label for="mem-5-theme">Memory 5 — Theme</label>
+          <input type="text" id="mem-5-theme" placeholder="A title for your transformation memory…">
+        </div>
+        <div class="form-group">
           <label for="exp-5">Memory 5 — The Transformation</label>
-          <textarea id="exp-5"
-            placeholder="How did the curse take hold? What changed? How do you feel about your new existence?"></textarea>
+          <textarea id="exp-5" placeholder="How did the curse take hold?..."></textarea>
         </div>
       </div>
 
@@ -310,21 +323,19 @@
     let characterData = {
       name: '',
       vampire_desc: '',
-      mortal_self: '',
       game_over: false,
       game_start: new Date().toISOString().slice(0, 10),
       modified: new Date().toISOString().slice(0, 10),
-      game_completed: "",
       current_prompt: 0,
-      prompts_resolved: 0,
       marks: [],
       memories: [
-        { n: '1', "theme": "", "description": "", "experiences": [] },
-        { n: '2', "theme": "", "description": "", "experiences": [] },
-        { n: '3', "theme": "", "description": "", "experiences": [] },
-        { n: '4', "theme": "", "description": "", "experiences": [] },
-        { n: '5', "theme": "", "description": "", "experiences": [] }
+        { n: 1, "theme": "", "description": "", "experiences": [] },
+        { n: 2, "theme": "", "description": "", "experiences": [] },
+        { n: 3, "theme": "", "description": "", "experiences": [] },
+        { n: 4, "theme": "", "description": "", "experiences": [] },
+        { n: 5, "theme": "", "description": "", "experiences": [] }
       ],
+      diary_memories: {},
       lost_memories: [],
       skills: [],
       resources: [],
@@ -443,8 +454,7 @@
             return false;
           }
           characterData.name = document.getElementById('mortal-name').value;
-          characterData.mortal_self = document.getElementById('mortal-life').value;
-          characterData.vampire_desc = `A vampire who was once ${characterData.mortal_self}`;
+          characterData.vampire_desc = document.getElementById('mortal-life').value;
           // Only add the mortal experience if it hasn't been added yet
           if (characterData.memories[0].experiences.length === 0) {
             characterData.memories[0].experiences.push(document.getElementById('mortal-life').value);
@@ -472,12 +482,21 @@
           const exp2 = document.getElementById('exp-2').value.trim();
           const exp3 = document.getElementById('exp-3').value.trim();
           const exp4 = document.getElementById('exp-4').value.trim();
+          const theme2 = document.getElementById('mem-2-theme').value.trim();
+          const theme3 = document.getElementById('mem-3-theme').value.trim();
+          const theme4 = document.getElementById('mem-4-theme').value.trim();
+          if (!theme2 || !theme3 || !theme4) {
+            alert('Please enter a theme for each memory.');
+            return false;
+          }
           if (!exp2 || !exp3 || !exp4) {
             alert('Please fill in all three Experiences.');
             return false;
           }
-          // Only add the experiences if they haven't been added yet
           if (characterData.memories[1].experiences.length === 0) {
+            characterData.memories[1].theme = theme2;
+            characterData.memories[2].theme = theme3;
+            characterData.memories[3].theme = theme4;
             characterData.memories[1].experiences.push(exp2);
             characterData.memories[2].experiences.push(exp3);
             characterData.memories[3].experiences.push(exp4);
@@ -496,20 +515,34 @@
             alert('Please describe your transformation.');
             return false;
           }
+          if (!document.getElementById('mem-5-theme').value.trim()) {
+            alert('Please enter a theme for Memory 5.');
+            return false;
+          }
+          // in the memories section:
+          if (characterData.memories[4].experiences.length === 0) {
+            characterData.memories[4].theme = document.getElementById('mem-5-theme').value.trim();
+            characterData.memories[4].experiences.push(document.getElementById('exp-5').value.trim());
+          }
           // Add immortal character (only if not already added)
           if (!characterData.characters.some(c => c.type === 'immortal')) {
             characterData.characters.push({
-              name: document.getElementById('immortal-name').value,
-              description: document.getElementById('immortal-desc').value,
-              type: 'immortal'
+              name: document.getElementById('immortal-name').value.trim(),
+              description: document.getElementById('immortal-desc').value.trim(),
+              type: 'immortal',
+              status: 'alive',
+              death_reason: '',
+              death_epitaph: '',
+              gained_turn: 0,
+              lost_turn: null
             });
           }
           // Add mark (only if not already added)
           if (characterData.marks.length === 0) {
             characterData.marks.push({
-              description: document.getElementById('mark').value,
-              status: 'available',
-              concealment: ""
+              description: document.getElementById('mark').value.trim(),
+              concealment: document.getElementById('mark-concealment').value.trim(),
+              status: 'active'
             });
           }
           // Add final experience (only if not already added)
@@ -542,8 +575,10 @@
         alert('Please enter a character name.');
         return;
       }
-      characterData.characters.push({ name, description: desc, type: 'mortal', status: 'alive', death_reason: '', gained_turn: 0, lost_turn: null });
-      renderCharacters();
+      characterData.characters.push({
+        name, description: desc, type: 'mortal', status: 'alive',
+        death_reason: '', death_epitaph: '', gained_turn: 0, lost_turn: null
+      }); renderCharacters();
       hideCharacterForm();
       updateStep2Next();
     }
@@ -595,7 +630,7 @@
         alert('You can only have three Skills.');
         return;
       }
-      characterData.skills.push({ name: name, description: "", status: "available", "gained_turn": 0, "lost_turn": null });
+      characterData.skills.push({ name: name, description: "", status: "unchecked", "gained_turn": 0, "lost_turn": null });
       renderSkills();
       hideSkillForm();
       updateStep3Next();
@@ -650,7 +685,7 @@
         alert('You can only have three Resources.');
         return;
       }
-      characterData.resources.push({ name: name, description: "", type: document.getElementById('resource-stationary').checked ? 'stationary' : 'portable', status: "available", "gained_turn": 0, "lost_turn": null });
+      characterData.resources.push({ name: name, description: "", type: document.getElementById('resource-stationary').checked ? 'stationary' : 'portable', status: "active", "gained_turn": 0, "lost_turn": null });
       renderResources();
       hideResourceForm();
       updateStep4Next();
@@ -714,7 +749,7 @@
           <h3>Memories & Experiences</h3>
           ${characterData.memories.map((mem, i) => `
             <div style="margin-bottom: 16px;">
-              <strong style="color: var(--blood);">Memory ${i + 1}:</strong>
+            <strong style="color: var(--blood);">Memory ${i + 1}${mem.theme ? ' — ' + mem.theme : ''}:</strong>
               ${mem.experiences.map(exp => `<div class="summary-item">${exp}</div>`).join('')}
             </div>
           `).join('')}
@@ -742,7 +777,7 @@
 
         <div class="summary-section">
           <h3>Marks (${characterData.marks.length})</h3>
-          ${characterData.marks.map(mark => `<div class="summary-item">${mark.mark}</div>`).join('')}
+          ${characterData.marks.map(mark => `<div class="summary-item">${mark.description}</div>`).join('')}
         </div>
       `;
     }

@@ -17,5 +17,4 @@ A nicer UX experience for Vampire selection
 
 # Character creation needs work
 ------------
-Marks need concealment.
-Memories need a theme
+resources need a description
