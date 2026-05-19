@@ -51,7 +51,8 @@
       "theme": "Becoming this thing.",
       "description": "",
       "experiences": [
-        "I am attacked by a dark shadow. I never know its name. I am inside with my family when I hear noises coming from the barn. Sounds like a predator is attacking the oxen. I take my talisman into my hands and head out to scare off the predators. I wake up days later inside with a fever. My talisman burns my hands."
+        "I am attacked by a dark shadow. I never know its name. I am inside with my family when I hear noises coming from the barn. Sounds like a predator is attacking the oxen. I take my talisman into my hands and head out to scare off the predators. I wake up days later inside with a fever. My talisman burns my hands.",
+        "On my deathbed, Father Godric comes to save my soul. My last rites become his as I murder him and drink his blood."
       ]
     }
   ],
@@ -73,6 +74,12 @@
       "name": "Wrapped in Shadow",
       "status": "unchecked",
       "gained_turn": null,
+      "lost_turn": null
+    },
+    {
+      "name": "Bloodthirsty",
+      "status": "unchecked",
+      "gained_turn": 1,
       "lost_turn": null
     }
   ],
@@ -118,11 +125,11 @@
       "name": "Father Godric",
       "type": "mortal",
       "description": "Leader in the village church. Leads Mass. Responsible for baptisms and burials. I never had any spiritual matters that required advice, but that all changed...",
-      "status": "alive",
-      "death_reason": "",
-      "death_epitaph": "",
+      "status": "dead",
+      "death_reason": "Killed delivering last rites.",
+      "death_epitaph": "Here lies Father Godric. Year of our lord 1020. You don't know it though because his grave is unmarked.",
       "gained_turn": null,
-      "lost_turn": null
+      "lost_turn": 1
     },
     {
       "name": "Leofric the Reeve",
@@ -150,10 +157,10 @@
       "turn": 1,
       "prompt": 1,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-19T17:41:27.527Z",
+      "experience": "Edith is at my bedside throughout my fever. We pray together for salvation. We know I may not be long for this world. My hopes. My dreams. All turning to ashes and dust.\nNight comes. I already feel dead. I think my torment is finally over when Father Godric comes to deliver the last rites. \nHe closes the curtains. He gives me Eucharist. The bread and wine do nothing but stir a hunger in me that I can't control. I kill him and sustain myself on his blood. I feel stronger than I ever have before. \nI bury his body in his churchyard. I don't leave a marker.",
+      "changes": "Killed Father Godric. Gained Skill Bloodthirsty"
     }
   ]
 }
