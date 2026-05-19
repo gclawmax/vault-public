@@ -13,7 +13,7 @@
     {
       "description": "A pair of small, pinprick scars on the forearm, where James drank Seraphina's corrupted blood. On cold nights, they burn; under moonlight, they glow faintly.",
       "concealment": "Always hidden beneath gauntlets or heavy fur cuffs.",
-      "status": "available"
+      "status": "active"
     }
   ],
   "memories": [
@@ -65,21 +65,21 @@
     {
       "name": "Swordsmanship",
       "description": "A master of the blade, deadly in the yard or on the battlefield.",
-      "status": "available",
+      "status": "unchecked",
       "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "Falconry",
       "description": "A noble pastime and a discipline of patience and control over the wild.",
-      "status": "struck",
+      "status": "checked",
       "gained_turn": null,
       "lost_turn": 2
     },
     {
       "name": "Tactics and Command",
       "description": "The art of warfare and strategy, learned in Bran's yard and your court.",
-      "status": "available",
+      "status": "unchecked",
       "gained_turn": null,
       "lost_turn": null
     }
@@ -89,7 +89,7 @@
       "name": "The Blackwood Seal Ring",
       "description": "Your family's signet ring, cold iridium and heavy with history. It bears the crest of your house and has pressed into wax a thousand ledgers, proclamations, and death warrants. A sign of your standing.",
       "type": "portable",
-      "status": "available",
+      "status": "active",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -97,7 +97,7 @@
       "name": "Blackwood Hall",
       "description": "The fortress of your ancestors, perched on a jagged ridge where the wind never stops its wailing. Thick stone walls, a great hall that can house your entire retinue. The heart of your power.",
       "type": "stationary",
-      "status": "available",
+      "status": "active",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -105,7 +105,7 @@
       "name": "Wintersteel Broadsword",
       "description": "A blade of grey steel, heavy and unyielding, brought from a campaign in the distant north. It never dulls, never chips, and its pommel is set with a dark gem that seems to draw the light from the air.",
       "type": "portable",
-      "status": "available",
+      "status": "active",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -113,7 +113,7 @@
       "name": "The vault key",
       "description": "",
       "type": "portable",
-      "status": "available",
+      "status": "active",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -121,7 +121,7 @@
       "name": "Red Diary",
       "description": "It's red...",
       "type": "diary",
-      "status": "available",
+      "status": "active",
       "gained_turn": null,
       "lost_turn": null
     }

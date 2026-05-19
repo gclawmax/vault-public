@@ -435,7 +435,7 @@
         marks: (json.marks || []).map(m => ({
           desc: m.description || '',
           concealment: m.concealment || '',
-          struck: m.status === 'struck'
+          status: m.status || 'active'
         })),
         characters: (json.characters || []).map(c => ({
           name: c.name || '',
@@ -517,7 +517,7 @@
         marks: (d.marks || []).map(m => ({
           description: m.desc || '',
           concealment: m.concealment || '',
-          status: m.status || 'available'
+          status: m.status || 'active'
         })),
         memories: (d.memories || []).map(mem => ({
           n: mem.n,
@@ -622,25 +622,24 @@
         + (em ? 'onclick="editMarks()" title="Click to edit marks"' : '') + '>'
         + '<div class="strip-label"><span class="section-icon">⚰</span> Marks</div>'
         + '<div class="marks-inline">';
-      d.marks.filter(m => !m.struck).forEach(m => {
+      d.marks.filter(m => !m.status === 'active').forEach(m => {
         html += '<span class="mark-chip" title="Concealed: ' + esc(m.concealment) + '">' + esc(m.desc) + '</span>';
       });
-      if (d.marks.filter(m => !m.struck).length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
+      if (d.marks.filter(m => !m.status === 'active').length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
       html += '</div></div>';
 
       // Skills
-      const activeSkills = d.skills.filter(sk => sk.status !== 'lost')
+      const uncheckedSkills = d.skills.filter(sk => sk.status === 'unchecked')
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
 
       html += '<div class="strip-cell section-editwrap" data-section="skills" '
         + (em ? 'onclick="editSkills()" title="Click to edit skills"' : '') + '>'
         + '<div class="strip-label"><span class="section-icon">⚔</span> Skills</div>'
         + '<div class="skills-inline">';
-      if (activeSkills.length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
-      activeSkills.forEach(sk => {
-        const cls = sk.status === 'checked' ? 'checked' : '';
-        html += '<span class="skill-chip ' + cls + '" title="' + (sk.gained_turn ? 'Gained turn ' + sk.gained_turn : '') + '">'
-          + '<span class="skill-box">' + (sk.status === 'checked' ? '✓' : '') + '</span>'
+      if (uncheckedSkills.length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
+      uncheckedSkills.forEach(sk => {
+        html += '<span class="skill-chip" title="' + (sk.gained_turn ? 'Gained turn ' + sk.gained_turn : '') + '">'
+          + '<span class="skill-box"></span>'
           + esc(sk.name) + '</span>';
       });
       html += '</div></div>';
@@ -818,21 +817,6 @@
         html += '</div></div>';
       }
 
-      // ── Lost Skills ──
-      const lostSkills = d.skills.filter(sk => sk.status === 'lost')
-        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
-      if (lostSkills.length > 0) {
-        html += '<div class="memories-section">'
-          + '<div class="memories-section-label"><span class="section-icon">⚔</span> Lost Skills</div>'
-          + '<div class="memories-grid">';
-        lostSkills.forEach(sk => {
-          html += '<div class="memory-block forgotten">'
-            + '<div class="memory-title">' + esc(sk.name)
-            + (sk.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + sk.lost_turn + '</span>' : '')
-            + '</div>'
-        });
-        html += '</div></div>';
-      }
 
       // ── Lost Resources ──
       const lostResources = d.resources.filter(r => r.status === 'lost')
@@ -853,7 +837,25 @@
         html += '</div></div>';
       }
 
-      // Obituary
+      // ── Checked Skills ──
+      const checkedSkills = d.skills.filter(sk => sk.status === 'checked')
+        .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
+      if (checkedSkills.length > 0) {
+        html += '<div class="memories-section">'
+          + '<div class="memories-section-label"><span class="section-icon">☑</span> Checked Skills</div>'
+          + '<div class="memories-grid">';
+        checkedSkills.forEach(sk => {
+          html += '<div class="memory-block forgotten">'
+            + '<div class="memory-title">☑ ' + esc(sk.name)
+            + (sk.gained_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — gained turn ' + sk.gained_turn + '</span>' : '')
+            + '</div>'
+            + (sk.description ? '<p style="font-size:.88rem;">' + esc(sk.description) + '</p>' : '')
+            + '</div>';
+        });
+        html += '</div></div>';
+      }
+
+      // ── Obituary ──
       const deadChars = d.characters.filter(c => c.dead)
         .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
       if (deadChars.length > 0) {
@@ -1031,40 +1033,63 @@
     // ── Marks ─────────────────────────────────────────
     function editMarks() {
       if (!editMode) return;
-      let bodyHtml = `<div class="edit-section-title">Existing Marks</div>`;
-      if (parsedData.marks.length === 0) {
-        bodyHtml += `<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No marks to display.</p>`;
+      const activeMarks = parsedData.marks.filter(m => m.status === 'active');
+      const lostMarks = parsedData.marks.filter(m => m.status === 'lost');
+
+      let bodyHtml = '<div class="edit-section-title">Active Marks</div>';
+      if (activeMarks.length === 0) {
+        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active marks.</p>';
       }
-      parsedData.marks.forEach((m, i) => {
-        bodyHtml += `<div class="edit-list-item ${m.struck ? 'struck-item' : ''}">
-      <div class="edit-list-item-text ${m.struck ? 'struck-text' : ''}">${esc(m.desc)} <span style="color:var(--ink-faint);font-size:.8rem">(${esc(m.concealment)})</span></div>
-      <div class="edit-list-actions">
-        <button class="strike-btn ${m.struck ? 'struck' : ''}" onclick="toggleMarkStruck(${i})">${m.struck ? 'Restore' : 'Strike'}</button>
-        <button class="trash-btn" onclick="deleteMark(${i})" title="Delete mark entirely">🗑</button>
-      </div>
-    </div>`;
+      activeMarks.forEach(m => {
+        const i = parsedData.marks.indexOf(m);
+        bodyHtml += '<div class="edit-list-item">'
+          + '<div class="edit-list-item-text">' + esc(m.desc)
+          + ' <span style="color:var(--ink-faint);font-size:.8rem;">(' + esc(m.concealment) + ')</span></div>'
+          + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="loseMark(' + i + ')">Lose</button>'
+          + '<button class="trash-btn" onclick="deleteMark(' + i + ')">🗑</button>'
+          + '</div></div>';
       });
-      bodyHtml += `<hr class="edit-divider">
-    <div class="edit-section-title">Add New Mark</div>
-    <div class="form-row">
-      <label class="form-label">Description</label>
-      <input class="form-input" id="ed-mark-desc" placeholder="e.g. Cold skin that never warms">
-    </div>
-    <div class="form-row">
-      <label class="form-label">How is it concealed?</label>
-      <input class="form-input" id="ed-mark-conc" placeholder="e.g. hidden under heavy vestments">
-    </div>`;
+
+      if (lostMarks.length > 0) {
+        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Lost Marks</div>';
+        lostMarks.forEach(m => {
+          const i = parsedData.marks.indexOf(m);
+          bodyHtml += '<div class="edit-list-item struck-item">'
+            + '<div class="edit-list-item-text">' + esc(m.desc)
+            + ' <span style="color:var(--ink-faint);font-size:.8rem;">(' + esc(m.concealment) + ')</span></div>'
+            + '<div class="edit-list-actions">'
+            + '<button class="strike-btn" onclick="restoreMark(' + i + ')">Restore</button>'
+            + '<button class="trash-btn" onclick="deleteMark(' + i + ')">🗑</button>'
+            + '</div></div>';
+        });
+      }
+
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add New Mark</div>'
+        + '<div class="form-row"><label class="form-label">Description</label>'
+        + '<input class="form-input" id="ed-mark-desc" placeholder="e.g. Cold skin that never warms"></div>'
+        + '<div class="form-row"><label class="form-label">How is it concealed?</label>'
+        + '<input class="form-input" id="ed-mark-conc" placeholder="e.g. hidden under heavy vestments"></div>';
+
       openModal('Edit Marks', bodyHtml, () => {
         const desc = document.getElementById('ed-mark-desc').value.trim();
         const conc = document.getElementById('ed-mark-conc').value.trim();
         if (desc && conc) {
-          parsedData.marks.push({ desc, concealment: conc, struck: false });
+          parsedData.marks.push({ desc, concealment: conc, status: 'active' });
+          markUnsaved();
         }
-      }); // modalConfirm() re-renders after Update is clicked
+      });
     }
 
-    function toggleMarkStruck(i) {
-      parsedData.marks[i].struck = !parsedData.marks[i].struck;
+    function loseMark(i) {
+      parsedData.marks[i].status = 'lost';
+      markUnsaved();
+      editMarks();
+    }
+
+    function restoreMark(i) {
+      parsedData.marks[i].status = 'active';
+      markUnsaved();
       editMarks();
     }
 
@@ -1082,16 +1107,14 @@
     // ── Skills ────────────────────────────────────────
     function editSkills() {
       if (!editMode) return;
-      const activeSkills = parsedData.skills.filter(sk => sk.status !== 'lost')
+      const skills = [...parsedData.skills]
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
-      const lostSkills = parsedData.skills.filter(sk => sk.status === 'lost')
-        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
 
-      let bodyHtml = '<div class="edit-section-title">Active Skills</div>';
-      if (activeSkills.length === 0) {
-        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active skills.</p>';
+      let bodyHtml = '<div class="edit-section-title">Skills</div>';
+      if (skills.length === 0) {
+        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No skills yet.</p>';
       }
-      activeSkills.forEach(sk => {
+      skills.forEach(sk => {
         const i = parsedData.skills.indexOf(sk);
         bodyHtml += '<div class="edit-list-item">'
           + '<div class="edit-list-item-text">' + esc(sk.name)
@@ -1102,25 +1125,9 @@
           + '<option value="unchecked" ' + (sk.status === 'unchecked' ? 'selected' : '') + '>☐ Unchecked</option>'
           + '<option value="checked" ' + (sk.status === 'checked' ? 'selected' : '') + '>☑ Checked</option>'
           + '</select>'
-          + '<button class="strike-btn" onclick="loseSkill(' + i + ')">Lose</button>'
-          + '<button class="trash-btn" onclick="deleteSkill(' + i + ')" title="Delete skill entirely">🗑</button>'
+          + '<button class="trash-btn" onclick="deleteSkill(' + i + ')">🗑</button>'
           + '</div></div>';
       });
-
-      if (lostSkills.length > 0) {
-        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Lost Skills</div>';
-        lostSkills.forEach(sk => {
-          const i = parsedData.skills.indexOf(sk);
-          bodyHtml += '<div class="edit-list-item struck-item">'
-            + '<div class="edit-list-item-text struck-text">' + esc(sk.name)
-            + (sk.lost_turn ? '<span style="color:var(--ink-faint);font-size:.8rem;"> · lost turn ' + sk.lost_turn + '</span>' : '')
-            + '</div>'
-            + '<div class="edit-list-actions">'
-            + '<button class="strike-btn" onclick="restoreSkill(' + i + ')">Restore</button>'
-            + '<button class="trash-btn" onclick="deleteSkill(' + i + ')" title="Delete skill entirely">🗑</button>'
-            + '</div></div>';
-        });
-      }
 
       bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add New Skill</div>'
         + '<div class="form-row"><label class="form-label">Skill Name</label>'
@@ -1129,27 +1136,10 @@
       openModal('Edit Skills', bodyHtml, () => {
         const name = document.getElementById('ed-skill-name').value.trim();
         if (name) {
-          parsedData.skills.push({ name, status: 'unchecked', gained_turn: currentTurn(), lost_turn: null });
+          parsedData.skills.push({ name, status: 'unchecked', gained_turn: currentTurn() });
           markUnsaved();
         }
       });
-    }
-
-    function loseSkill(i) {
-      if (!editMode) return;
-      const sk = parsedData.skills[i];
-      if (!confirm('Lose the skill "' + sk.name + '"?')) return;
-      sk.status = 'lost';
-      sk.lost_turn = currentTurn();
-      markUnsaved();
-      editSkills();
-    }
-
-    function restoreSkill(i) {
-      parsedData.skills[i].status = 'unchecked';
-      parsedData.skills[i].lost_turn = null;
-      markUnsaved();
-      editSkills();
     }
 
     function updateSkillStatus(i, val) {
@@ -1535,7 +1525,7 @@
     </div>`;
       });
 
-      const activeMemsNotInDiary = parsedData.memories.filter(m => !m.struck && !m.inDiary);
+      const activeMemsNotInDiary = parsedData.memories.filter(m => !m.status === 'active' && !m.inDiary);
       if (parsedData.diary.memories.length < 4 && activeMemsNotInDiary.length > 0) {
         bodyHtml += `<hr class="edit-divider">
       <div class="edit-section-title">Move Active Memory to Diary</div>
