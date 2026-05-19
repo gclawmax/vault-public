@@ -19,7 +19,8 @@
       "theme": "",
       "description": "",
       "experiences": [
-        "A twenty-year-old peasant raised in a small village. A farmer used to the feel of the sickle. Preparing to marry."
+        "A twenty-year-old peasant raised in a small village. A farmer used to the feel of the sickle. Preparing to marry.",
+        "Godgifu the Leech learns of my condition and works on a cure for my condition."
       ]
     },
     {
@@ -114,6 +115,14 @@
       "status": "active",
       "gained_turn": null,
       "lost_turn": null
+    },
+    {
+      "name": "Godgifu's help",
+      "description": "The herbalist is brewing remedies to help me. I have to keep coming to her village for them.",
+      "type": "stationary",
+      "status": "active",
+      "gained_turn": 3,
+      "lost_turn": null
     }
   ],
   "diary_memories": {},
@@ -157,6 +166,16 @@
       "death_epitaph": "",
       "gained_turn": 2,
       "lost_turn": null
+    },
+    {
+      "name": "Godgifu the Leech",
+      "type": "mortal",
+      "description": "A herbalist / wise woman. She learns of my condition and is brewing remedies to help me. The kindest soul I've met since I turned.",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 3,
+      "lost_turn": null
     }
   ],
   "journal": [
@@ -182,10 +201,10 @@
       "turn": 3,
       "prompt": 3,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-19T18:28:55.802Z",
+      "experience": "Since Edith, I've been travelling from town to town bartering as a merchant. I share what news I have and barter goods that I steal in the night, but most of all, I search. I search for a cure for myself and for Edith.\nI find a healer – Godgifu the Leech – who hopes to cure me of my affliction, turn me back to the path of the righteous and make me mortal again. Today we're trying garlic, willow bark, and honey. I'm hopeful.",
+      "changes": "Meet Godgifu the Leech. Gained her assistance"
     }
   ]
 }
