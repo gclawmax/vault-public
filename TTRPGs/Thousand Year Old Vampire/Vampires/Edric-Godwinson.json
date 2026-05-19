@@ -20,7 +20,8 @@
       "description": "",
       "experiences": [
         "A twenty-year-old peasant raised in a small village. A farmer used to the feel of the sickle. Preparing to marry.",
-        "Godgifu the Leech learns of my condition and works on a cure for my condition."
+        "Godgifu the Leech learns of my condition and works on a cure for my condition.",
+        "The hope for a cure is dashed as Godgifu gets old and dies. I start to reconcile with the fact I'm going to be this monster for eternity."
       ]
     },
     {
@@ -63,19 +64,19 @@
     {
       "name": "Wielding a sickle",
       "status": "unchecked",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "Animal handling",
       "status": "unchecked",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "Wrapped in Shadow",
       "status": "unchecked",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
@@ -86,7 +87,7 @@
     },
     {
       "name": "Ashamed",
-      "status": "unchecked",
+      "status": "checked",
       "gained_turn": 2,
       "lost_turn": null
     }
@@ -120,9 +121,9 @@
       "name": "Godgifu's help",
       "description": "The herbalist is brewing remedies to help me. I have to keep coming to her village for them.",
       "type": "stationary",
-      "status": "active",
+      "status": "lost",
       "gained_turn": 3,
-      "lost_turn": null
+      "lost_turn": 4
     },
     {
       "name": "My Journal",
@@ -144,7 +145,7 @@
       "status": "dead",
       "death_reason": "Killed delivering last rites.",
       "death_epitaph": "Here lies Father Godric. Year of our lord 1020. You don't know it though because his grave is unmarked.",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": 1
     },
     {
@@ -154,7 +155,7 @@
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
@@ -164,7 +165,7 @@
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
@@ -181,11 +182,11 @@
       "name": "Godgifu the Leech",
       "type": "mortal",
       "description": "A herbalist / wise woman. She learns of my condition and is brewing remedies to help me. The kindest soul I've met since I turned.",
-      "status": "alive",
-      "death_reason": "",
-      "death_epitaph": "",
+      "status": "dead",
+      "death_reason": "Died to protect my secret",
+      "death_epitaph": "Here lies Godgifu. Botanist, herbalist, scholar. Loved by everyone in her village. Rest in peace.",
       "gained_turn": 3,
-      "lost_turn": null
+      "lost_turn": 4
     }
   ],
   "journal": [
@@ -220,10 +221,10 @@
       "turn": 4,
       "prompt": 5,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-19T18:51:37.067Z",
+      "experience": "Every few months I head back to Godgifu, who keeps trying new inventive ways to cure me. This last time I saw her face, I realised it's actually been many years since she started trying to help. She's old now and sick herself. She begs me to turn her, but the memory of Edith stops me. \nShe informs me she must tell others about my condition in order to continue her life's work, but I won't be exposed. I kill her to protect myself, but I make sure she can't come back. Did I betray her? Or did I just prevent her from betraying me?",
+      "changes": "Killed Godgifu"
     }
   ]
 }
