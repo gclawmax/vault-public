@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-19",
   "modified": "2026-05-19",
-  "current_prompt": 5,
+  "current_prompt": 13,
   "epitaph": null,
   "marks": [
     {
@@ -225,6 +225,15 @@
       "resolved_at": "2026-05-19T18:51:37.067Z",
       "experience": "Every few months I head back to Godgifu, who keeps trying new inventive ways to cure me. This last time I saw her face, I realised it's actually been many years since she started trying to help. She's old now and sick herself. She begs me to turn her, but the memory of Edith stops me. \nShe informs me she must tell others about my condition in order to continue her life's work, but I won't be exposed. I kill her to protect myself, but I make sure she can't come back. Did I betray her? Or did I just prevent her from betraying me?",
       "changes": "Killed Godgifu"
+    },
+    {
+      "turn": 5,
+      "prompt": 13,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
     }
   ]
 }
