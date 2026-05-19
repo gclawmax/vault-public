@@ -1,0 +1,151 @@
+{
+  "name": "Edric Godwinson",
+  "vampire_desc": "A twenty-year-old peasant raised in a small village. A farmer used to the feel of the sickle. Preparing to marry.",
+  "game_over": false,
+  "game_start": "2026-05-19",
+  "modified": "2026-05-19",
+  "current_prompt": 0,
+  "marks": [
+    {
+      "description": "A shadow that no longer obeys me. Flickering and moving of its own accord, even without candlelight. I can feel it staring at me. I think I hear its voice in my head.",
+      "concealment": "I walk in places without shadows. It is a poor concealment at best.",
+      "status": "active"
+    }
+  ],
+  "memories": [
+    {
+      "n": 1,
+      "theme": "",
+      "description": "",
+      "experiences": [
+        "A twenty-year-old peasant raised in a small village. A farmer used to the feel of the sickle. Preparing to marry."
+      ]
+    },
+    {
+      "n": 2,
+      "theme": "Family",
+      "description": "",
+      "experiences": [
+        "Edith and I talk during a church gathering. She gives me the Saints Charm as a gift. \nI'm looking forward to our wedding so we can build our family together."
+      ]
+    },
+    {
+      "n": 3,
+      "theme": "Duty",
+      "description": "",
+      "experiences": [
+        "Working the farm with my sickle, I remember to pay our share of the rent and grain collection to Leofric.\nHe doesn't extort extra, and for that I'm grateful."
+      ]
+    },
+    {
+      "n": 4,
+      "theme": "Toil",
+      "description": "",
+      "experiences": [
+        "I spend hours each day with my sickle and knife, working the farm and repairing the house. \nI don't complain so long as I have food at the end of the day."
+      ]
+    },
+    {
+      "n": 5,
+      "theme": "Becoming this thing.",
+      "description": "",
+      "experiences": [
+        "I am attacked by a dark shadow. I never know its name. I am inside with my family when I hear noises coming from the barn. Sounds like a predator is attacking the oxen. I take my talisman into my hands and head out to scare off the predators. I wake up days later inside with a fever. My talisman burns my hands."
+      ]
+    }
+  ],
+  "diary_memories": {},
+  "lost_memories": [],
+  "skills": [
+    {
+      "name": "Wielding a sickle",
+      "description": "",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Animal handling",
+      "description": "",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Wrapped in Shadow",
+      "description": "",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "resources": [
+    {
+      "name": "Sickle",
+      "description": "Worn at the handle, but the blade is kept sharp. Used for harvesting crops, cutting grass, and cutting other things.",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Saints Charm",
+      "description": "Something I wear for protection against Evil forces.",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Knife",
+      "description": "I always carry an iron knife. I use it for eating, cutting rope, preparing food, and minor repairs. I carried one constantly.",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "characters": [
+    {
+      "name": "Edith atte Brook",
+      "description": "My betrothed. She seemed outwardly cold to others, but I felt the well of emotion hidden behind even the smallest smile. She and I wanted the same things—a house, a family, a good harvest.",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Father Godric",
+      "description": "Leader in the village church. Leads Mass. Responsible for baptisms and burials. I never had any spiritual matters that required advice, but that all changed...",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Leofric the Reeve",
+      "description": "The overseer of our harvesting, as well as the rent and grain collector for our lord. Usually fair, sometimes harsh. He was the one who enforced the laws.",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "The Dark Shadow",
+      "description": "The dark shape in the barn. It is gone before I learn it's name.",
+      "type": "immortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "journal": []
+}
