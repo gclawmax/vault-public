@@ -161,6 +161,15 @@
       "resolved_at": "2026-05-19T17:41:27.527Z",
       "experience": "Edith is at my bedside throughout my fever. We pray together for salvation. We know I may not be long for this world. My hopes. My dreams. All turning to ashes and dust.\nNight comes. I already feel dead. I think my torment is finally over when Father Godric comes to deliver the last rites. \nHe closes the curtains. He gives me Eucharist. The bread and wine do nothing but stir a hunger in me that I can't control. I kill him and sustain myself on his blood. I feel stronger than I ever have before. \nI bury his body in his churchyard. I don't leave a marker.",
       "changes": "Killed Father Godric. Gained Skill Bloodthirsty"
+    },
+    {
+      "turn": 2,
+      "prompt": 1,
+      "entry": 2,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
     }
   ]
 }
