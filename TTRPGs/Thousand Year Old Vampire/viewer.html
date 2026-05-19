@@ -443,9 +443,11 @@
           type: c.type === 'immortal' ? 'immortal' : 'mortal',
           dead: c.status === 'dead',
           death_reason: c.death_reason || '',
+          death_epitaph: c.death_epitaph || '',
           gained_turn: c.gained_turn || null,
           lost_turn: c.lost_turn || null
         })),
+
         memories: (json.memories || []).map((mem, idx) => ({
           n: mem.n || idx + 1,
           theme: mem.theme || '',
@@ -562,6 +564,7 @@
           description: c.desc || '',
           status: c.dead ? 'dead' : 'alive',
           death_reason: c.death_reason || '',
+          death_epitaph: c.death_epitaph || '',
           gained_turn: c.gained_turn || null,
           lost_turn: c.lost_turn || null
         })),
@@ -1382,7 +1385,7 @@
       });
     }
 
-    function killCharacter(type, i) {
+    function killCharacter(i) {
       const c = parsedData.characters[i];
       if (!confirm('Kill ' + c.name + '?')) return;
       const bodyHtml = '<div class="form-row"><label class="form-label">Death Reason (required)</label>'
@@ -1402,7 +1405,7 @@
         c.lost_turn = currentTurn();
         c.death_reason = reasonVal;
         if (epitaphVal) c.death_epitaph = epitaphVal;
-        // Re-open the characters editor after modal flow completes
+        markUnsaved();
         setTimeout(() => { editCharacters(); }, 0);
       });
     }
