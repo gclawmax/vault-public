@@ -873,6 +873,7 @@
             + '</span></div>'
             + (c.desc ? '<p style="font-size:.88rem;margin-bottom:6px;">' + esc(c.desc) + '</p>' : '')
             + (c.death_reason ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">' + esc(c.death_reason) + '</p>' : '')
+            + (c.death_epitaph ? '<p style="font-size:.82rem;color:var(--blood);font-style:italic;border-left:2px solid var(--blood);padding-left:8px;margin-top:6px;">' + esc(c.death_epitaph) + '</p>' : '')
             + '</div>';
         });
         html += '</div></div>';
