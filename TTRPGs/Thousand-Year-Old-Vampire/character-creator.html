@@ -149,6 +149,10 @@
             <input type="text" id="resource-name" placeholder="e.g., A diamond tiara, Ancient family crypt">
           </div>
           <div class="form-group">
+            <label for="resource-desc">Description</label>
+            <textarea id="resource-desc" placeholder="A short description (background, quality, significance)"></textarea>
+          </div>
+          <div class="form-group">
             <label for="resource-stationary">
               <input type="checkbox" id="resource-stationary"> Stationary (cannot be hauled away)</label>
           </div>
@@ -676,6 +680,7 @@
 
     function addResource() {
       const name = document.getElementById('resource-name').value.trim();
+      const description = document.getElementById('resource-desc').value.trim();
       const stationary = document.getElementById('resource-stationary').checked;
       if (!name) {
         alert('Please enter a resource name.');
@@ -685,7 +690,7 @@
         alert('You can only have three Resources.');
         return;
       }
-      characterData.resources.push({ name: name, description: "", type: document.getElementById('resource-stationary').checked ? 'stationary' : 'portable', status: "active", "gained_turn": 0, "lost_turn": null });
+      characterData.resources.push({ name: name, description: description, type: document.getElementById('resource-stationary').checked ? 'stationary' : 'portable', status: "active", "gained_turn": 0, "lost_turn": null });
       renderResources();
       hideResourceForm();
       updateStep4Next();
