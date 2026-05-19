@@ -819,7 +819,7 @@
           contentHtml += '</ol></div>';
         });
         contentHtml += '</div>';
-        html += collapsibleSection('lost-memories', '☽', 'Lost Memories', contentHtml, em ? 'editLostMemories()' : null);
+        html += collapsibleSection('lost-memories', '🌒', 'Lost Memories', contentHtml, em ? 'editLostMemories()' : null, sorted.length);
       }
 
       // ── Lost Resources ──
@@ -837,7 +837,7 @@
             + '</div>';
         });
         contentHtml += '</div>';
-        html += collapsibleSection('lost-resources', '🏚', 'Lost Resources', contentHtml, em ? 'editResources()' : null);
+        html += collapsibleSection('lost-resources', '🏚', 'Lost Resources', contentHtml, em ? 'editResources()' : null, lostResources.length);
       }
 
       // ── Checked Skills ──
@@ -854,7 +854,7 @@
             + '</div>';
         });
         contentHtml += '</div>';
-        html += collapsibleSection('checked-skills', '☑', 'Checked Skills', contentHtml, em ? 'editSkills()' : null);
+        html += collapsibleSection('checked-skills', '☑', 'Checked Skills', contentHtml, em ? 'editSkills()' : null, checkedSkills.length);
       }
 
       // ── Obituary ──
@@ -873,7 +873,7 @@
             + '</div>';
         });
         contentHtml += '</div>';
-        html += collapsibleSection('obituary', '💀', 'Obituary', contentHtml, em ? 'editObituary()' : null);
+        html += collapsibleSection('obituary', '💀', 'Obituary', contentHtml, em ? 'editObituary()' : null, deadChars.length);
       }
 
       el.innerHTML = html;
@@ -900,14 +900,14 @@
       }
     }
 
-    function collapsibleSection(id, icon, label, contentHtml, editFn) {
+    function collapsibleSection(id, icon, label, contentHtml, editFn, count) {
       const collapsed = _collapsedSections.has(id);
-      const arrow = collapsed ? '▸' : '▾';
-      return '<div class="memories-section section-editwrap"'
-        + (editFn ? ' onclick="' + editFn + '" title="Click to edit"' : '') + '>'
-        + '<div class="memories-section-label" onclick="event.stopPropagation();toggleSection(\'' + id + '\')" style="cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;">'
-        + '<span id="section-arrow-' + id + '" style="font-size:.8rem;color:var(--ink-faint);">' + arrow + '</span>'
+      return '<div class="memories-section section-editwrap collapsible-section' + (collapsed ? ' section-collapsed' : '') + '"'
+        + (editFn ? ' onclick="' + editFn + '"' : '') + '>'
+        + '<div class="memories-section-label collapsible-label" onclick="event.stopPropagation();toggleSection(\'' + id + '\')" style="cursor:pointer;user-select:none;">'
         + '<span class="section-icon">' + icon + '</span> ' + label
+        + (collapsed && count ? '<span class="collapse-count">' + count + ' sealed within</span>' : '')
+        + '<span class="collapse-arrow">' + (collapsed ? '✦' : '▾') + '</span>'
         + '</div>'
         + '<div id="section-content-' + id + '" style="display:' + (collapsed ? 'none' : '') + ';">'
         + contentHtml
