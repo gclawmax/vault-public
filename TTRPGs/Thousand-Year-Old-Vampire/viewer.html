@@ -480,7 +480,7 @@
           entry: j.entry,
           prose: j.experience || '',
           changes: j.changes || '',
-          awaiting: j.resolved === false,
+          resolved: j.resolved === false,
           resolved_at: j.resolved_at || null
         })),
         gameOver: !!json.game_over,
@@ -571,7 +571,7 @@
           turn: j.turn,
           prompt: j.prompt,
           entry: j.entry,
-          resolved: !j.awaiting,
+          resolved: j.resolved !== false,
           resolved_at: j.resolved_at || null,
           experience: j.prose || '',
           changes: j.changes || ''
@@ -593,7 +593,7 @@
         return em ? 'onclick="event.stopPropagation();' + fn + '" style="cursor:pointer;"' : '';
       }
 
-      const hasUnresolved = d.journal.some(j => j.awaiting === true);
+      const hasUnresolved = d.journal.some(j => !j.resolved === true);
       const promptBtnDisabled = em || hasUnresolved;
 
       let html = '';
@@ -718,7 +718,7 @@
           + '<div class="journal-prompt-text">' + esc(getPromptText(j.prompt, j.entry)) + '</div>'
           + '<div class="journal-body">';
         if (j.prose) html += '<p>' + esc(j.prose) + '</p>';
-        if (j.awaiting) {
+        if (!j.resolved) {
           html += '<p class="journal-awaiting">Awaiting resolution…</p>';
         } else if (j.changes) {
           html += '<p style="font-size:.85rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:10px;margin-top:10px;"><strong>Changes:</strong> ' + esc(j.changes) + '</p>';
@@ -1650,7 +1650,7 @@ This is an admin action — removes it from the diary permanently.`)) return;
     function deleteJournalEntry(i) {
       if (!editMode) return;
       const je = parsedData.journal[i];
-      if (!confirm(`Delete journal entry (Turn ${je.turn}, Prompt ${je.prompt})?
+      if (!confirm(`Delete journal entry (Turn ${j.turn}, Prompt ${j.prompt})?
 
 This is an admin action — it removes the entire entry from the sheet.`)) return;
       parsedData.journal.splice(i, 1);
@@ -1663,7 +1663,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
     function getAnyAwaitingEntry() {
       for (const je of parsedData.journal) {
-        if (je.awaiting) return je;
+        if (!j.resolved) return je;
       }
       return null;
     }
@@ -1690,7 +1690,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         bodyHtml += `<div class="edit-section-title">Journal Entries</div>`;
         parsedData.journal.forEach((je, idx) => {
           bodyHtml += `<div class="edit-list-item">
-    <div class="edit-list-item-text"><strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br><span style="color:var(--ink-dim);font-size:.85rem">Awaiting: ${je.awaiting ? 'Yes' : 'No'}${je.prose ? ' — Has prose' : ''}</span></div>
+    <div class="edit-list-item-text"><strong>Turn ${j.turn} — Prompt ${j.prompt}, Entry ${j.entry}</strong><br><span style="color:var(--ink-dim);font-size:.85rem">Awaiting: ${!j.resolved ? 'Yes' : 'No'}${j.prose ? ' — Has prose' : ''}</span></div>
     <div class="edit-list-actions">
       <button class="trash-btn" onclick="deleteJournalEntry(${idx})" title="Delete journal entry entirely">🗑</button>
     </div>
@@ -1785,22 +1785,22 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
 
-      let bodyHtml = '<div class="edit-section-title">Turn ' + je.turn + ' — Prompt ' + je.prompt + ', Entry ' + je.entry + '</div>'
+      let bodyHtml = '<div class="edit-section-title">Turn ' + j.turn + ' — Prompt ' + j.prompt + ', Entry ' + j.entry + '</div>'
         + '<div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:16px;font-size:.88rem;color:var(--ink-dim);">'
-        + esc(getPromptText(je.prompt, je.entry))
+        + esc(getPromptText(j.prompt, j.entry))
         + '</div>'
         + '<div class="form-row">'
         + '<label class="form-label">Journal Prose</label>'
-        + '<textarea class="form-textarea" id="ed-je-prose" style="min-height:120px;">' + esc(je.prose) + '</textarea>'
+        + '<textarea class="form-textarea" id="ed-je-prose" style="min-height:120px;">' + esc(j.prose) + '</textarea>'
         + '<div class="form-hint">Your character\'s experience with this prompt.</div>'
         + '</div>'
         + '<div class="form-row">'
         + '<label class="form-label">Changes (mechanical summary)</label>'
-        + '<input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="' + esc(je.changes) + '">'
+        + '<input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="' + esc(j.changes) + '">'
         + '<div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>'
         + '</div>';
 
-      if (je.awaiting) {
+      if (!j.resolved) {
         bodyHtml += '<hr class="edit-divider">'
           + '<div class="edit-section-title" style="color:var(--blood);">Record Memory Experience (required to resolve)</div>';
 
@@ -1840,7 +1840,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         }
       }
 
-      const isAwaiting = je.awaiting === true;
+      const isAwaiting = !j.resolved === true;
       const resolveDisabled = !isAwaiting || parsedData.memories.length === 0;
 
       const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
@@ -1854,8 +1854,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       openModal('Edit Journal Entry', bodyHtml, () => {
         const proseEl = document.getElementById('ed-je-prose');
         const changesEl = document.getElementById('ed-je-changes');
-        if (proseEl) je.prose = proseEl.value.trim();
-        if (changesEl) je.changes = changesEl.value.trim();
+        if (proseEl) j.prose = proseEl.value.trim();
+        if (changesEl) j.changes = changesEl.value.trim();
         markUnsaved();
       }, footerHtml);
 
@@ -1870,9 +1870,9 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const je = parsedData.journal[idx];
       const proseEl = document.getElementById('ed-je-prose');
       const changesEl = document.getElementById('ed-je-changes');
-      if (proseEl) je.prose = proseEl.value.trim();
-      if (changesEl) je.changes = changesEl.value.trim();
-      je.awaiting = true;
+      if (proseEl) j.prose = proseEl.value.trim();
+      if (changesEl) j.changes = changesEl.value.trim();
+      !j.resolved = true;
       markUnsaved();
       renderChronicle(parsedData);
       closeModal();
@@ -1886,10 +1886,10 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       // Read prose + changes from DOM
       const proseEl = document.getElementById('ed-je-prose');
       const changesEl = document.getElementById('ed-je-changes');
-      if (proseEl) je.prose = proseEl.value.trim();
-      if (changesEl) je.changes = changesEl.value.trim();
+      if (proseEl) j.prose = proseEl.value.trim();
+      if (changesEl) j.changes = changesEl.value.trim();
 
-      if (!je.prose) {
+      if (!j.prose) {
         alert('Cannot resolve: prose must be written first.');
         return;
       }
@@ -1957,7 +1957,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             theme: mem.theme,
             experiences: [...mem.experiences],
             lost_at: new Date().toISOString(),
-            lost_on_turn: je.turn
+            lost_on_turn: j.turn
           });
 
           parsedData.memories[memIdx] = {
@@ -1972,20 +1972,20 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
 
       // Mark resolved
-      je.awaiting = false;
-      je.resolved_at = new Date().toISOString();
+      !j.resolved = false;
+      j.resolved_at = new Date().toISOString();
 
       markUnsaved();
       closeModal();
       renderChronicle(parsedData);
-      setStatus('ok', 'Turn ' + je.turn + ' resolved.');
+      setStatus('ok', 'Turn ' + j.turn + ' resolved.');
     }
 
     function unresolveJournalEntry(idx) {
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
-      if (!confirm(`Unresolve Turn ${je.turn}? This marks the entry as awaiting resolution again.`)) return;
-      je.awaiting = true;
+      if (!confirm(`Unresolve Turn ${j.turn}? This marks the entry as awaiting resolution again.`)) return;
+      !j.resolved = true;
       markUnsaved();
       editjournalentry(idx); // re-open refreshed
     }
@@ -2023,7 +2023,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
 
       // Find the most recently resolved prompt to use as base
-      const resolved = journal.filter(j => j.resolved === true || j.awaiting === false);
+      const resolved = journal.filter(j => j.resolved === true || !j.resolved === false);
 
       // Roll dice
       const d10 = Math.floor(Math.random() * 10) + 1;
