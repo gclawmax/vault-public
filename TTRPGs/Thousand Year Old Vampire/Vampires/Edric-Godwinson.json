@@ -27,7 +27,8 @@
       "theme": "Family",
       "description": "",
       "experiences": [
-        "Edith and I talk during a church gathering. She gives me the Saints Charm as a gift. \nI'm looking forward to our wedding so we can build our family together."
+        "Edith and I talk during a church gathering. She gives me the Saints Charm as a gift. \nI'm looking forward to our wedding so we can build our family together.",
+        "After my transformation, I try to reconcile with Edith. It leads to me attacking and turning her into an immortal monster. She hates me now. The dreams we shared have turned into an eternal nightmare."
       ]
     },
     {
@@ -81,6 +82,12 @@
       "status": "unchecked",
       "gained_turn": 1,
       "lost_turn": null
+    },
+    {
+      "name": "Ashamed",
+      "status": "unchecked",
+      "gained_turn": 2,
+      "lost_turn": null
     }
   ],
   "resources": [
@@ -112,16 +119,6 @@
   "diary_memories": {},
   "characters": [
     {
-      "name": "Edith atte Brook",
-      "type": "mortal",
-      "description": "My betrothed. She seemed outwardly cold to others, but I felt the well of emotion hidden behind even the smallest smile. She and I wanted the same things—a house, a family, a good harvest.",
-      "status": "alive",
-      "death_reason": "",
-      "death_epitaph": "",
-      "gained_turn": null,
-      "lost_turn": null
-    },
-    {
       "name": "Father Godric",
       "type": "mortal",
       "description": "Leader in the village church. Leads Mass. Responsible for baptisms and burials. I never had any spiritual matters that required advice, but that all changed...",
@@ -150,6 +147,16 @@
       "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": null
+    },
+    {
+      "name": "Edith atte Brook",
+      "type": "immortal",
+      "description": "My betrothed. The person I expected to live and die with. I accidentally turned into a monster, like me. She realised she can never enter the kingdom of heaven, and her hatred of me is consuming her.",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 2,
+      "lost_turn": null
     }
   ],
   "journal": [
@@ -166,10 +173,10 @@
       "turn": 2,
       "prompt": 1,
       "entry": 2,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-19T18:10:06.128Z",
+      "experience": "My recovery is seen as either a miracle or a demonic pact. Given the disappearance of Father Godric, it doesn't take long for the villagers to turn on me. I have to leave the village, but I can't abandon Edith. Months pass, but I'm still thinking of her. I reach out hoping she will still be with me, but this was a mistake. She thinks I'm a monster too. She tries to leave me, to run home to her family, but I follow her, and in a blind panic, fuelled with strength I don't know I have, I hurt her. \n\nI think she's going to die, but she doesn't. She gets the same fever that I had. The villagers think it's an illness sent by God, but I know it's not. I watch from the shadows over days, horrified when I realise she's going to end up just like me. I am ashamed of myself and my actions. I vow never to attack another living soul.",
+      "changes": "Turned Edith. Took the skill ashamed"
     }
   ]
 }
