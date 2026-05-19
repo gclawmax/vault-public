@@ -23,4 +23,5 @@ A nicer UX experience for Vampire selection
 Character creation needs work.
 Do skills and resources have descriptions or not?!
 Marks need concealment.
+Memories need a theme
 The json parsing and serializing needs work.
