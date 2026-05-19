@@ -887,16 +887,16 @@
 
     function toggleSection(id) {
       const content = document.getElementById('section-content-' + id);
-      const arrow = document.getElementById('section-arrow-' + id);
-      if (!content || !arrow) return;
+      const wrap = content ? content.closest('.collapsible-section') : null;
+      if (!content || !wrap) return;
       if (_collapsedSections.has(id)) {
         _collapsedSections.delete(id);
         content.style.display = '';
-        arrow.textContent = '▾';
+        wrap.classList.remove('section-collapsed');
       } else {
         _collapsedSections.add(id);
         content.style.display = 'none';
-        arrow.textContent = '▸';
+        wrap.classList.add('section-collapsed');
       }
     }
 

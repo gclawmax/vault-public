@@ -366,6 +366,47 @@ body {
   opacity: 1;
 }
 
+.section-collapsed {
+  background: var(--bg2);
+  border-top: 1px dashed var(--border);
+  border-bottom: 1px dashed var(--border);
+  opacity: .75;
+}
+
+.section-collapsed .memories-section-label {
+  color: var(--ink-faint);
+  letter-spacing: .22em;
+}
+
+.section-collapsed .section-icon {
+  opacity: .5;
+}
+
+.collapse-count {
+  font-family: 'EB Garamond', serif;
+  font-size: .82rem;
+  font-style: italic;
+  color: var(--ink-faint);
+  letter-spacing: .04em;
+  text-transform: none;
+  margin-left: 10px;
+}
+
+.collapse-arrow {
+  float: right;
+  font-size: .75rem;
+  color: var(--ink-faint);
+  transition: color .15s;
+}
+
+.collapsible-label:hover .collapse-arrow {
+  color: var(--blood);
+}
+
+.section-collapsed .collapsible-label:hover {
+  opacity: 1;
+}
+
 body.edit-mode .section-editwrap .edit-section-btn {
   display: block;
 }
