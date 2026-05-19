@@ -16,7 +16,7 @@
   "memories": [
     {
       "n": 1,
-      "theme": "",
+      "theme": "Mortal Life",
       "description": "",
       "experiences": [
         "A twenty-year-old peasant raised in a small village. A farmer used to the feel of the sickle. Preparing to marry.",
@@ -63,19 +63,19 @@
     {
       "name": "Wielding a sickle",
       "status": "unchecked",
-      "gained_turn": null,
+      "gained_turn": 0,
       "lost_turn": null
     },
     {
       "name": "Animal handling",
       "status": "unchecked",
-      "gained_turn": null,
+      "gained_turn": 0,
       "lost_turn": null
     },
     {
       "name": "Wrapped in Shadow",
       "status": "unchecked",
-      "gained_turn": null,
+      "gained_turn": 0,
       "lost_turn": null
     },
     {
@@ -144,7 +144,7 @@
       "status": "dead",
       "death_reason": "Killed delivering last rites.",
       "death_epitaph": "Here lies Father Godric. Year of our lord 1020. You don't know it though because his grave is unmarked.",
-      "gained_turn": null,
+      "gained_turn": 0,
       "lost_turn": 1
     },
     {
@@ -154,7 +154,7 @@
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": null,
+      "gained_turn": 0,
       "lost_turn": null
     },
     {
@@ -164,7 +164,7 @@
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": null,
+      "gained_turn": 0,
       "lost_turn": null
     },
     {

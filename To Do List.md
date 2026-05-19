@@ -14,7 +14,13 @@ A nicer UX experience for Vampire selection
 --------------------------
 - Edit Journal needs a re-write, or does it? Right now it's a fixed book.
 
-
-# Character creation needs work
-------------
-resources need a description
+# Bugs
+-----
+ - You should be able to move a memory into a diary, causing that diary memory to be lost
+ - Skills still have descriptions on character creation?
+ - Needs a draft mode to save character creation
+ - Unresolve could do with removing the experience. Could be a breaking issue.
+ - Delete experiences from a memory. Currently impossible.
+ - Convert mortal characters to immortal ones.
+ - New characters in character creation should be met turn 0.
+ - Dialog boxes need to be able to minimize or something. I can't see my skills.
