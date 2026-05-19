@@ -113,6 +113,10 @@
     // ═══════════════════════════════════════════════════
     // UTILITY
     // ═══════════════════════════════════════════════════
+    function toStringArray(arr) {
+      return (arr || []).map(e => typeof e === 'string' ? e : String(e.text || e.description || e || ''));
+    }
+
     function currentTurn() {
       if (!parsedData || !parsedData.journal || parsedData.journal.length === 0) return null;
       return Math.max(...parsedData.journal.map(j => j.turn));
@@ -440,12 +444,12 @@
           n: mem.n || idx + 1,
           theme: mem.theme || '',
           description: mem.description || '',
-          experiences: (mem.experiences || []).map(e => String(typeof e === 'string' ? e : (e.text || '')))
+          experiences: toStringArray(mem.experiences),
         })),
         lostMemories: (json.lost_memories || []).map(m => ({
           n: m.n,
           theme: m.theme || '',
-          experiences: (m.experiences || []).map(e => String(typeof e === 'string' ? e : (e.text || ''))),
+          experiences: toStringArray(m.experiences),
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
@@ -470,7 +474,7 @@
             (v || []).map(m => ({
               n: m.n,
               theme: m.theme || '',
-              experiences: (m.experiences || []).map(e => String(typeof e === 'string' ? e : (e.text || '')))
+              experiences: toStringArray(m.experiences)
             }))
           ])
         ),
@@ -524,12 +528,12 @@
           n: mem.n,
           theme: mem.theme || '',
           description: mem.description || '',
-          experiences: (mem.experiences || []).map(e => String(e))
+          experiences: toStringArray(mem.experiences)
         })),
         lost_memories: (d.lostMemories || []).map(m => ({
           n: m.n,
           theme: m.theme || '',
-          experiences: (m.experiences || []).map(e => String(e)),
+          experiences: toStringArray(m.experiences),
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
@@ -554,7 +558,7 @@
             (v || []).map(m => ({
               n: m.n,
               theme: m.theme || '',
-              experiences: (m.experiences || []).map(e => String(e))
+              experiences: toStringArray(m.experiences)
             }))
           ])
         ),
@@ -1872,7 +1876,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const changesEl = document.getElementById('ed-je-changes');
       if (proseEl) je.prose = proseEl.value.trim();
       if (changesEl) je.changes = changesEl.value.trim();
-      !je.resolved = true;
+      je.resolved = false;
       markUnsaved();
       renderChronicle(parsedData);
       closeModal();
@@ -1972,7 +1976,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
 
       // Mark resolved
-      !je.resolved = false;
+      je.resolved = true;
       je.resolved_at = new Date().toISOString();
 
       markUnsaved();
@@ -1985,7 +1989,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
       if (!confirm(`Unresolve Turn ${je.turn}? This marks the entry as awaiting resolution again.`)) return;
-      !je.resolved = true;
+      je.resolved = false;
       markUnsaved();
       editjournalentry(idx); // re-open refreshed
     }
