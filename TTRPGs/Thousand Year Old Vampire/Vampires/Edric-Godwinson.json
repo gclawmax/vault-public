@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-19",
   "modified": "2026-05-19",
-  "current_prompt": 3,
+  "current_prompt": 5,
   "epitaph": null,
   "marks": [
     {
@@ -215,6 +215,15 @@
       "resolved_at": "2026-05-19T18:28:55.802Z",
       "experience": "Since Edith, I've been travelling from town to town bartering as a merchant. I share what news I have and barter goods that I steal in the night, but most of all, I search. I search for a cure for myself and for Edith.\nI find a healer – Godgifu the Leech – who hopes to cure me of my affliction, turn me back to the path of the righteous and make me mortal again. Today we're trying garlic, willow bark, and honey. I'm hopeful.",
       "changes": "Meet Godgifu the Leech. Gained her assistance"
+    },
+    {
+      "turn": 4,
+      "prompt": 5,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
     }
   ]
 }
