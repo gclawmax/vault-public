@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-19",
   "modified": "2026-05-19",
-  "current_prompt": 1,
+  "current_prompt": 3,
   "epitaph": null,
   "marks": [
     {
@@ -177,6 +177,15 @@
       "resolved_at": "2026-05-19T18:10:06.128Z",
       "experience": "My recovery is seen as either a miracle or a demonic pact. Given the disappearance of Father Godric, it doesn't take long for the villagers to turn on me. I have to leave the village, but I can't abandon Edith. Months pass, but I'm still thinking of her. I reach out hoping she will still be with me, but this was a mistake. She thinks I'm a monster too. She tries to leave me, to run home to her family, but I follow her, and in a blind panic, fuelled with strength I don't know I have, I hurt her. \n\nI think she's going to die, but she doesn't. She gets the same fever that I had. The villagers think it's an illness sent by God, but I know it's not. I watch from the shadows over days, horrified when I realise she's going to end up just like me. I am ashamed of myself and my actions. I vow never to attack another living soul.",
       "changes": "Turned Edith. Took the skill ashamed"
+    },
+    {
+      "turn": 3,
+      "prompt": 3,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
     }
   ]
 }
