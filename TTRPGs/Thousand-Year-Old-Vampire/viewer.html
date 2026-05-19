@@ -421,6 +421,7 @@
         vampireName: json.name || '',
         subtitle: json.vampire_desc || '',
         mortalSelf: json.mortal_self || '',
+        epitaph: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
         marks: (json.marks || []).map(m => ({
           desc: m.description || '',
           concealment: m.concealment || '',
@@ -428,14 +429,14 @@
         })),
         memories: (json.memories || []).map((mem, idx) => ({
           n: mem.n || idx + 1,
-          theme: mem.theme || mem.name || '',
-          experiences: (mem.experiences || []).map(e => typeof e === 'string' ? e : (e.text || '')),
-          description: mem.description || ''
+          theme: mem.theme || '',
+          description: mem.description || '',
+          experiences: (mem.experiences || []).map(e => String(typeof e === 'string' ? e : (e.text || '')))
         })),
         lostMemories: (json.lost_memories || []).map(m => ({
           n: m.n,
-          theme: m.theme || m.name || '',
-          experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : (e.text || '')),
+          theme: m.theme || '',
+          experiences: (m.experiences || []).map(e => String(typeof e === 'string' ? e : (e.text || ''))),
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
@@ -460,7 +461,7 @@
             (v || []).map(m => ({
               n: m.n,
               theme: m.theme || '',
-              experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : (e.text || ''))
+              experiences: (m.experiences || []).map(e => String(typeof e === 'string' ? e : (e.text || '')))
             }))
           ])
         ),
@@ -475,20 +476,16 @@
           awaiting: j.resolved === false,
           resolved_at: j.resolved_at || null
         })),
-        epitaph: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
         gameOver: !!json.game_over,
-        lastPlayed: json.modified || '',
-        rawAfterJournal: ''
+        lastPlayed: json.modified || ''
       };
 
       (json.characters || []).forEach(c => {
         const entry = {
           name: c.name || '',
           desc: c.description || '',
-          description: c.description || '',
           dead: c.status === 'dead',
           death_reason: c.death_reason || '',
-          death_epitaph: c.death_epitaph || '',
           gained_turn: c.gained_turn || null,
           lost_turn: c.lost_turn || null
         };
@@ -523,17 +520,22 @@
         show_suggestions: d.frontmatter.show_suggestions === 'true',
         current_prompt: d.frontmatter.current_prompt ? parseInt(d.frontmatter.current_prompt, 10) : 0,
         prompts_resolved: d.frontmatter.prompts_resolved ? parseInt(d.frontmatter.prompts_resolved, 10) : 0,
-        marks: (d.marks || []).map(m => ({ description: m.desc || '', concealment: m.concealment || '', status: m.struck ? 'struck' : 'available' })),
+        epitaph: d.epitaph ? { experience: d.epitaph } : null,
+        marks: (d.marks || []).map(m => ({
+          description: m.desc || '',
+          concealment: m.concealment || '',
+          status: m.struck ? 'struck' : 'available'
+        })),
         memories: (d.memories || []).map(mem => ({
           n: mem.n,
           theme: mem.theme || '',
           description: mem.description || '',
-          experiences: (mem.experiences || []).map(e => typeof e === 'string' ? e : String(e || ''))
+          experiences: (mem.experiences || []).map(e => String(e))
         })),
         lost_memories: (d.lostMemories || []).map(m => ({
           n: m.n,
           theme: m.theme || '',
-          experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : String(e || '')),
+          experiences: (m.experiences || []).map(e => String(e)),
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
@@ -558,31 +560,41 @@
             (v || []).map(m => ({
               n: m.n,
               theme: m.theme || '',
-              experiences: m.experiences || []
+              experiences: (m.experiences || []).map(e => String(e))
             }))
           ])
-        ), characters: [
+        ),
+        characters: [
           ...(d.mortals || []).map(c => ({
-            name: c.name || '', type: 'mortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
-              lost_turn: c.lost_turn || null, death_epitaph: c.death_epitaph || ''
+            name: c.name || '',
+            type: 'mortal',
+            description: c.desc || '',
+            status: c.dead ? 'dead' : 'alive',
+            death_reason: c.death_reason || '',
+            gained_turn: c.gained_turn || null,
+            lost_turn: c.lost_turn || null
           })),
           ...(d.immortals || []).map(c => ({
-            name: c.name || '', type: 'immortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
-              lost_turn: c.lost_turn || null, death_epitaph: c.death_epitaph || ''
+            name: c.name || '',
+            type: 'immortal',
+            description: c.desc || '',
+            status: c.dead ? 'dead' : 'alive',
+            death_reason: c.death_reason || '',
+            gained_turn: c.gained_turn || null,
+            lost_turn: c.lost_turn || null
           }))
         ],
         journal: (d.journal || []).map(j => ({
           turn: j.turn,
           prompt: j.prompt,
           entry: j.entry,
-          resolved: j.resolved !== undefined ? j.resolved : (j.awaiting === undefined ? false : !j.awaiting),
+          resolved: !j.awaiting,
           resolved_at: j.resolved_at || null,
-          experience: j.experience || j.prose || '',
+          experience: j.prose || '',
           changes: j.changes || ''
         }))
       };
 
-      if (d.epitaph) json.epitaph = { experience: d.epitaph };
       return JSON.stringify(json, null, 2);
     }
 
