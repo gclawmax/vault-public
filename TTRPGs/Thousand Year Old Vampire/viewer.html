@@ -626,7 +626,10 @@
         + '<div class="strip-label"><span class="section-icon">⚰</span> Marks</div>'
         + '<div class="marks-inline">';
       d.marks.filter(m => m.status === 'active').forEach(m => {
-        html += '<span class="mark-chip" title="Concealed: ' + esc(m.concealment) + '">' + esc(m.desc) + '</span>';
+        html += '<span class="mark-chip">'
+          + esc(m.desc)
+          + (m.concealment ? '<span style="font-size:.8rem;color:var(--ink-faint);display:block;"> ' + esc(m.concealment) + '</span>' : '')
+          + '</span>';
       });
       if (d.marks.filter(m => m.status === 'active').length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
       html += '</div></div>';
