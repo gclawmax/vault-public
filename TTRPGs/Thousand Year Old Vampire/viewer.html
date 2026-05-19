@@ -113,6 +113,13 @@
     // ═══════════════════════════════════════════════════
     // UTILITY
     // ═══════════════════════════════════════════════════
+    function toDateString(val) {
+      if (!val) return '';
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return val; // unparseable — return as-is
+      return d.toISOString().slice(0, 10);
+    }
+
     function toStringArray(arr) {
       return (arr || []).map(e => typeof e === 'string' ? e : String(e.text || e.description || e || ''));
     }
@@ -247,8 +254,8 @@
           parsedData = parseSource(currentJson);
         }
 
-        if (!parsedData.lastPlayed && data.committed_date) {
-          parsedData.lastPlayed = data.committed_date.slice(0, 10);
+        if (!parsedData.frontmatter.modified && data.committed_date) {
+          parsedData.frontmatter.modified = data.committed_date.slice(0, 10);
         }
 
         renderChronicle(parsedData);
@@ -488,12 +495,11 @@
           resolved_at: j.resolved_at || null
         })),
         gameOver: !!json.game_over,
-        lastPlayed: json.modified || ''
       };
 
       data.frontmatter = {
         game_start: json.game_start || '',
-        modified: json.modified || '',
+        modified: toDateString(json.modified) || '',
         game_over: json.game_over ? 'true' : 'false',
         game_completed: json.game_completed || '',
         current_prompt: json.current_prompt !== undefined ? String(json.current_prompt) : '',
@@ -615,7 +621,7 @@
         + '<div class="meta-row">'
         + (fm.game_start ? '<span class="meta-pill">Started <span>' + fm.game_start + '</span></span>' : '')
         + (fm.game_over === 'true' ? '<span class="meta-pill" style="color:var(--blood)">Game Over</span>' : '')
-        + (d.lastPlayed ? '<span class="meta-pill">Last played <span>' + d.lastPlayed + '</span></span>' : '')
+        + (d.frontmatter.modified ? '<span class="meta-pill">Last played <span>' + d.frontmatter.modified + '</span></span>' : '')
         + '</div>'
         + '</div>'
         + '</div>';
