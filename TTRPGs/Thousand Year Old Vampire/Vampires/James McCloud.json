@@ -1,14 +1,11 @@
 {
   "name": "James McCloud",
   "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
-  "mortal_self": "James McCloud, born 1050 AD in Scotland. A rich noble, pampered by slaves and surrounded by sycophants. Arrogant and soft.",
   "game_over": false,
   "game_start": "2026-05-14",
-  "modified": "2026-05-18",
-  "game_completed": "",
-  "show_suggestions": true,
-  "current_prompt": 6,
-  "prompts_resolved": 0,
+  "modified": "2026-05-19",
+  "current_prompt": 4,
+  "epitaph": null,
   "marks": [
     {
       "description": "A pair of small, pinprick scars on the forearm, where James drank Seraphina's corrupted blood. On cold nights, they burn; under moonlight, they glow faintly.",
@@ -64,21 +61,18 @@
   "skills": [
     {
       "name": "Swordsmanship",
-      "description": "A master of the blade, deadly in the yard or on the battlefield.",
       "status": "unchecked",
       "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "Falconry",
-      "description": "A noble pastime and a discipline of patience and control over the wild.",
       "status": "checked",
       "gained_turn": null,
       "lost_turn": 2
     },
     {
       "name": "Tactics and Command",
-      "description": "The art of warfare and strategy, learned in Bran's yard and your court.",
       "status": "unchecked",
       "gained_turn": null,
       "lost_turn": null
@@ -130,28 +124,24 @@
     "Red Diary": [
       {
         "n": 1,
-        "theme": "Pokemon?",
         "experiences": [
           "Pokemon invaded"
         ]
       },
       {
         "n": 2,
-        "theme": "Memory 2",
         "experiences": [
           "The banner of a rival house burned over the borderlands, and in the reek of smoke and blood your swordsmanship became the final word your enemies heard; you felt nothing but the old warmth of the blade doing what it was forged to do."
         ]
       },
       {
         "n": 3,
-        "theme": "Memory 3",
         "experiences": [
           "Elspeth begged you to spare the villages your raids had reduced to ghosts, and you let her have that mercy â not for her sake, but because her voice was one thread in the tapestry of cruelty you had learned to love that still held your hand."
         ]
       },
       {
         "n": 4,
-        "theme": "Memory 4",
         "experiences": [
           "Jack's own retinue deserted him when your tactics stripped his lands bare, and you found his last letter burning in the hearth before you had to answer his challenge; the gem in your blade drank the light one last time."
         ]
@@ -165,6 +155,7 @@
       "description": "Younger sister. Smarter and kinder than James, she found refuge with the castle's animals â a wounded hawk, a stray hound, any creature in need of care. She loved James in spite of his arrogance; the only soul in that house who ever did.",
       "status": "dead",
       "death_reason": "",
+      "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": 2
     },
@@ -174,6 +165,7 @@
       "description": "Young lord from a nearby estate. Matched James line for line â in wealth, in station, in charm. Where James was born to privilege, Jack had earned his standing. Now courts the same girl James loves, turning rivalry into something that cuts deeper than pride.",
       "status": "alive",
       "death_reason": "",
+      "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -183,6 +175,7 @@
       "description": "Retired soldier and James's teacher. Grey-bearded, scarred, he drilled into James from the first dawn: kindness is the language of the weak. Paced the training yard before the sun until those words took root â ruthlessness, money, power. The only virtues.",
       "status": "alive",
       "death_reason": "",
+      "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -192,6 +185,7 @@
       "description": "A leper saint of the borderlands, her face pocked and hands twisted by the disease that ate her from the outside in. She ran a hospice of corpses among the ruins of a border abbey. She chose James because she saw the hunger beneath his arrogance and fed it to him.",
       "status": "alive",
       "death_reason": "",
+      "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": null
     }
@@ -214,6 +208,15 @@
       "resolved_at": "2026-05-17T17:21:51.861Z",
       "experience": "A wild pikachu appears!",
       "changes": "pika!"
+    },
+    {
+      "turn": 3,
+      "prompt": 4,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
     }
   ]
 }
