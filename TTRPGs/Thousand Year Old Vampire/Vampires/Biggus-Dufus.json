@@ -4,7 +4,8 @@
   "game_over": false,
   "game_start": "2026-05-19",
   "modified": "2026-05-19",
-  "current_prompt": 0,
+  "current_prompt": 2,
+  "epitaph": null,
   "marks": [
     {
       "description": "Pale skin, unkempt hair, long nails.",
@@ -54,28 +55,24 @@
       ]
     }
   ],
-  "diary_memories": {},
   "lost_memories": [],
   "skills": [
     {
       "name": "Stillness",
-      "description": "",
       "status": "unchecked",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "Rarely feels hunger.",
-      "description": "",
       "status": "unchecked",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "Physical strength",
-      "description": "",
       "status": "unchecked",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     }
   ],
@@ -85,7 +82,7 @@
       "description": "Charity clothes and shoes arranged usually through the church.",
       "type": "portable",
       "status": "active",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
@@ -93,7 +90,7 @@
       "description": "Often found from church grounds.",
       "type": "portable",
       "status": "active",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
@@ -101,51 +98,62 @@
       "description": "A particularly nice pair of boots",
       "type": "portable",
       "status": "active",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     }
   ],
+  "diary_memories": {},
   "characters": [
     {
       "name": "Doggo",
-      "description": "A breed changing dog.  Easily confused.",
       "type": "mortal",
+      "description": "A breed changing dog.  Easily confused.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "Giovani Punchinello",
-      "description": "Horrible man.  Wish he'd die.  Never does.",
       "type": "mortal",
+      "description": "Horrible man.  Wish he'd die.  Never does.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "Cleric",
-      "description": "They're usually kind.",
       "type": "mortal",
+      "description": "They're usually kind.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "The Dark Thing",
-      "description": "Dufus doesn't remember.  He was attacked in the night.  Sometimes it talks to him when he's alone.",
       "type": "immortal",
+      "description": "Dufus doesn't remember.  He was attacked in the night.  Sometimes it talks to him when he's alone.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     }
   ],
-  "journal": []
+  "journal": [
+    {
+      "turn": 1,
+      "prompt": 2,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
+    }
+  ]
 }
