@@ -431,7 +431,6 @@
         frontmatter: {},
         vampireName: json.name || '',
         subtitle: json.vampire_desc || '',
-        mortalSelf: json.mortal_self || '',
         epitaph: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
         marks: (json.marks || []).map(m => ({
           desc: m.description || '',
@@ -462,8 +461,7 @@
         })),
         skills: (json.skills || []).map(sk => ({
           name: sk.name || '',
-          description: sk.description || '',
-          status: sk.status === 'available' ? 'unchecked' : sk.status === 'spent' ? 'checked' : 'lost',
+          status: sk.status || 'unchecked',
           gained_turn: sk.gained_turn || null,
           lost_turn: sk.lost_turn || null
         })),
@@ -471,7 +469,7 @@
           name: r.name || '',
           description: r.description || '',
           type: r.type || 'portable',
-          status: r.status === 'available' ? 'active' : r.status === 'lost' ? 'lost' : 'active',
+          status: r.status || 'active',
           gained_turn: r.gained_turn || null,
           lost_turn: r.lost_turn || null
         })),
@@ -501,12 +499,7 @@
         game_start: json.game_start || '',
         modified: toDateString(json.modified) || '',
         game_over: json.game_over ? 'true' : 'false',
-        game_completed: json.game_completed || '',
-        current_prompt: json.current_prompt !== undefined ? String(json.current_prompt) : '',
-        prompts_resolved: json.prompts_resolved !== undefined ? String(json.prompts_resolved) : '',
-        show_suggestions: json.show_suggestions ? 'true' : 'false',
-        vampire: data.vampireName,
-        vampire_desc: json.vampire_desc || ''
+        current_prompt: json.current_prompt !== undefined ? String(json.current_prompt) : ''
       };
 
       return data;
@@ -516,19 +509,15 @@
       const json = {
         name: d.vampireName || '',
         vampire_desc: d.subtitle || '',
-        mortal_self: d.mortalSelf || '',
         game_over: d.frontmatter.game_over === 'true',
         game_start: d.frontmatter.game_start || '',
         modified: new Date().toISOString().slice(0, 10),
-        game_completed: d.frontmatter.game_completed || '',
-        show_suggestions: d.frontmatter.show_suggestions === 'true',
         current_prompt: d.frontmatter.current_prompt ? parseInt(d.frontmatter.current_prompt, 10) : 0,
-        prompts_resolved: d.frontmatter.prompts_resolved ? parseInt(d.frontmatter.prompts_resolved, 10) : 0,
         epitaph: d.epitaph ? { experience: d.epitaph } : null,
         marks: (d.marks || []).map(m => ({
           description: m.desc || '',
           concealment: m.concealment || '',
-          status: m.struck ? 'struck' : 'available'
+          status: m.status || 'available'
         })),
         memories: (d.memories || []).map(mem => ({
           n: mem.n,
@@ -545,8 +534,7 @@
         })),
         skills: (d.skills || []).map(sk => ({
           name: sk.name || '',
-          description: sk.description || '',
-          status: sk.status === 'checked' ? 'spent' : sk.status === 'lost' ? 'struck' : 'available',
+          status: sk.status || 'unchecked',
           gained_turn: sk.gained_turn || null,
           lost_turn: sk.lost_turn || null
         })),
@@ -554,7 +542,7 @@
           name: r.name || '',
           description: r.description || '',
           type: r.type || 'portable',
-          status: r.status === 'active' ? 'available' : 'lost',
+          status: r.status || 'active',
           gained_turn: r.gained_turn || null,
           lost_turn: r.lost_turn || null
         })),
@@ -842,8 +830,6 @@
             + '<div class="memory-title">' + esc(sk.name)
             + (sk.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + sk.lost_turn + '</span>' : '')
             + '</div>'
-            + (sk.description ? '<p style="font-size:.88rem;">' + esc(sk.description) + '</p>' : '')
-            + '</div>';
         });
         html += '</div></div>';
       }
