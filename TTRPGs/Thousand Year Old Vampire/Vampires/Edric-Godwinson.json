@@ -123,9 +123,19 @@
       "status": "active",
       "gained_turn": 3,
       "lost_turn": null
+    },
+    {
+      "name": "My Journal",
+      "description": "Full of scribblings. I'm learning to write.",
+      "type": "diary",
+      "status": "active",
+      "gained_turn": 3,
+      "lost_turn": null
     }
   ],
-  "diary_memories": {},
+  "diary_memories": {
+    "My Journal": []
+  },
   "characters": [
     {
       "name": "Father Godric",
