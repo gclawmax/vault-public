@@ -427,6 +427,15 @@
           concealment: m.concealment || '',
           struck: m.status === 'struck'
         })),
+        characters: (json.characters || []).map(c => ({
+          name: c.name || '',
+          desc: c.description || '',
+          type: c.type === 'immortal' ? 'immortal' : 'mortal',
+          dead: c.status === 'dead',
+          death_reason: c.death_reason || '',
+          gained_turn: c.gained_turn || null,
+          lost_turn: c.lost_turn || null
+        })),
         memories: (json.memories || []).map((mem, idx) => ({
           n: mem.n || idx + 1,
           theme: mem.theme || '',
