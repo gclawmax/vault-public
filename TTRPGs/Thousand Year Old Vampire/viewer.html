@@ -201,7 +201,8 @@
           f.name.endsWith('.json') &&
           f.name !== 'vampire-schema.json' &&
           !f.name.startsWith('TEST_') &&
-          !f.name.startsWith('test_')
+          !f.name.startsWith('test_') &&
+          !f.name.startsWith('DRAFT_')
         );
         const sel = document.getElementById('game-select');
         sel.innerHTML = '<option value="">— Select a chronicle —</option>';
