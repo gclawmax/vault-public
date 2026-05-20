@@ -16,7 +16,7 @@ A nicer UX experience for Vampire selection
 
 # Bugs
 -----
- - Convert mortal characters to immortal ones.
+ - ~~ Convert mortal characters to immortal ones ~~.
  - Delete experiences from a memory. Currently impossible.
  - You should be able to move a memory into a diary, causing that diary memory to be lost
  - ~~Skills still have descriptions on character creation?~~
