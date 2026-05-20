@@ -66,8 +66,8 @@
       <div class="modal-header">
         <span class="modal-title" id="modal-title"></span>
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="modal-close" id="modal-minimise" onclick="minimiseModal()" title="Minimise">—</button>
-          <button class="modal-close" onclick="closeModal()">✕</button>
+          <button class="modal-close" id="modal-minimise" onclick="event.stopPropagation();minimiseModal()"
+            title="Minimise">—</button> <button class="modal-close" onclick="closeModal()">✕</button>
         </div>
       </div>
       <div class="modal-body" id="modal-body"></div>
