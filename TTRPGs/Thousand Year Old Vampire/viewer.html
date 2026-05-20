@@ -64,8 +64,11 @@
   <div id="modal-overlay">
     <div class="modal-box" id="modal-box">
       <div class="modal-header">
-        <span class="modal-title" id="modal-title">Edit</span>
-        <button class="modal-close" onclick="closeModal()">×</button>
+        <span class="modal-title" id="modal-title"></span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="modal-close" id="modal-minimise" onclick="minimiseModal()" title="Minimise">—</button>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
       </div>
       <div class="modal-body" id="modal-body"></div>
       <div class="modal-footer" id="modal-footer">
@@ -108,7 +111,6 @@
       if (!key) return null;
       try { const d = localStorage.getItem(key); return d || null; } catch (e) { return null; }
     }
-
 
     // ═══════════════════════════════════════════════════
     // UTILITY
@@ -1009,16 +1011,22 @@
     // MODAL HELPERS
     // ═══════════════════════════════════════════════════
     function openModal(title, bodyHtml, confirmFn, footerHtml) {
+      _modalMinimised = false;
       document.getElementById('modal-title').textContent = title;
       document.getElementById('modal-body').innerHTML = bodyHtml;
+      document.getElementById('modal-body').style.display = '';
       const footer = document.getElementById('modal-footer');
+      footer.style.display = '';
       if (footerHtml !== undefined) {
         footer.innerHTML = footerHtml;
       } else {
-        footer.innerHTML = `
-      <button class="modal-btn" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn primary" id="modal-confirm-btn" onclick="modalConfirm()">Update</button>`;
+        footer.innerHTML = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
+          + '<button class="modal-btn primary" id="modal-confirm-btn" onclick="modalConfirm()">Update</button>';
       }
+      const btn = document.getElementById('modal-minimise');
+      if (btn) btn.textContent = '—';
+      const box = document.querySelector('.modal-box');
+      if (box) { box.classList.remove('minimised'); box.onclick = null; }
       currentModalConfirm = confirmFn;
       document.getElementById('modal-overlay').classList.add('open');
     }
@@ -1035,6 +1043,28 @@
         markUnsaved();           // persist draft after every modal confirm
         renderChronicle(parsedData);
       }
+    }
+
+    let _modalMinimised = false;
+
+    function minimiseModal() {
+      const box = document.querySelector('.modal-box');
+      const body = document.getElementById('modal-body');
+      const footer = document.getElementById('modal-footer');
+      const btn = document.getElementById('modal-minimise');
+      if (!box) return;
+      _modalMinimised = !_modalMinimised;
+      body.style.display = _modalMinimised ? 'none' : '';
+      footer.style.display = _modalMinimised ? 'none' : '';
+      btn.textContent = _modalMinimised ? '□' : '—';
+      box.style.cursor = _modalMinimised ? 'pointer' : '';
+      box.onclick = _modalMinimised ? restoreModal : null;
+      box.classList.toggle('minimised', _modalMinimised);
+    }
+
+    function restoreModal() {
+      if (!_modalMinimised) return;
+      minimiseModal();
     }
 
     // Inline game actions trigger immediate re-renders
