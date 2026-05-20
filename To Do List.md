@@ -17,7 +17,7 @@ A nicer UX experience for Vampire selection
 # Bugs
 -----
  - You should be able to move a memory into a diary, causing that diary memory to be lost
- - Skills still have descriptions on character creation?
+ - ~~Skills still have descriptions on character creation?~~
  - Needs a draft mode to save character creation
  - Unresolve could do with removing the experience. Could be a breaking issue.
  - Delete experiences from a memory. Currently impossible.

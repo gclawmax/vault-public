@@ -444,7 +444,7 @@
           dead: c.status === 'dead',
           death_reason: c.death_reason || '',
           death_epitaph: c.death_epitaph || '',
-          gained_turn: c.gained_turn || null,
+          gained_turn: c.gained_turn !== undefined ? c.gained_turn : null,
           lost_turn: c.lost_turn || null
         })),
 
@@ -464,7 +464,7 @@
         skills: (json.skills || []).map(sk => ({
           name: sk.name || '',
           status: sk.status || 'unchecked',
-          gained_turn: sk.gained_turn || null,
+          gained_turn: sk.gained_turn !== undefined ? sk.gained_turn : null,
           lost_turn: sk.lost_turn || null
         })),
         resources: (json.resources || []).map(r => ({
@@ -472,7 +472,7 @@
           description: r.description || '',
           type: r.type || 'portable',
           status: r.status || 'active',
-          gained_turn: r.gained_turn || null,
+          gained_turn: r.gained_turn !== undefined ? r.gained_turn : null,
           lost_turn: r.lost_turn || null
         })),
         diaryMemories: Object.fromEntries(
@@ -536,7 +536,7 @@
         skills: (d.skills || []).map(sk => ({
           name: sk.name || '',
           status: sk.status || 'unchecked',
-          gained_turn: sk.gained_turn || null,
+          gained_turn: sk.gained_turn !== undefined ? sk.gained_turn : null,
           lost_turn: sk.lost_turn || null
         })),
         resources: (d.resources || []).map(r => ({
@@ -544,7 +544,7 @@
           description: r.description || '',
           type: r.type || 'portable',
           status: r.status || 'active',
-          gained_turn: r.gained_turn || null,
+          gained_turn: r.gained_turn !== undefined ? r.gained_turn : null,
           lost_turn: r.lost_turn || null
         })),
         diary_memories: Object.fromEntries(
@@ -563,7 +563,7 @@
           status: c.dead ? 'dead' : 'alive',
           death_reason: c.death_reason || '',
           death_epitaph: c.death_epitaph || '',
-          gained_turn: c.gained_turn || null,
+          gained_turn: c.gained_turn !== undefined ? c.gained_turn : null,
           lost_turn: c.lost_turn || null
         })),
         journal: (d.journal || []).map(j => ({
