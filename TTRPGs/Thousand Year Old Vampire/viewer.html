@@ -15,7 +15,7 @@
 
 <body>
   <!-- Key Panel -->
-  <button id="key-toggle" style="display:none;">🔑</button>
+  <button id="key-toggle">🔑</button>
   <div id="key-panel">
     <div class="key-label">🔑 Vault Key</div>
     <input type="password" id="vault-key" class="key-input" placeholder="ghp_...">
@@ -933,7 +933,6 @@
       document.getElementById('cancel-btn').style.display = '';
       document.getElementById('edit-mode-banner').classList.add('visible');
       document.getElementById('game-select').disabled = true;
-      document.getElementById('key-toggle').style.display = 'flex';
       document.getElementById('game-link').style.pointerEvents = 'none';  // ← add
       document.getElementById('game-link').style.opacity = '0.4';
     }
@@ -954,7 +953,6 @@
       document.getElementById('cancel-btn').style.display = 'none';
       document.getElementById('edit-mode-banner').classList.remove('visible');
       document.getElementById('game-select').disabled = false;
-      document.getElementById('key-toggle').style.display = 'none';
       document.getElementById('key-panel').classList.remove('open');
       document.getElementById('game-link').style.pointerEvents = '';       // ← add
       document.getElementById('game-link').style.opacity = '';
