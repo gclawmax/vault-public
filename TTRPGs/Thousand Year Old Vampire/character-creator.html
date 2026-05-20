@@ -463,6 +463,7 @@
           if (characterData.memories[0].experiences.length === 0) {
             characterData.memories[0].experiences.push(document.getElementById('mortal-life').value);
           }
+          characterData.memories[0].theme = 'Mortal life';
           return true;
         case 2:
           if (characterData.characters.length < 3) {
