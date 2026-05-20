@@ -516,6 +516,16 @@ body.edit-mode .section-editwrap {
   opacity: .9;
 }
 
+.modal-box.minimised {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  min-width: 300px;
+  border-radius: 4px 4px 0 0;
+}
+
 /* ── Form elements inside modal ── */
 .form-row {
   margin-bottom: 16px;
