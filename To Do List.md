@@ -24,3 +24,5 @@ A nicer UX experience for Vampire selection
  - Convert mortal characters to immortal ones.
  - New characters in character creation should be met turn 0.
  - Dialog boxes need to be able to minimize or something. I can't see my skills.
+ - ? button - Overlay or other dialog to explain the process -> Edit, Click various sections -> Save.
+ - Needs the key adding to character creation
