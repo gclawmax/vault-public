@@ -933,8 +933,10 @@
       document.getElementById('cancel-btn').style.display = '';
       document.getElementById('edit-mode-banner').classList.add('visible');
       document.getElementById('game-select').disabled = true;
-      document.getElementById('game-link').style.pointerEvents = 'none';  // ← add
-      document.getElementById('game-link').style.opacity = '0.4';
+      document.querySelectorAll('.game-link').forEach(link => {
+        link.style.pointerEvents = 'none';
+        link.style.opacity = '0.4';
+      });
     }
 
     function enterEditMode() {
