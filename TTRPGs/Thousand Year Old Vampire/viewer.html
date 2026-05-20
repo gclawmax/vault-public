@@ -1052,6 +1052,7 @@
       const body = document.getElementById('modal-body');
       const footer = document.getElementById('modal-footer');
       const btn = document.getElementById('modal-minimise');
+      const overlay = document.getElementById('modal-overlay');
       if (!box) return;
       _modalMinimised = !_modalMinimised;
       body.style.display = _modalMinimised ? 'none' : '';
@@ -1060,6 +1061,9 @@
       box.classList.toggle('minimised', _modalMinimised);
       box.style.cursor = _modalMinimised ? 'pointer' : '';
       box.onclick = _modalMinimised ? restoreModal : null;
+      // Let clicks through to the page when minimised
+      overlay.style.pointerEvents = _modalMinimised ? 'none' : '';
+      overlay.style.background = _modalMinimised ? 'transparent' : '';
     }
 
     function restoreModal() {
