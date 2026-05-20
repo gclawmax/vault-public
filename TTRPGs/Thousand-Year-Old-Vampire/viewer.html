@@ -1025,8 +1025,8 @@
       }
       const btn = document.getElementById('modal-minimise');
       if (btn) btn.textContent = '—';
-      const box = document.querySelector('.modal-box');
-      if (box) { box.classList.remove('minimised'); box.onclick = null; }
+      const box = document.getElementById('modal-box');
+      if (box) { box.classList.remove('minimised'); box.onclick = null; box.style.cursor = ''; }
       currentModalConfirm = confirmFn;
       document.getElementById('modal-overlay').classList.add('open');
     }
@@ -1048,7 +1048,7 @@
     let _modalMinimised = false;
 
     function minimiseModal() {
-      const box = document.querySelector('.modal-box');
+      const box = document.getElementById('modal-box');
       const body = document.getElementById('modal-body');
       const footer = document.getElementById('modal-footer');
       const btn = document.getElementById('modal-minimise');
@@ -1057,14 +1057,15 @@
       body.style.display = _modalMinimised ? 'none' : '';
       footer.style.display = _modalMinimised ? 'none' : '';
       btn.textContent = _modalMinimised ? '□' : '—';
+      box.classList.toggle('minimised', _modalMinimised);
       box.style.cursor = _modalMinimised ? 'pointer' : '';
       box.onclick = _modalMinimised ? restoreModal : null;
-      box.classList.toggle('minimised', _modalMinimised);
     }
 
     function restoreModal() {
       if (!_modalMinimised) return;
       minimiseModal();
+    }
     }
 
     // Inline game actions trigger immediate re-renders
