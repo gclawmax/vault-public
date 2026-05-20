@@ -150,7 +150,8 @@
           </div>
           <div class="form-group">
             <label for="resource-desc">Description</label>
-            <textarea id="resource-desc" placeholder="A short description (background, quality, significance)"></textarea>
+            <textarea id="resource-desc"
+              placeholder="A short description (background, quality, significance)"></textarea>
           </div>
           <div class="form-group">
             <label for="resource-stationary">
@@ -635,7 +636,7 @@
         alert('You can only have three Skills.');
         return;
       }
-      characterData.skills.push({ name: name, description: "", status: "unchecked", "gained_turn": 0, "lost_turn": null });
+      characterData.skills.push({ name: name, status: "unchecked", "gained_turn": 0, "lost_turn": null });
       renderSkills();
       hideSkillForm();
       updateStep3Next();
@@ -651,14 +652,11 @@
       const list = document.getElementById('skill-list');
       list.innerHTML = characterData.skills
         .map((skill, i) => `
-        <div class="item-card">
-          <div>
-            <h4>${skill.name}</h4>
-            <p>${skill.description || '(no description)'}</p>
-          </div>
-          <button class="item-remove" onclick="removeSkill(${i})">×</button>
-        </div>
-      `).join('');
+      <div class="item-card">
+        <div><h4>${skill.name}</h4></div>
+        <button class="item-remove" onclick="removeSkill(${i})">×</button>
+      </div>
+    `).join('');
     }
 
     function updateStep3Next() {
