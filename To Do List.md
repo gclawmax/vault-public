@@ -25,4 +25,4 @@ A nicer UX experience for Vampire selection
  - ~~New characters in character creation should be met turn 0.~~
  - ~~Dialog boxes need to be able to minimize or something. I can't see my skills.~~
  - ~~Needs the key adding to character creation~~
- - order the journal entries newest to oldest
+ - ~~order the journal entries newest to oldest~~
