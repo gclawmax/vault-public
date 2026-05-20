@@ -35,6 +35,10 @@
         <button class="skin-btn" data-s="scholar"></button>
       </div>
     </div>
+    <div id="status-row">
+      <div id="status-dot"></div>
+      <span id="status-text">Ready</span>
+    </div>
   </div>
 
   <div id="app">
@@ -357,7 +361,11 @@
     function closeKeyPanel() { document.getElementById('key-panel').classList.remove('open'); }
 
     function setStatus(state, msg) {
-      console.log(`[${state}] ${msg}`);
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      if (!dot || !text) { console.log('[' + state + '] ' + msg); return; }
+      dot.className = state;
+      text.textContent = msg;
     }
 
     (function () {
@@ -894,11 +902,11 @@
           await pushCharacterToGitHub(token, true);
           setStatus('ok', 'Draft saved to GitHub');
         }
-        alert('Draft saved.');
       } catch (e) {
         alert('Failed to save draft: ' + e.message);
       }
     }
+
     function captureFields() {
       // Capture any currently visible form field values that haven't been
       // committed to characterData yet (validateStep only commits on Next)
@@ -940,6 +948,7 @@
         updateStep2Next();
         updateStep3Next();
         updateStep4Next();
+        setStatus('ok', '📂 Draft loaded — ' + (characterData.name || 'unnamed'));
         return true;
       } catch (e) {
         console.error('Failed to load draft:', e);
@@ -958,7 +967,6 @@
     initStepIndicator();
     if (localStorage.getItem(DRAFT_KEY)) {
       document.getElementById('load-draft-btn').style.display = '';
-      if (confirm('You have a saved draft. Resume it?')) loadDraft();
     }
 
   </script>
