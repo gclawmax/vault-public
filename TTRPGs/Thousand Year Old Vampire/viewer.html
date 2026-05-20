@@ -1411,6 +1411,7 @@
           + (c.desc ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(c.desc) + '</span>' : '')
           + '</div>'
           + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="convertToImmortal(' + i + ')">🧛 Convert</button>'
           + '<button class="strike-btn" onclick="killCharacter(' + i + ')">Kill</button>'
           + '<button class="trash-btn" onclick="deleteCharacter(' + i + ')">🗑</button>'
           + '</div></div>';
@@ -1433,6 +1434,24 @@
           });
           markUnsaved();
         }
+      });
+    }
+
+    function convertToImmortal(i) {
+      if (!editMode) return;
+      const c = parsedData.characters[i];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Description</label>'
+        + '<textarea class="form-textarea" id="ed-convert-desc" style="min-height:80px;">' + esc(c.desc) + '</textarea>'
+        + '<div class="form-hint">Update the description to reflect their transformation.</div>'
+        + '</div>';
+
+      openModal('Convert ' + esc(c.name) + ' to Immortal', bodyHtml, () => {
+        const desc = document.getElementById('ed-convert-desc').value.trim();
+        c.type = 'immortal';
+        c.desc = desc;
+        markUnsaved();
+        setTimeout(() => editCharacters('immortal'), 0);
       });
     }
 
