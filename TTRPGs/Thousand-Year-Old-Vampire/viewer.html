@@ -621,20 +621,6 @@
       // ── Dashboard ──
       html += '<div class="dashboard-strip">';
 
-      // Marks
-      html += '<div class="strip-cell section-editwrap" data-section="marks" '
-        + (em ? 'onclick="editMarks()" title="Click to edit marks"' : '') + '>'
-        + '<div class="strip-label"><span class="section-icon">⚰</span> Marks</div>'
-        + '<div class="marks-inline">';
-      d.marks.filter(m => m.status === 'active').forEach(m => {
-        html += '<span class="mark-chip">'
-          + esc(m.desc)
-          + (m.concealment ? '<span style="font-size:.8rem;color:var(--ink-faint);display:block;"> ' + esc(m.concealment) + '</span>' : '')
-          + '</span>';
-      });
-      if (d.marks.filter(m => m.status === 'active').length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
-      html += '</div></div>';
-
       // Skills
       const uncheckedSkills = d.skills.filter(sk => sk.status === 'unchecked')
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
@@ -649,6 +635,20 @@
           + '<span class="skill-box"></span>'
           + esc(sk.name) + '</span>';
       });
+      html += '</div></div>';
+
+      // Marks
+      html += '<div class="strip-cell section-editwrap" data-section="marks" '
+        + (em ? 'onclick="editMarks()" title="Click to edit marks"' : '') + '>'
+        + '<div class="strip-label"><span class="section-icon">⚰</span> Marks</div>'
+        + '<div class="marks-inline">';
+      d.marks.filter(m => m.status === 'active').forEach(m => {
+        html += '<span class="mark-chip">'
+          + esc(m.desc)
+          + (m.concealment ? '<span style="font-size:.8rem;color:var(--ink-faint);display:block;"> ' + esc(m.concealment) + '</span>' : '')
+          + '</span>';
+      });
+      if (d.marks.filter(m => m.status === 'active').length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
       html += '</div></div>';
 
       // Resources
