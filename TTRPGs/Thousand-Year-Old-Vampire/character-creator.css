@@ -73,6 +73,25 @@
 }
 
 /* Skin switcher */
+#key-panel {
+  position: fixed;
+  right: -320px;
+  top: 0;
+  width: 300px;
+  height: 100vh;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  padding: 20px;
+  z-index: 200;
+  transition: right .3s ease;
+  overflow-y: auto;
+  box-shadow: -2px 0 15px var(--shadow);
+}
+
+#key-panel.open {
+  right: 0;
+}
+
 #key-toggle {
   position: fixed;
   right: 10px;
@@ -94,30 +113,6 @@
 
 #key-toggle.hidden {
   display: none;
-}
-
-#key-panel {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 320px;
-  max-width: calc(100vw - 40px);
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-  padding: 20px;
-  z-index: 110;
-  transform: translateY(-20px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .2s ease, transform .2s ease;
-}
-
-#key-panel.open {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .key-label {
