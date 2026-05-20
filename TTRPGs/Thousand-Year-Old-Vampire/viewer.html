@@ -1011,6 +1011,10 @@
     // MODAL HELPERS
     // ═══════════════════════════════════════════════════
     function openModal(title, bodyHtml, confirmFn, footerHtml) {
+      if (_modalMinimised) {
+        restoreModal();
+        return;
+      }
       _modalMinimised = false;
       document.getElementById('modal-title').textContent = title;
       document.getElementById('modal-body').innerHTML = bodyHtml;
@@ -1060,13 +1064,13 @@
       btn.textContent = _modalMinimised ? '□' : '—';
       box.classList.toggle('minimised', _modalMinimised);
       box.style.cursor = _modalMinimised ? 'pointer' : '';
-      box.onclick = _modalMinimised ? restoreModal : null;
-      // Let clicks through to the page when minimised
+      box.onclick = _modalMinimised ? (e) => restoreModal(e) : null;      // Let clicks through to the page when minimised
       overlay.style.pointerEvents = _modalMinimised ? 'none' : '';
       overlay.style.background = _modalMinimised ? 'transparent' : '';
     }
 
-    function restoreModal() {
+    function restoreModal(e) {
+      if (e) e.stopPropagation();
       if (!_modalMinimised) return;
       minimiseModal();
     }
