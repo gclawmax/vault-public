@@ -956,8 +956,10 @@
       document.getElementById('edit-mode-banner').classList.remove('visible');
       document.getElementById('game-select').disabled = false;
       document.getElementById('key-panel').classList.remove('open');
-      document.getElementById('game-link').style.pointerEvents = '';       // ← add
-      document.getElementById('game-link').style.opacity = '';
+      document.querySelectorAll('.game-link').forEach(link => {
+        link.style.pointerEvents = '';
+        link.style.opacity = '';
+      });
     }
 
     function cancelEditMode() {
