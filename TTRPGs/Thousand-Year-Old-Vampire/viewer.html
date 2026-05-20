@@ -1520,14 +1520,11 @@
         }
         const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
         if (activeDiary && mem.theme && mem.experiences.length > 0) {
-          const diaryFull = (parsedData.diaryMemories[activeDiary.name] || []).length >= 4;
-          bodyHtml += '<div style="margin-top:8px;">';
-          if (diaryFull) {
-            bodyHtml += '<span style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">Diary full (4/4).</span>';
-          } else {
-            bodyHtml += '<button class="strike-btn" onclick="moveMemoryToDiary(' + i + ')">📖 Move to ' + esc(activeDiary.name) + '</button>';
-          }
-          bodyHtml += '</div>';
+          const diaryCount = (parsedData.diaryMemories[activeDiary.name] || []).length;
+          bodyHtml += '<div style="margin-top:8px;">'
+            + '<button class="strike-btn" onclick="moveMemoryToDiary(' + i + ')">📖 Move to '
+            + esc(activeDiary.name) + ' (' + diaryCount + '/4)</button>'
+            + '</div>';
         }
         bodyHtml += '</div>';
       });
@@ -1936,7 +1933,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         + '<div class="form-row">'
         + '<label class="form-label">Changes (mechanical summary)</label>'
         + '<input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="' + esc(je.changes) + '">'
-        + '<div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>'
+        + '<div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories adedded.</div>'
         + '</div>';
 
       if (!je.resolved) {
@@ -1944,13 +1941,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
           + '<div class="edit-section-title" style="color:var(--blood);">Record Memory Experience (required to resolve)</div>';
 
         const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
-        if (activeDiary && mem.theme && mem.experiences.length > 0) {
-          const diaryCount = (parsedData.diaryMemories[activeDiary.name] || []).length;
-          bodyHtml += '<div style="margin-top:8px;">'
-            + '<button class="strike-btn" onclick="moveMemoryToDiary(' + i + ')">📖 Move to ' + esc(activeDiary.name)
-            + ' (' + diaryCount + '/4)</button>'
-            + '</div>';
-        } 
         const diaryMems = activeDiary ? (parsedData.diaryMemories[activeDiary.name] || []) : [];
         const freeDiarySlots = activeDiary ? Math.max(0, 4 - diaryMems.length) : 0;
         const hasOptions = parsedData.memories.length > 0 || freeDiarySlots > 0;
