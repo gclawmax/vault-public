@@ -27,10 +27,12 @@
       <span id="picker-label">Character Creator</span>
       <a id="title-link" href="viewer.html">Chronicle Viewer</a>
       <a id="core-link" href="core-rules.html">Core Rules</a>
+      <button class="top-btn" onclick="saveDraft()">💾 Save Draft</button>
+      <button class="top-btn" id="load-draft-btn" onclick="loadDraft()" style="display:none;">📂 Resume Draft</button>
       <div id="skin-switcher">
-        <button class="skin-btn active" data-s="book" title="Book skin"></button>
-        <button class="skin-btn" data-s="dark" title="Dark skin"></button>
-        <button class="skin-btn" data-s="scholar" title="Scholar skin"></button>
+        <button class="skin-btn active" data-s="book"></button>
+        <button class="skin-btn" data-s="dark"></button>
+        <button class="skin-btn" data-s="scholar"></button>
       </div>
     </div>
   </div>
@@ -326,6 +328,7 @@
 
     let currentStep = 1;
     let characterData = {
+      draft: true,   // ← add this
       name: '',
       vampire_desc: '',
       game_over: false,
@@ -794,28 +797,26 @@
 
     async function saveCharacter() {
       const token = getVaultKey();
-      if (!token) {
-        openKeyPanel();
-        alert('Please enter your GitHub vault key first.');
-        return;
-      }
+      if (!token) { openKeyPanel(); alert('Please enter your GitHub vault key first.'); return; }
       setStatus('busy', 'Saving to GitHub…');
       try {
+        characterData.draft = false; // mark as complete
         await pushCharacterToGitHub(token);
-        const json = JSON.stringify(characterData, null, 2);
-        localStorage.setItem('tyov-draft-' + characterData.name, json);
+        clearDraft(); // remove local draft on successful save
         currentStep++;
         showStep(currentStep);
         initStepIndicator();
         setStatus('ok', 'Saved to GitHub ✓');
       } catch (e) {
+        characterData.draft = true; // restore draft flag on failure
         setStatus('err', 'Save failed: ' + e.message);
         alert('Save failed: ' + e.message);
       }
     }
 
-    async function pushCharacterToGitHub(token) {
-      const filename = sanitizeFilename(characterData.name || 'untitled') + '.json';
+    async function pushCharacterToGitHub(token, isDraft = false) {
+      const prefix = isDraft ? 'DRAFT_' : '';
+      const filename = prefix + sanitizeFilename(characterData.name || 'untitled') + '.json';
       const fileUrl = `${GITHUB_API}/${encodeURIComponent(filename)}`;
       let sha = null;
 
@@ -877,11 +878,90 @@
     }
 
     // ═══════════════════════════════════════════════════
+    // Draft
+    // ═══════════════════════════════════════════════════
+    const DRAFT_KEY = 'tyov-creator-draft';
+
+    async function saveDraft() {
+      const token = getVaultKey();
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          step: currentStep,
+          data: characterData,
+          fields: captureFields()
+        }));
+        if (token) {
+          await pushCharacterToGitHub(token, true);
+          setStatus('ok', 'Draft saved to GitHub');
+        }
+        alert('Draft saved.');
+      } catch (e) {
+        alert('Failed to save draft: ' + e.message);
+      }
+    }
+    function captureFields() {
+      // Capture any currently visible form field values that haven't been
+      // committed to characterData yet (validateStep only commits on Next)
+      const fields = {};
+      const ids = [
+        'mortal-name', 'mortal-life', 'memory-1-theme',
+        'exp-2', 'exp-3', 'exp-4', 'mem-2-theme', 'mem-3-theme', 'mem-4-theme',
+        'immortal-name', 'immortal-desc', 'mark', 'mark-concealment',
+        'mem-5-theme', 'exp-5'
+      ];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) fields[id] = el.value;
+      });
+      return fields;
+    }
+
+    function restoreFields(fields) {
+      if (!fields) return;
+      Object.entries(fields).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      });
+    }
+
+    function loadDraft() {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return false;
+        const draft = JSON.parse(raw);
+        characterData = draft.data;
+        currentStep = draft.step;
+        showStep(currentStep);
+        initStepIndicator();
+        restoreFields(draft.fields);
+        renderCharacters();
+        renderSkills();
+        renderResources();
+        updateStep2Next();
+        updateStep3Next();
+        updateStep4Next();
+        return true;
+      } catch (e) {
+        console.error('Failed to load draft:', e);
+        return false;
+      }
+    }
+
+    function clearDraft() {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+
+
+    // ═══════════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════════
     initStepIndicator();
-  </script>
+    if (localStorage.getItem(DRAFT_KEY)) {
+      document.getElementById('load-draft-btn').style.display = '';
+      if (confirm('You have a saved draft. Resume it?')) loadDraft();
+    }
 
+  </script>
 </body>
 
 </html>
