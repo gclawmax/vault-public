@@ -197,7 +197,7 @@ body {
   text-transform: uppercase;
 }
 
-#game-link {
+.game-link {
   font-family: 'Cinzel Decorative', serif;
   font-size: clamp(.7rem, 1.3vw, .95rem);
   color: var(--blood);
@@ -206,7 +206,7 @@ body {
   margin-right: 12px;
 }
 
-#game-link:hover {
+.game-link:hover {
   color: var(--blood-bright);
   text-decoration: underline;
 }
