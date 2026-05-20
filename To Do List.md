@@ -13,6 +13,7 @@ A nicer UX experience for Vampire selection
 # Stuff I can't be bothered to fix.
 --------------------------
 - Edit Journal needs a re-write, or does it? Right now it's a fixed book.
+-  ? button - Overlay or other dialog to explain the process -> Edit, Click various sections -> Save.
 
 # Bugs
 -----
@@ -24,5 +25,4 @@ A nicer UX experience for Vampire selection
  - ~~New characters in character creation should be met turn 0.~~
  - ~~Dialog boxes need to be able to minimize or something. I can't see my skills.~~
  - ~~Needs the key adding to character creation~~
- - ? button - Overlay or other dialog to explain the process -> Edit, Click various sections -> Save.
- - Unresolve could do with removing the experience. Could be a breaking issue.
+ - order the journal entries newest to oldest

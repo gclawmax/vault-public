@@ -1822,13 +1822,27 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       // List existing journal entries (for deletion)
       if (parsedData.journal.length > 0) {
         bodyHtml += `<div class="edit-section-title">Journal Entries</div>`;
-        parsedData.journal.forEach((je, idx) => {
+
+        const sortedJournal = [...parsedData.journal]
+          .sort((a, b) => (b.turn || 0) - (a.turn || 0));
+
+        sortedJournal.forEach((je) => {
+          const idx = parsedData.journal.indexOf(je);
+
           bodyHtml += `<div class="edit-list-item">
-    <div class="edit-list-item-text"><strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br><span style="color:var(--ink-dim);font-size:.85rem">Awaiting: ${!je.resolved ? 'Yes' : 'No'}${je.prose ? ' — Has prose' : ''}</span></div>
-    <div class="edit-list-actions">
-      <button class="trash-btn" onclick="deleteJournalEntry(${idx})" title="Delete journal entry entirely">🗑</button>
-    </div>
-  </div>`;
+            <div class="edit-list-item-text">
+              <strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br>
+              <span style="color:var(--ink-dim);font-size:.85rem">
+                Awaiting: ${!je.resolved ? 'Yes' : 'No'}
+                ${je.prose ? ' — Has prose' : ''}
+              </span>
+            </div>
+            <div class="edit-list-actions">
+              <button class="trash-btn"
+                onclick="deleteJournalEntry(${idx})"
+                title="Delete journal entry entirely">🗑</button>
+            </div>
+          </div>`;
         });
         bodyHtml += `<hr class="edit-divider">`;
       }
