@@ -816,6 +816,7 @@
         characterData.draft = false; // mark as complete
         await pushCharacterToGitHub(token);
         clearDraft(); // remove local draft on successful save
+        localStorage.setItem('tyov-last-chronicle', sanitizeFilename(characterData.name || 'untitled') + '.json');
         currentStep++;
         showStep(currentStep);
         initStepIndicator();
