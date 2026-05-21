@@ -1,0 +1,149 @@
+{
+  "draft": false,
+  "name": "Prince Charming",
+  "vampire_desc": "A noble knight. Has nice hair",
+  "game_over": false,
+  "game_start": "2026-05-21",
+  "modified": "2026-05-21",
+  "current_prompt": 0,
+  "marks": [
+    {
+      "description": "The worlds most perfect(ly sharp) teeth",
+      "concealment": "I don't really. I smile a LOT.",
+      "status": "active"
+    }
+  ],
+  "memories": [
+    {
+      "n": 1,
+      "theme": "Mortal life",
+      "description": "",
+      "experiences": [
+        "A noble knight. Has nice hair"
+      ]
+    },
+    {
+      "n": 2,
+      "theme": "Love",
+      "description": "",
+      "experiences": [
+        "He orates a poem to his girl, gwen"
+      ]
+    },
+    {
+      "n": 3,
+      "theme": "Killing for work and sport",
+      "description": "",
+      "experiences": [
+        "He uses excalibur to practice his swords"
+      ]
+    },
+    {
+      "n": 4,
+      "theme": "Loyalty",
+      "description": "",
+      "experiences": [
+        "He goes to Camelot every day to work for Arthur. Usually to keep the peace. Sometimes to find a missing bloody cup."
+      ]
+    },
+    {
+      "n": 5,
+      "theme": "Transformation",
+      "description": "",
+      "experiences": [
+        "Arthur's bloody kid ran me through, and his sister (?) brings me back? Not sure what's going on there."
+      ]
+    }
+  ],
+  "diary_memories": {},
+  "lost_memories": [],
+  "skills": [
+    {
+      "name": "Swords",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Orator",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Riding",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "resources": [
+    {
+      "name": "Horsey Twinkletoes",
+      "description": "A horse",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Camelot",
+      "description": "His House",
+      "type": "stationary",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Exclibur",
+      "description": "His Sword",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "characters": [
+    {
+      "name": "Lancelot",
+      "description": "His mate",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Gwen",
+      "description": "His girl",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Arthur",
+      "description": "His boss",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Morgan le Fay",
+      "description": "Arthur's weird kid sister. Has magic powers.",
+      "type": "immortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "journal": []
+}
