@@ -224,6 +224,42 @@
     }
 
     // ═══════════════════════════════════════════════════
+    // TOP BAR
+    // ═══════════════════════════════════════════════════
+
+    function updateTopBar(d) {
+      const fm = d.frontmatter;
+
+      // Name — centred in top bar
+      let nameEl = document.getElementById('topbar-vamp-name');
+      if (!nameEl) {
+        const nameDiv = document.createElement('div');
+        nameDiv.id = 'topbar-vamp-name';
+        nameDiv.className = 'topbar-vamp-name';
+        document.getElementById('picker-row').appendChild(nameDiv);
+        nameEl = nameDiv;
+      }
+      nameEl.textContent = d.vampireName || '';
+
+      // Pills row
+      let pillsEl = document.getElementById('topbar-pills');
+      if (!pillsEl) {
+        const pillsDiv = document.createElement('div');
+        pillsDiv.id = 'topbar-pills';
+        pillsDiv.className = 'topbar-pills-row';
+        document.getElementById('top-bar').insertBefore(pillsDiv, document.getElementById('status-row-chronicle') || document.getElementById('status-row'));
+        pillsEl = pillsDiv;
+      }
+      let pills = '';
+      if (fm.game_start) pills += '<span class="meta-pill">Started <span>' + esc(fm.game_start) + '</span></span>';
+      if (fm.game_over === 'true') pills += '<span class="meta-pill" style="color:var(--blood)">Game Over</span>';
+      if (fm.modified) pills += '<span class="meta-pill">Last played <span>' + esc(fm.modified) + '</span></span>';
+      // Epitaph inline in pills row
+      if (d.subtitle) pills += '<span class="meta-pill meta-epitaph" style="font-style:italic;color:var(--ink-dim);">' + esc(d.subtitle) + '</span>';
+      pillsEl.innerHTML = pills;
+    }
+
+    // ═══════════════════════════════════════════════════
     // SKIN SWITCHER
     // ═══════════════════════════════════════════════════
     document.querySelectorAll('.skin-btn').forEach(btn => {
@@ -394,6 +430,10 @@
       document.getElementById('edit-mode-btn').style.display = 'none';
       document.getElementById('game-select').value = '';
       currentJson = null; workingJson = null; parsedData = null;
+      const nameEl = document.getElementById('topbar-vamp-name');
+      if (nameEl) nameEl.textContent = '';
+      const pillsEl = document.getElementById('topbar-pills');
+      if (pillsEl) pillsEl.innerHTML = '';
     }
 
     async function refreshCurrent() {
@@ -711,22 +751,7 @@
       let html = '';
 
       // ── Header ──
-      html += '<div class="section-editwrap" data-section="header" ' + (em ? 'onclick="editHeader()" title="Click to edit header"' : '') + '>'
-        + '<div class="vamp-header">'
-        + '<div class="vamp-name-wrap">'
-        + '<div class="vamp-rule"><span></span><span></span></div>'
-        + '<div class="vamp-name">' + esc(d.vampireName) + '</div>'
-        + '<div class="vamp-rule"><span></span><span></span></div>'
-        + '</div>'
-        + '<div class="vamp-subtitle">A Thousand Year Old Vampire</div>'
-        + '<div class="vamp-epitaph">' + esc(d.subtitle) + '</div>'
-        + '<div class="meta-row">'
-        + (fm.game_start ? '<span class="meta-pill">Started <span>' + fm.game_start + '</span></span>' : '')
-        + (fm.game_over === 'true' ? '<span class="meta-pill" style="color:var(--blood)">Game Over</span>' : '')
-        + (d.frontmatter.modified ? '<span class="meta-pill">Last played <span>' + d.frontmatter.modified + '</span></span>' : '')
-        + '</div>'
-        + '</div>'
-        + '</div>';
+      updateTopBar(d);
 
       // ── Dashboard ──
       html += '<div class="dashboard-strip">';
