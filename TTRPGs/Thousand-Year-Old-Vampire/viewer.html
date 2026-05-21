@@ -470,7 +470,7 @@
     function _disPoll() { clearTimeout(_ptl); _ptl = null; }
 
     function _pollTick() {
-      if (!_pviz || editMode) { _ptl = setTimeout(_pollTick, 30000); return; } // don't poll during edits
+      if (!_pviz || hasUnsaved) { _ptl = setTimeout(_pollTick, 30000); return; } // don't poll during edits
       var t = [];
       const filename = currentFilename || document.getElementById('game-select').value;
       // Poll current vampire sheet
