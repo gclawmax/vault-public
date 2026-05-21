@@ -28,7 +28,8 @@
       "theme": "Love",
       "description": "",
       "experiences": [
-        "He orates a poem to his girl, gwen"
+        "He orates a poem to his girl, gwen",
+        "Gwen! She find me and discovers my shiny teeth. She helps me murderise. Turns out I do need to do it sometimes. To live, you know."
       ]
     },
     {
@@ -108,6 +109,14 @@
       "status": "active",
       "gained_turn": 0,
       "lost_turn": null
+    },
+    {
+      "name": "Partner in crime",
+      "description": "It's Gwen for now. It might not always be. She's getting on a bit.",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 3,
+      "lost_turn": null
     }
   ],
   "diary_memories": {},
@@ -176,10 +185,10 @@
       "turn": 3,
       "prompt": 3,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:16:23.277Z",
+      "experience": "Gwen! She find me and discovers my shiny teeth. She helps me murderise. Turns out I do need to do it sometimes. To live, you know.",
+      "changes": "Gwens my partner in crime"
     }
   ]
 }
