@@ -14,7 +14,6 @@
 </head>
 
 <body>
-  <!-- Key Panel -->
   <button id="key-toggle">🔑</button>
   <div id="key-panel">
     <div class="key-label">🔑 Vault Key</div>
@@ -23,44 +22,77 @@
     <button class="modal-btn primary" onclick="closeKeyPanel()" style="width:100%">Done</button>
   </div>
 
-  <!-- Edit Mode Banner -->
-  <div id="edit-mode-banner">✎ Edit Mode Active — Changes are local until you save</div>
+  <div id="tome-wrap">
 
-  <div id="top-bar">
-    <div id="picker-row">
-      <span id="picker-label">Chronicle</span>
-      <a class="game-link" href="character-creator.html">New Character</a>
-      <a class="game-link" href="core-rules.html">Core Rules</a>
-      <select id="game-select">
-        <option value="">— Loading games… —</option>
-      </select>
-      <button id="refresh-btn" class="top-btn" onclick="refreshCurrent()">↻ Refresh</button>
-      <button id="edit-mode-btn" class="top-btn" style="display:none;" onclick="toggleEditMode()">✎ Edit</button>
-      <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
-      <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
-      <div id="skin-switcher">
-        <button class="skin-btn active" data-s="book"></button>
-        <button class="skin-btn" data-s="dark"></button>
-        <button class="skin-btn" data-s="scholar"></button>
+    <!-- Contents Page -->
+    <div id="contents-page">
+      <div id="contents-inner">
+        <div class="tome-header">
+          <div class="tome-rule"></div>
+          <h1 class="tome-title">Thousand Year Old Vampire</h1>
+          <div class="tome-rule"></div>
+        </div>
+        <nav id="tome-nav">
+          <div class="tome-entry tome-action" onclick="window.location.href='character-creator.html'">
+            <span class="tome-entry-icon">✦</span>
+            <span class="tome-entry-name">Begin a New Vampire</span>
+            <span class="tome-entry-meta">character creation</span>
+          </div>
+          <div class="tome-entry tome-action" onclick="window.location.href='core-rules.html'">
+            <span class="tome-entry-icon">✦</span>
+            <span class="tome-entry-name">The Rules</span>
+            <span class="tome-entry-meta">core rules reference</span>
+          </div>
+          <div class="tome-section-header">Vampires</div>
+          <div id="tome-chronicle-list">
+            <div class="tome-loading">Consulting the archives…</div>
+          </div>
+        </nav>
+        <div class="tome-footer">
+          <div id="skin-switcher">
+            <button class="skin-btn active" data-s="book"></button>
+            <button class="skin-btn" data-s="dark"></button>
+            <button class="skin-btn" data-s="scholar"></button>
+          </div>
+          <div id="status-row">
+            <div id="status-dot"></div>
+            <span id="status-text">Loading…</span>
+          </div>
+        </div>
       </div>
     </div>
-    <div id="status-row">
-      <div id="status-dot"></div>
-      <span id="status-text">Loading game list…</span>
-    </div>
-  </div>
 
-  <div id="app">
-    <div id="empty-state">
-      <h2>Thousand Year Old Vampire</h2>
-      <p>Select a chronicle to begin.</p>
+    <!-- Chronicle Page -->
+    <div id="chronicle-page">
+      <div id="edit-mode-banner">✎ Edit Mode Active — Changes are local until you save</div>
+      <div id="top-bar">
+        <div id="picker-row">
+          <button class="tome-back-btn" onclick="returnToContents()">❮ Chronicles</button>
+          <select id="game-select" style="display:none;"></select>
+          <button id="refresh-btn" class="top-btn" onclick="refreshCurrent()">↻</button>
+          <button id="edit-mode-btn" class="top-btn" style="display:none;" onclick="toggleEditMode()">✎ Edit</button>
+          <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
+          <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
+        </div>
+        <div id="status-row-chronicle">
+          <div id="status-dot-chronicle"></div>
+          <span id="status-text-chronicle"></span>
+        </div>
+      </div>
+      <div id="app">
+        <div id="empty-state" style="display:none;">
+          <h2>Thousand Year Old Vampire</h2>
+          <p>Select a chronicle from the contents.</p>
+        </div>
+        <div id="content" style="display:none;">
+          <div class="prompt-section" id="prompt-section"></div>
+        </div>
+      </div>
     </div>
-    <div id="content" style="display:none;">
-      <div class="prompt-section" id="prompt-section"></div>
-    </div>
-  </div>
 
-  <!-- Modal Overlay -->
+  </div><!-- end tome-wrap -->
+
+  <!-- Modal Overlay — unchanged -->
   <div id="modal-overlay">
     <div class="modal-box" id="modal-box">
       <div class="modal-header">
@@ -140,8 +172,38 @@
     }
 
     function setStatus(state, msg) {
-      document.getElementById('status-dot').className = state;
-      document.getElementById('status-text').textContent = msg;
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      if (dot) dot.className = state;
+      if (text) text.textContent = msg;
+      const dotC = document.getElementById('status-dot-chronicle');
+      const textC = document.getElementById('status-text-chronicle');
+      if (dotC) dotC.className = state;
+      if (textC) textC.textContent = msg;
+    }
+
+    let _onContentsPage = true;
+
+    function turnToChronicle() {
+      _onContentsPage = false;
+      const wrap = document.getElementById('tome-wrap');
+      wrap.classList.add('turning');
+      setTimeout(() => { wrap.classList.add('turned'); wrap.classList.remove('turning'); }, 600);
+    }
+
+    function returnToContents() {
+      if (editMode && hasUnsaved) {
+        if (!confirm('Return to contents? You have unsaved changes.')) return;
+        cancelEditMode();
+      }
+      _onContentsPage = true;
+      const wrap = document.getElementById('tome-wrap');
+      wrap.classList.add('turning-back');
+      setTimeout(() => {
+        wrap.classList.remove('turned');
+        wrap.classList.remove('turning-back');
+        loadTomeList();
+      }, 600);
     }
 
     function getVaultKey() { return document.getElementById('vault-key').value.trim(); }
@@ -191,8 +253,8 @@
     // ═══════════════════════════════════════════════════
     // GAME LIST LOADING
     // ═══════════════════════════════════════════════════
-    async function loadGameList() {
-      setStatus('busy', 'Loading chronicles…');
+    async function loadTomeList() {
+      setStatus('busy', 'Consulting the archives…');
       try {
         const resp = await fetch(GITHUB_API, {
           headers: getVaultKey() ? { Authorization: 'token ' + getVaultKey() } : {}
@@ -206,24 +268,65 @@
           !f.name.startsWith('test_') &&
           !f.name.startsWith('DRAFT_')
         );
-        const sel = document.getElementById('game-select');
-        sel.innerHTML = '<option value="">— Select a chronicle —</option>';
-        jsonFiles.forEach(f => {
-          const o = document.createElement('option');
-          o.value = f.name;
-          o.textContent = f.name.replace('.json', '');
-          sel.appendChild(o);
-        });
-        setStatus('ok', `${jsonFiles.length} chronicle${jsonFiles.length !== 1 ? 's' : ''} found`);
+
+        // Fetch metadata for each file
+        const chronicles = await Promise.all(jsonFiles.map(async f => {
+          try {
+            const raw = await fetch(GITHUB_API + '/' + encodeURIComponent(f.name), {
+              headers: getVaultKey() ? { Authorization: 'token ' + getVaultKey() } : {}
+            });
+            if (!raw.ok) return { name: f.name, display: f.name.replace('.json', ''), modified: null, turn: null };
+            const data = await raw.json();
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, '')))));
+            return {
+              name: f.name,
+              display: decoded.name || f.name.replace('.json', ''),
+              modified: decoded.modified || null,
+              turn: decoded.journal ? decoded.journal.length : 0
+            };
+          } catch (e) {
+            return { name: f.name, display: f.name.replace('.json', ''), modified: null, turn: null };
+          }
+        }));
+
+        renderTomeList(chronicles);
+        setStatus('ok', chronicles.length + ' chronicle' + (chronicles.length !== 1 ? 's' : '') + ' found');
       } catch (e) {
-        setStatus('err', 'Failed to load game list: ' + e.message);
+        setStatus('err', 'Failed to load chronicles: ' + e.message);
+        document.getElementById('tome-chronicle-list').innerHTML = '<div class="tome-loading">Failed to load chronicles.</div>';
       }
     }
 
-    document.getElementById('game-select').addEventListener('change', async (e) => {
-      if (!e.target.value) return;
-      await loadVampire(e.target.value);
-    });
+    function renderTomeList(chronicles) {
+      const list = document.getElementById('tome-chronicle-list');
+      if (!list) return;
+      if (chronicles.length === 0) {
+        list.innerHTML = '<div class="tome-loading">No chronicles found.</div>';
+        return;
+      }
+      const sorted = [...chronicles].sort((a, b) => {
+        if (!a.modified && !b.modified) return a.display.localeCompare(b.display);
+        if (!a.modified) return 1;
+        if (!b.modified) return -1;
+        return new Date(b.modified) - new Date(a.modified);
+      });
+      list.innerHTML = sorted.map(c =>
+        '<div class="tome-entry tome-chronicle-entry" onclick="openChronicle(\'' + c.name.replace(/'/g, "\\'") + '\')">'
+        + '<span class="tome-entry-icon">†</span>'
+        + '<span class="tome-entry-name">' + esc(c.display) + '</span>'
+        + '<span class="tome-entry-meta">'
+        + (c.modified ? c.modified : '—')
+        + (c.turn !== null ? ' · turn ' + c.turn : '')
+        + '</span>'
+        + '</div>'
+      ).join('');
+    }
+
+    async function openChronicle(filename) {
+      document.getElementById('game-select').value = filename;
+      await loadVampire(filename);
+      turnToChronicle();
+    }
 
     async function loadVampire(filename) {
       setStatus('busy', `Loading ${filename}…`);
@@ -264,14 +367,15 @@
         renderChronicle(parsedData);
         const select = document.getElementById('game-select');
         if (select) select.value = filename;
-        document.getElementById('empty-state').style.display = 'none';
-        document.getElementById('content').style.display = 'block';
         document.getElementById('edit-mode-btn').style.display = '';
+        document.getElementById('empty-state').style.display = 'none'
+        document.getElementById('content').style.display = 'block'
         setStatus('ok', draft && editMode ? `Resumed draft: ${filename}` : `Loaded: ${filename}`);
+        localStorage.setItem('tyov-last-chronicle', filename); // ← here, inside try
+
       } catch (e) {
         setStatus('err', 'Load failed: ' + e.message);
       }
-      localStorage.setItem('tyov-last-chronicle', filename);
     }
 
     function resetToGameList() {
@@ -288,8 +392,8 @@
 
     async function refreshCurrent() {
       const sel = document.getElementById('game-select');
-      if (sel.value) await loadVampire(sel.value);
-      else await loadGameList();
+      if (sel && sel.value) await loadVampire(sel.value);
+      else await loadTomeList();
     }
 
     // ═══════════════════════════════════════════════════
@@ -2353,9 +2457,13 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
     }
 
-    loadGameList().then(() => {
+    loadTomeList().then(() => {
       const last = localStorage.getItem('tyov-last-chronicle');
-      if (last) loadVampire(last).catch(() => localStorage.removeItem('tyov-last-chronicle'));
+      if (last) {
+        loadVampire(last)
+          .then(() => turnToChronicle())
+          .catch(() => localStorage.removeItem('tyov-last-chronicle'));
+      }
     });
   </script>
 </body>

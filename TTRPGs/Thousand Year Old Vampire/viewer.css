@@ -181,49 +181,12 @@ body {
   backdrop-filter: blur(8px);
 }
 
-#picker-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 10px 16px;
-  flex-wrap: wrap;
-}
-
 #picker-label {
   font-family: 'Cinzel', serif;
   font-size: 10px;
   letter-spacing: .14em;
   color: var(--accent-dim);
   text-transform: uppercase;
-}
-
-.game-link {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(.7rem, 1.3vw, .95rem);
-  color: var(--blood);
-  text-decoration: none;
-  cursor: pointer;
-  margin-right: 12px;
-}
-
-.game-link:hover {
-  color: var(--blood-bright);
-  text-decoration: underline;
-}
-
-#game-select {
-  flex: 1;
-  min-width: 180px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  color: var(--ink);
-  padding: 8px 10px;
-  font-size: 17px;
-}
-
-#game-select:disabled {
-  opacity: .5;
-  cursor: not-allowed;
 }
 
 .top-btn {
@@ -1343,4 +1306,239 @@ body.edit-mode .section-editwrap {
 
 .prompt-gameover {
   background: #2a3a4a;
+}
+
+/* ── Tome layout ── */
+#tome-wrap {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  perspective: 2000px;
+}
+
+#contents-page {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  overflow-y: auto;
+  transform-origin: left center;
+  transition: transform .6s cubic-bezier(.645, .045, .355, 1), opacity .6s ease;
+  transform: rotateY(0deg);
+  backface-visibility: hidden;
+  z-index: 2;
+}
+
+#chronicle-page {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  overflow-y: auto;
+  transform-origin: left center;
+  transition: transform .6s cubic-bezier(.645, .045, .355, 1), opacity .6s ease;
+  transform: rotateY(90deg);
+  opacity: 0;
+  backface-visibility: hidden;
+  z-index: 1;
+}
+
+#tome-wrap.turning #contents-page {
+  transform: rotateY(-90deg);
+  opacity: 0;
+}
+
+#tome-wrap.turning #chronicle-page,
+#tome-wrap.turned #chronicle-page {
+  transform: rotateY(0deg);
+  opacity: 1;
+  z-index: 2;
+}
+
+#tome-wrap.turned #contents-page {
+  transform: rotateY(-90deg);
+  opacity: 0;
+  z-index: 1;
+}
+
+#tome-wrap.turning-back #chronicle-page {
+  transform: rotateY(90deg);
+  opacity: 0;
+}
+
+#tome-wrap.turning-back #contents-page {
+  transform: rotateY(0deg);
+  opacity: 1;
+  z-index: 2;
+}
+
+/* ── Contents page ── */
+#contents-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 60px 40px 80px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.tome-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.tome-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 400;
+  color: var(--blood);
+  letter-spacing: .06em;
+  margin: 16px 0;
+}
+
+.tome-rule {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--blood), transparent);
+  margin: 0 40px;
+}
+
+#tome-nav {
+  flex: 1;
+}
+
+.tome-section-header {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  margin: 32px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tome-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.tome-entry:hover {
+  background: var(--surface);
+}
+
+.tome-entry-icon {
+  font-size: .75rem;
+  color: var(--blood);
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
+
+.tome-entry-name {
+  font-family: 'Cinzel', serif;
+  font-size: .95rem;
+  color: var(--ink);
+  flex: 1;
+  letter-spacing: .04em;
+}
+
+.tome-entry:hover .tome-entry-name {
+  color: var(--blood);
+}
+
+.tome-entry-meta {
+  font-family: 'EB Garamond', serif;
+  font-size: .82rem;
+  color: var(--ink-faint);
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.tome-action .tome-entry-name {
+  color: var(--accent);
+}
+
+.tome-chronicle-entry .tome-entry-icon {
+  color: var(--ink-faint);
+}
+
+.tome-loading {
+  padding: 20px 8px;
+  font-size: .88rem;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.tome-footer {
+  margin-top: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Back button ── */
+.tome-back-btn {
+  background: none;
+  border: none;
+  color: var(--blood);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0 12px 0 0;
+  margin-right: 8px;
+  margin-left: 16px;
+  border-right: 1px solid var(--border);
+}
+
+.tome-back-btn:hover {
+  color: var(--blood-bright);
+}
+
+/* ── Chronicle status row ── */
+#status-row-chronicle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 16px 6px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--topbar-border);
+}
+
+/* ── Mobile — fade instead of rotate ── */
+@media (max-width: 860px) {
+
+  #contents-page,
+  #chronicle-page {
+    transform: none !important;
+    transition: opacity .4s ease !important;
+  }
+
+  #chronicle-page {
+    pointer-events: none;
+  }
+
+  #tome-wrap.turned #chronicle-page {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 2;
+  }
+
+  #tome-wrap.turned #contents-page {
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  #contents-inner {
+    padding: 32px 20px 60px;
+  }
 }

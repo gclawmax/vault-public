@@ -17,8 +17,9 @@
   <!-- Search Bar -->
   <div id="search-bar">
     <div id="search-row">
-      <a id="viewer-link" href="viewer.html">Chronicle Viewer</a>
-      <span id="search-label">Search Rules</span>
+      <button class="tome-back-btn" onclick="returnToContents()">❮ Chronicles</button>
+      <span id="picker-label">Core Rules</span> <!-- or "Character Creation" -->
+      <span id="search-label">Search</span>
       <input id="search-input" type="text" placeholder="Type a keyword…" autocomplete="off" spellcheck="false">
       <span id="result-count"></span>
       <button class="search-btn" onclick="clearSearch()">✕ Clear</button>
@@ -44,6 +45,13 @@
   </div>
 
   <script>
+
+    function returnToContents() {
+      document.body.style.transition = 'opacity .4s ease';
+      document.body.style.opacity = '0';
+      setTimeout(() => { window.location.href = 'viewer.html'; }, 400);
+    }
+
     // ═══════════════════════════════════════════════════════
     // SLUG HELPER — used everywhere IDs are generated
     // ═══════════════════════════════════════════════════════
@@ -684,9 +692,16 @@ Don't fret about specific years, but watch for obvious breaks in the timeline. A
     // ═══════════════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════════════
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity .4s ease';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.body.style.opacity = '1';
+      });
+    });
+
     render();
 
-    // Navigate to hash on load
     window.addEventListener('DOMContentLoaded', () => {
       if (location.hash) {
         const id = location.hash.slice(1);
