@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-14",
   "modified": "2026-05-21",
-  "current_prompt": 9,
+  "current_prompt": 14,
   "epitaph": null,
   "marks": [
     {
@@ -25,9 +25,11 @@
     },
     {
       "n": 2,
-      "theme": "",
+      "theme": "The art of murderising",
       "description": "",
-      "experiences": []
+      "experiences": [
+        "They come for a haircut or a shave, so I shave them a little too close. drink their blood and mush their bodies into Mrs Rabbit's pies downstairs."
+      ]
     },
     {
       "n": 3,
@@ -78,6 +80,12 @@
       "name": "Tactics and Command",
       "status": "checked",
       "gained_turn": null,
+      "lost_turn": null
+    },
+    {
+      "name": "The art of murderising",
+      "status": "unchecked",
+      "gained_turn": 5,
       "lost_turn": null
     }
   ],
@@ -243,6 +251,15 @@
     {
       "turn": 5,
       "prompt": 9,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:02:43.316Z",
+      "experience": "They come for a haircut or a shave, so I shave them a little too close. drink their blood and mush their bodies into Mrs Rabbit's pies downstairs.",
+      "changes": ""
+    },
+    {
+      "turn": 6,
+      "prompt": 14,
       "entry": 1,
       "resolved": false,
       "resolved_at": null,
