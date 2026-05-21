@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-21",
   "modified": "2026-05-21",
-  "current_prompt": 4,
+  "current_prompt": 3,
   "epitaph": null,
   "marks": [
     {
@@ -19,7 +19,8 @@
       "theme": "Mortal life",
       "description": "",
       "experiences": [
-        "A noble knight. Has nice hair"
+        "A noble knight. Has nice hair",
+        "Exposed? What, like naked?\n I guess I leave Camelot behind in shame. I change my name to Mr Charming. I'm sneaky."
       ]
     },
     {
@@ -165,6 +166,15 @@
     {
       "turn": 2,
       "prompt": 4,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:15:11.141Z",
+      "experience": "Exposed? What, like naked?\n I guess I leave Camelot behind in shame. I change my name to Mr Charming. I'm sneaky.",
+      "changes": ""
+    },
+    {
+      "turn": 3,
+      "prompt": 3,
       "entry": 1,
       "resolved": false,
       "resolved_at": null,
