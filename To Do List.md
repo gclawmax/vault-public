@@ -17,7 +17,7 @@
 
 # Bugs
 -----
-- Select a vampire first on next prompt?
-- skin buttons not consistent.
+- ~~Select a vampire first on next prompt?~~
+- ~~skin buttons not consistent.~~
 - Chronicles button broken
 - Next prompt visible when awaiting resolution.
