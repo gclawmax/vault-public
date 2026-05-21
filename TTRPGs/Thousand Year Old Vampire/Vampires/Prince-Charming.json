@@ -29,7 +29,8 @@
       "description": "",
       "experiences": [
         "He orates a poem to his girl, gwen",
-        "Gwen! She find me and discovers my shiny teeth. She helps me murderise. Turns out I do need to do it sometimes. To live, you know."
+        "Gwen! She find me and discovers my shiny teeth. She helps me murderise. Turns out I do need to do it sometimes. To live, you know.",
+        "Who, whoops. Sorry Gwen! I am ashamed. Does this mean she isn't my partner in crime any more?"
       ]
     },
     {
@@ -133,8 +134,8 @@
     },
     {
       "name": "Gwen",
-      "type": "mortal",
-      "description": "His girl",
+      "type": "immortal",
+      "description": "Not his girl any more. Now an evil undead thing.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -194,6 +195,15 @@
       "turn": 4,
       "prompt": 1,
       "entry": 2,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:17:29.988Z",
+      "experience": "Who, whoops. Sorry Gwen! I am ashamed. Does this mean she isn't my partner in crime any more?",
+      "changes": "Gwen's now a vampire!"
+    },
+    {
+      "turn": 5,
+      "prompt": 1,
+      "entry": 3,
       "resolved": false,
       "resolved_at": null,
       "experience": "",
