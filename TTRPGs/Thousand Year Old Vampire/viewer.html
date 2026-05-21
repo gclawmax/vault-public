@@ -708,7 +708,7 @@
       }
 
       const hasUnresolved = d.journal.some(j => j.resolved === false);
-      const promptBtnDisabled = em || hasUnresolved;
+      const promptBtnDisabled = hasUnresolved;
 
       let html = '';
 
@@ -808,7 +808,7 @@
         + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
         + '<div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);">📖 Journal</div>'
         + '<button class="top-btn" onclick="event.stopPropagation();getAndSetNextPrompt()" title="'
-        + (promptBtnDisabled ? (em ? 'Disabled in edit mode' : 'Resolve current entry first') : 'Get next prompt')
+        + (promptBtnDisabled ? 'Resolve current entry first': 'Get next prompt')
         + '" style="font-size:11px;padding:5px 12px;'
         + (promptBtnDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
         + (promptBtnDisabled ? ' disabled' : '') + '>🎲 Next Prompt</button>'
