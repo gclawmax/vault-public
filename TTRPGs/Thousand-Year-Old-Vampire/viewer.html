@@ -70,7 +70,6 @@
           <button class="tome-back-btn" onclick="returnToContents()">❮ Chronicles</button>
           <select id="game-select" style="display:none;"></select>
           <button id="refresh-btn" class="top-btn" onclick="refreshCurrent()">↻</button>
-          <button id="edit-mode-btn" class="top-btn" style="display:none;" onclick="toggleEditMode()">✎ Edit</button>
           <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
           <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
           <div id="skin-switcher">
@@ -125,7 +124,7 @@
     let currentSha = null;
     let currentFileUrl = null;
     let currentJson = null;   // last saved state from GitHub — never mutated
-    let editMode = false;
+    let editMode = true;
     let parsedData = null;    // live working copy — mutated by editors, persisted to localStorage
     let currentModalConfirm = null;
     let currentFilename = null; // tracks which file is loaded, for localStorage key
@@ -378,7 +377,6 @@
         renderChronicle(parsedData);
         const select = document.getElementById('game-select');
         if (select) select.value = filename;
-        document.getElementById('edit-mode-btn').style.display = '';
         document.getElementById('empty-state').style.display = 'none'
         document.getElementById('content').style.display = 'block'
         setStatus('ok', draft && editMode ? `Resumed draft: ${filename}` : `Loaded: ${filename}`);
@@ -396,7 +394,6 @@
       leaveEditMode();
       document.getElementById('content').style.display = 'none';
       document.getElementById('empty-state').style.display = 'block';
-      document.getElementById('edit-mode-btn').style.display = 'none';
       document.getElementById('game-select').value = '';
       currentJson = null; workingJson = null; parsedData = null;
     }
@@ -1033,61 +1030,34 @@
     }
 
     // ═══════════════════════════════════════════════════
-    // EDIT MODE TOGGLE
+    // EDIT MODE
     // ═══════════════════════════════════════════════════
-    function toggleEditMode() {
-      if (!editMode) enterEditMode();
-      else cancelEditMode();
+    function cancelEditMode() {
+      if (hasUnsaved && !confirm('Discard unsaved changes?')) return;
+      clearDraft();
+      parsedData = parseSource(currentJson);
+      renderChronicle(parsedData);
+      hideEditControls();
+      setStatus('ok', 'Changes discarded.');
     }
 
-    function applyEditModeUI() {
-      document.body.classList.add('edit-mode');
-      document.getElementById('edit-mode-btn').classList.add('active-edit');
-      document.getElementById('edit-mode-btn').textContent = '✎ Editing';
+    function showEditControls() {
       document.getElementById('save-btn').style.display = '';
       document.getElementById('cancel-btn').style.display = '';
       document.getElementById('edit-mode-banner').classList.add('visible');
-      document.getElementById('game-select').disabled = true;
-      document.querySelectorAll('.game-link').forEach(link => {
-        link.style.pointerEvents = 'none';
-        link.style.opacity = '0.4';
-      });
     }
 
-    function enterEditMode() {
-      editMode = true;
-      applyEditModeUI();
-      renderChronicle(parsedData); // re-render to show per-entry edit buttons
-      setStatus('busy', 'Edit mode — changes saved locally, not yet on GitHub');
-    }
-
-    function leaveEditMode() {
-      editMode = false;
-      document.body.classList.remove('edit-mode');
-      document.getElementById('edit-mode-btn').classList.remove('active-edit');
-      document.getElementById('edit-mode-btn').textContent = '✎ Edit';
+    function hideEditControls() {
       document.getElementById('save-btn').style.display = 'none';
       document.getElementById('cancel-btn').style.display = 'none';
       document.getElementById('edit-mode-banner').classList.remove('visible');
-      document.getElementById('game-select').disabled = false;
-      document.getElementById('key-panel').classList.remove('open');
-      document.querySelectorAll('.game-link').forEach(link => {
-        link.style.pointerEvents = '';
-        link.style.opacity = '';
-      });
-    }
-
-    function cancelEditMode() {
-      if (!confirm('Discard all unsaved edits and revert to the last saved version?')) return;
-      clearDraft();
-      leaveEditMode();
-      parsedData = parseSource(currentJson);
-      renderChronicle(parsedData);
-      setStatus('ok', 'Edits discarded — showing last saved version.');
+      hasUnsaved = false;
     }
 
     function markUnsaved() {
-      saveDraft(); // persist to localStorage immediately
+      hasUnsaved = true;
+      saveDraft();
+      showEditControls();
       setStatus('busy', 'Unsaved changes — draft saved locally');
     }
 
@@ -1115,7 +1085,7 @@
         currentSha = result.content.sha;
         currentJson = newJson;   // advance the clean reference
         clearDraft();            // draft is now on GitHub — remove local copy
-        leaveEditMode();
+        hideEditControls();
         renderChronicle(parsedData);
         setStatus('ok', 'Saved to GitHub ✓');
       } catch (e) {

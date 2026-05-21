@@ -267,15 +267,21 @@ body {
 }
 
 .skin-btn[data-s="book"] {
-  background: radial-gradient(circle at 35% 35%, #f0e8d0, #b8a070);
+  background: #e8dfc8;
 }
 
 .skin-btn[data-s="dark"] {
-  background: radial-gradient(circle at 35% 35%, #4a3520, #1a1410);
+  background: #14100c;
 }
 
 .skin-btn[data-s="scholar"] {
-  background: radial-gradient(circle at 35% 35%, #faf7f0, #c8bca0);
+  background: #f5f0e8;
+}
+
+#skin-switcher {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
 }
 
 /* ── Edit mode indicator bar ── */
@@ -302,31 +308,13 @@ body {
   padding: 0 32px 40px;
 }
 
-/* ── Section edit wrapper ── */
 .section-editwrap {
-  position: relative;
-}
-
-.section-editwrap .edit-section-btn {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  display: none;
-  background: var(--blood);
-  color: white;
-  border: none;
-  padding: 3px 10px;
   cursor: pointer;
-  font-family: 'Cinzel', serif;
-  font-size: 9px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  z-index: 10;
-  opacity: .85;
+  transition: outline 0.1s;
 }
 
-.section-editwrap .edit-section-btn:hover {
-  opacity: 1;
+.section-editwrap:hover {
+  outline: 1px dashed var(--accent-dim);
 }
 
 .section-collapsed {
@@ -370,14 +358,6 @@ body {
   opacity: 1;
 }
 
-body.edit-mode .section-editwrap .edit-section-btn {
-  display: block;
-}
-
-body.edit-mode .section-editwrap {
-  outline: 1px dashed var(--edit-ring);
-  outline-offset: -2px;
-}
 
 /* ── Section icon size ── */
 .section-icon {
@@ -647,21 +627,12 @@ body.edit-mode .section-editwrap {
   margin-bottom: 10px;
 }
 
-.edit-mode .section-editwrap {
+.journal-entry {
   cursor: pointer;
   transition: outline 0.1s;
 }
 
-.edit-mode .section-editwrap:hover {
-  outline: 1px dashed var(--accent-dim);
-}
-
-.edit-mode .journal-entry {
-  cursor: pointer;
-  transition: outline 0.1s;
-}
-
-.edit-mode .journal-entry:hover {
+.journal-entry:hover {
   outline: 1px dashed var(--accent-dim);
 }
 
@@ -997,10 +968,6 @@ body.edit-mode .section-editwrap {
   overflow-y: auto;
   min-height: 0;
   max-height: 85vh;
-}
-
-.journal-entry {
-  margin-bottom: 30px;
 }
 
 .journal-turn {
