@@ -1494,6 +1494,7 @@ body.edit-mode .section-editwrap {
   cursor: pointer;
   padding: 0 12px 0 0;
   margin-right: 8px;
+  margin-left: 16px;
   border-right: 1px solid var(--border);
 }
 
