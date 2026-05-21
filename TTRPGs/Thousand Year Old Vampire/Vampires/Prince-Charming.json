@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-21",
   "modified": "2026-05-21",
-  "current_prompt": 1,
+  "current_prompt": 4,
   "epitaph": null,
   "marks": [
     {
@@ -43,7 +43,8 @@
       "theme": "Loyalty",
       "description": "",
       "experiences": [
-        "He goes to Camelot every day to work for Arthur. Usually to keep the peace. Sometimes to find a missing bloody cup."
+        "He goes to Camelot every day to work for Arthur. Usually to keep the peace. Sometimes to find a missing bloody cup.",
+        "No, I refuse to kill anyone. I want to see people die of old age. Whatever bloodthirsty is, I'll slap a patch on for it."
       ]
     },
     {
@@ -73,6 +74,12 @@
       "name": "Riding",
       "status": "unchecked",
       "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Bloodthirsty as a patch",
+      "status": "unchecked",
+      "gained_turn": 1,
       "lost_turn": null
     }
   ],
@@ -149,6 +156,15 @@
     {
       "turn": 1,
       "prompt": 1,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:14:04.325Z",
+      "experience": "No, I refuse to kill anyone. I want to see people die of old age.",
+      "changes": "Killed the need to kill."
+    },
+    {
+      "turn": 2,
+      "prompt": 4,
       "entry": 1,
       "resolved": false,
       "resolved_at": null,
