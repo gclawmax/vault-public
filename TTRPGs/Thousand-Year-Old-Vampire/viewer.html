@@ -2463,12 +2463,17 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
     }
 
+    let _initialLoadDone = false;
+
     loadTomeList().then(() => {
-      const last = localStorage.getItem('tyov-last-chronicle');
-      if (last) {
-        loadVampire(last)
-          .then(() => turnToChronicle())
-          .catch(() => localStorage.removeItem('tyov-last-chronicle'));
+      if (!_initialLoadDone) {
+        _initialLoadDone = true;
+        const last = localStorage.getItem('tyov-last-chronicle');
+        if (last) {
+          loadVampire(last)
+            .then(() => turnToChronicle())
+            .catch(() => localStorage.removeItem('tyov-last-chronicle'));
+        }
       }
     });
   </script>
