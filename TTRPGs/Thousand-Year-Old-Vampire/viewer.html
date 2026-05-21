@@ -2124,7 +2124,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
       const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
         + (isResolved ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
-        + '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>'
+        + (!isResolved ? '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>' : '')
         + '<button class="modal-btn primary"'
         + ' style="background:var(--blood);border-color:var(--blood);' + (resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
         + (resolveDisabled ? ' disabled' : ' onclick="resolveJournalEntry(' + idx + ')"')
