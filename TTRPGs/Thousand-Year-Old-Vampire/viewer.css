@@ -696,16 +696,47 @@ body.edit-mode .section-editwrap {
   position: relative;
 }
 
+.vamp-rule {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vamp-rule span {
+  display: block;
+  background: var(--blood);
+  height: 1px;
+}
+
+.vamp-rule span:first-child {
+  opacity: .5;
+}
+
+.vamp-rule span:last-child {
+  opacity: .3;
+}
+
 .topbar-vamp-name {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  pointer-events: none;
+  width: 40%;
+}
+
+.topbar-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-name-text {
   font-family: 'Cinzel Decorative', serif;
   font-size: clamp(.85rem, 1.8vw, 1.3rem);
   color: var(--blood);
   letter-spacing: .04em;
   white-space: nowrap;
-  pointer-events: none;
 }
 
 .topbar-pills-row {

@@ -239,7 +239,12 @@
         document.getElementById('picker-row').appendChild(nameDiv);
         nameEl = nameDiv;
       }
-      nameEl.textContent = d.vampireName || '';
+      nameEl.innerHTML = '<div class="topbar-name-wrap">'
+        + '<div class="vamp-rule"><span></span><span></span></div>'
+        + '<div class="topbar-name-text">' + esc(d.vampireName) + '</div>'
+        + '<div class="vamp-rule"><span></span><span></span></div>'
+        + '</div>';
+
 
       // Pills row
       let pillsEl = document.getElementById('topbar-pills');
