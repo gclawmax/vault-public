@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-14",
   "modified": "2026-05-21",
-  "current_prompt": 18,
+  "current_prompt": 15,
   "epitaph": null,
   "marks": [
     {
@@ -269,7 +269,7 @@
     },
     {
       "turn": 7,
-      "prompt": 18,
+      "prompt": 15,
       "entry": 1,
       "resolved": false,
       "resolved_at": null,
