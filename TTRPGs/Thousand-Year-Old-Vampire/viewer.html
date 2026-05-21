@@ -246,22 +246,22 @@
         + '</div>';
 
 
-      // Pills row
-      let pillsEl = document.getElementById('topbar-pills');
-      if (!pillsEl) {
-        const pillsDiv = document.createElement('div');
-        pillsDiv.id = 'topbar-pills';
-        pillsDiv.className = 'topbar-pills-row';
-        document.getElementById('top-bar').insertBefore(pillsDiv, document.getElementById('status-row-chronicle') || document.getElementById('status-row'));
-        pillsEl = pillsDiv;
-      }
-      let pills = '';
-      if (fm.game_start) pills += '<span class="meta-pill">Started <span>' + esc(fm.game_start) + '</span></span>';
-      if (fm.game_over === 'true') pills += '<span class="meta-pill" style="color:var(--blood)">Game Over</span>';
-      if (fm.modified) pills += '<span class="meta-pill">Last played <span>' + esc(fm.modified) + '</span></span>';
-      // Epitaph inline in pills row
-      if (d.subtitle) pills += '<span class="meta-pill meta-epitaph" style="font-style:italic;color:var(--ink-dim);">' + esc(d.subtitle) + '</span>';
-      pillsEl.innerHTML = pills;
+      // // Pills row
+      // let pillsEl = document.getElementById('topbar-pills');
+      // if (!pillsEl) {
+      //   const pillsDiv = document.createElement('div');
+      //   pillsDiv.id = 'topbar-pills';
+      //   pillsDiv.className = 'topbar-pills-row';
+      //   document.getElementById('top-bar').insertBefore(pillsDiv, document.getElementById('status-row-chronicle') || document.getElementById('status-row'));
+      //   pillsEl = pillsDiv;
+      // }
+      // let pills = '';
+      // if (fm.game_start) pills += '<span class="meta-pill">Started <span>' + esc(fm.game_start) + '</span></span>';
+      // if (fm.game_over === 'true') pills += '<span class="meta-pill" style="color:var(--blood)">Game Over</span>';
+      // if (fm.modified) pills += '<span class="meta-pill">Last played <span>' + esc(fm.modified) + '</span></span>';
+      // // Epitaph inline in pills row
+      // if (d.subtitle) pills += '<span class="meta-pill meta-epitaph" style="font-style:italic;color:var(--ink-dim);">' + esc(d.subtitle) + '</span>';
+      // pillsEl.innerHTML = pills;
     }
 
     // ═══════════════════════════════════════════════════
