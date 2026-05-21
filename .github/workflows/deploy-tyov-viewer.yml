@@ -27,8 +27,6 @@ jobs:
           cp "TTRPGs/Thousand Year Old Vampire/core-rules.css" _site/core-rules.css
           cp "TTRPGs/Thousand Year Old Vampire/character-creator.html" _site/character-creator.html
           cp "TTRPGs/Thousand Year Old Vampire/character-creator.css" _site/character-creator.css
-          cp "TTRPGs/Thousand Year Old Vampire/something.html" _site/something.html
-          cp "TTRPGs/Thousand Year Old Vampire/something.css" _site/something.css
  
       - name: Deploy to gh-pages subfolder
         uses: peaceiris/actions-gh-pages@v4
