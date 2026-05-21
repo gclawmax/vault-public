@@ -24,9 +24,8 @@
   </div>
   <div id="top-bar">
     <div id="picker-row">
-      <span id="picker-label">Character Creator</span>
-      <a id="title-link" href="viewer.html">Chronicle Viewer</a>
-      <a id="core-link" href="core-rules.html">Core Rules</a>
+      <button class="tome-back-btn" onclick="returnToContents()">❮ Chronicles</button>
+      <span id="picker-label">Core Rules</span> <!-- or "Character Creation" -->
       <button class="top-btn" onclick="saveDraft()">💾 Save Draft</button>
       <button class="top-btn" id="load-draft-btn" onclick="loadDraft()" style="display:none;">📂 Resume Draft</button>
       <div id="skin-switcher">
@@ -366,6 +365,12 @@
       if (!dot || !text) { console.log('[' + state + '] ' + msg); return; }
       dot.className = state;
       text.textContent = msg;
+    }
+
+    function returnToContents() {
+      document.body.style.transition = 'opacity .4s ease';
+      document.body.style.opacity = '0';
+      setTimeout(() => { window.location.href = 'viewer.html'; }, 400);
     }
 
     (function () {
@@ -964,6 +969,14 @@
     // ═══════════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════════
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity .4s ease';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.body.style.opacity = '1';
+      });
+    });
+
     initStepIndicator();
     if (localStorage.getItem(DRAFT_KEY)) {
       document.getElementById('load-draft-btn').style.display = '';
