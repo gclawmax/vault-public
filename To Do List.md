@@ -7,7 +7,7 @@
 
 # Future Aspirations
 ------------------
-A nicer UX experience for Vampire selection
+~~A nicer UX experience for Vampire selection~~
 
 
 # Stuff I can't be bothered to fix.
@@ -17,12 +17,7 @@ A nicer UX experience for Vampire selection
 
 # Bugs
 -----
- - ~~ Convert mortal characters to immortal ones ~~.
- - ~~Delete experiences from a memory. Currently impossible.~~
- - ~~You should be able to move a memory into a diary, causing that diary memory to be lost~~
- - ~~Skills still have descriptions on character creation?~~
- - ~~Needs a draft mode to save character creation~~
- - ~~New characters in character creation should be met turn 0.~~
- - ~~Dialog boxes need to be able to minimize or something. I can't see my skills.~~
- - ~~Needs the key adding to character creation~~
- - ~~order the journal entries newest to oldest~~
+- Select a vampire first on next prompt?
+- skin buttons not consistent.
+- Chronicles button broken
+- Next prompt visible when awaiting resolution.
