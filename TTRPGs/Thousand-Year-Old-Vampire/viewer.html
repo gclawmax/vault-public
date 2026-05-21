@@ -361,8 +361,7 @@
           const resume = confirm('You have unsaved edits for this chronicle. Resume editing?');
           if (resume) {
             parsedData = parseSource(draft);
-            editMode = true;
-            applyEditModeUI();
+            showEditControls();
           } else {
             clearDraft();
             parsedData = parseSource(currentJson);
@@ -376,11 +375,10 @@
         }
 
         renderChronicle(parsedData);
-        const filename = currentFilename || document.getElementById('game-select').value;
         document.getElementById('empty-state').style.display = 'none'
         document.getElementById('content').style.display = 'block'
-        setStatus('ok', draft && editMode ? `Resumed draft: ${filename}` : `Loaded: ${filename}`);
-        localStorage.setItem('tyov-last-chronicle', filename); // ← here, inside try
+        setStatus('ok', draft && editMode ? `Resumed draft: ${currentFilename}` : `Loaded: ${currentFilename}`);
+        localStorage.setItem('tyov-last-chronicle', currentFilename); // ← here, inside try
 
       } catch (e) {
         setStatus('err', 'Load failed: ' + e.message);
