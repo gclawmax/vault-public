@@ -1985,12 +1985,27 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         preview.style.color = 'var(--ink-faint)';
         if (loseCheck) loseCheck.closest('div').style.display = 'none';
         if (newThemeRow) newThemeRow.style.display = 'none';
+        const diaryThemeWrap = document.getElementById('diary-theme-wrap');
+        if (diaryThemeWrap) diaryThemeWrap.style.display = '';
         return;
       }
+
+      // Hide diary theme wrap for non-diary selections
+      const diaryThemeWrap = document.getElementById('diary-theme-wrap');
+      if (diaryThemeWrap) diaryThemeWrap.style.display = 'none';
 
       const i = parseInt(val);
       const mem = parsedData.memories[i];
       if (!mem) return;
+
+      // Empty slot — show theme field immediately, hide lose checkbox
+      if (!mem.theme && mem.experiences.length === 0) {
+        preview.textContent = 'Empty slot — provide a theme to start this memory.';
+        preview.style.color = 'var(--ink-faint)';
+        if (loseCheck) loseCheck.closest('div').style.display = 'none';
+        if (newThemeRow) newThemeRow.style.display = '';
+        return;
+      }
 
       if (mem.experiences.length > 0) {
         preview.textContent = mem.experiences.map((e, j) => (j + 1) + '. ' + e).join(' | ');
@@ -2093,8 +2108,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             + '</div>'
             + '<div id="ed-je-new-theme-row" style="display:none;">'
             + '<div class="form-row">'
-            + '<label class="form-label" style="color:var(--blood);">New Memory Theme (required)</label>'
-            + '<input class="form-input" id="ed-je-new-theme" placeholder="Theme for the new memory that takes its place…">'
+            + '<label class="form-label">Memory Theme</label>'
+            + '<input class="form-input" id="ed-je-new-theme" placeholder="e.g. The Scholarly Curate">'
             + '</div>'
             + '</div>'
             + '</div>';
