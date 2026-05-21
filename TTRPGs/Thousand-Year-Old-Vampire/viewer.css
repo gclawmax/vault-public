@@ -279,10 +279,13 @@ body {
 }
 
 #skin-switcher {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   gap: 6px;
   align-items: center;
-  margin-left: auto;
 }
 
 /* ── Edit mode indicator bar ── */
