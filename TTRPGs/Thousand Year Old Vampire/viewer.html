@@ -33,12 +33,12 @@
           <div class="tome-rule"></div>
         </div>
         <nav id="tome-nav">
-          <div class="tome-entry tome-action" onclick="window.location.href='character-creator.html'">
+          <div class="tome-entry tome-action" onclick="turnToPage('character-creator.html')">
             <span class="tome-entry-icon">✦</span>
-            <span class="tome-entry-name">Begin a New Vampire</span>
+            <span class="tome-entry-name">Begin a New Chronicle</span>
             <span class="tome-entry-meta">character creation</span>
           </div>
-          <div class="tome-entry tome-action" onclick="window.location.href='core-rules.html'">
+          <div class="tome-entry tome-action" onclick="turnToPage('core-rules.html')">
             <span class="tome-entry-icon">✦</span>
             <span class="tome-entry-name">The Rules</span>
             <span class="tome-entry-meta">core rules reference</span>
@@ -189,6 +189,12 @@
       const wrap = document.getElementById('tome-wrap');
       wrap.classList.add('turning');
       setTimeout(() => { wrap.classList.add('turned'); wrap.classList.remove('turning'); }, 600);
+    }
+
+    function turnToPage(url) {
+      const wrap = document.getElementById('tome-wrap');
+      wrap.classList.add('turning');
+      setTimeout(() => { window.location.href = url; }, 600);
     }
 
     function returnToContents() {
