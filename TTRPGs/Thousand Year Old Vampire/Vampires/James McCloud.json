@@ -19,7 +19,8 @@
       "theme": "Drinks all round",
       "description": "",
       "experiences": [
-        "Ran from my region to the pub"
+        "Ran from my region to the pub",
+        "One drink too many, I guess. Killed sarah."
       ]
     },
     {
@@ -63,7 +64,7 @@
   "skills": [
     {
       "name": "Swordsmanship",
-      "status": "unchecked",
+      "status": "checked",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -195,11 +196,11 @@
       "name": "Sarah",
       "type": "mortal",
       "description": "The woman I met that time at the pub.",
-      "status": "alive",
-      "death_reason": "",
-      "death_epitaph": "",
+      "status": "dead",
+      "death_reason": "Killed because she was a drunkard",
+      "death_epitaph": "Should have had a water...",
       "gained_turn": 3,
-      "lost_turn": null
+      "lost_turn": 4
     }
   ],
   "journal": [
@@ -234,10 +235,10 @@
       "turn": 4,
       "prompt": 5,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:01:07.572Z",
+      "experience": "Sarah was going to expose me after it turned out she was a drunkard. So I killed her with a sword.",
+      "changes": "Killed Sarah"
     }
   ]
 }
