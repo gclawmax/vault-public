@@ -187,7 +187,7 @@
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": null,
+      "gained_turn": 0,
       "lost_turn": null
     },
     {
