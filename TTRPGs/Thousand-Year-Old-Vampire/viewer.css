@@ -685,15 +685,21 @@ body.edit-mode .section-editwrap {
   cursor: pointer;
 }
 
-/* ── Top Bar ── */
+/* ── Vampire header ── */
+.vamp-header {
+  text-align: center;
+  padding: 36px 20px 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
 
-#picker-row {
+.vamp-name-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  flex-wrap: wrap;
-  position: relative;
+  justify-content: center;
+  gap: 18px;
+  margin: 0 auto;
+  max-width: 700px;
 }
 
 .vamp-rule {
@@ -717,40 +723,43 @@ body.edit-mode .section-editwrap {
   opacity: .3;
 }
 
-.topbar-vamp-name {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: none;
-  width: 40%;
-}
-
-.topbar-name-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.topbar-name-text {
+.vamp-name {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(.85rem, 1.8vw, 1.3rem);
+  font-weight: 400;
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  line-height: 1.15;
   color: var(--blood);
   letter-spacing: .04em;
   white-space: nowrap;
 }
 
-.topbar-pills-row {
+.vamp-subtitle {
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 400;
+  font-size: clamp(.7rem, 1.5vw, 1rem);
+  color: var(--ink-faint);
+  letter-spacing: .08em;
+  margin-top: 10px;
+}
+
+.vamp-epitaph {
+  margin: 14px auto 0;
+  max-width: 600px;
+  padding: 10px 16px;
+  border-left: 2px solid var(--blood);
+  text-align: left;
+  color: var(--ink-dim);
+  font-style: italic;
+  font-size: .95rem;
+  background: var(--surface2);
+}
+
+.meta-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 4px 16px 6px;
-  border-bottom: 1px solid var(--topbar-border);
-}
-
-.meta-epitaph {
-  border-color: transparent;
-  background: transparent;
-  font-size: .88rem;
+  justify-content: center;
+  margin-top: 16px;
 }
 
 .meta-pill {
