@@ -125,6 +125,7 @@
     let currentFileUrl = null;
     let currentJson = null;   // last saved state from GitHub — never mutated
     let editMode = true;
+    let hasUnsaved = false;
     let parsedData = null;    // live working copy — mutated by editors, persisted to localStorage
     let currentModalConfirm = null;
     let currentFilename = null; // tracks which file is loaded, for localStorage key
