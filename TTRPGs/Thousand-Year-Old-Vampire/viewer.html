@@ -375,8 +375,7 @@
         }
 
         renderChronicle(parsedData);
-        const select = document.getElementById('game-select');
-        if (select) select.value = filename;
+        const filename = currentFilename || document.getElementById('game-select').value;
         document.getElementById('empty-state').style.display = 'none'
         document.getElementById('content').style.display = 'block'
         setStatus('ok', draft && editMode ? `Resumed draft: ${filename}` : `Loaded: ${filename}`);
@@ -474,10 +473,10 @@
     function _pollTick() {
       if (!_pviz || editMode) { _ptl = setTimeout(_pollTick, 30000); return; } // don't poll during edits
       var t = [];
-      var sel = document.getElementById('game-select');
+      const filename = currentFilename || document.getElementById('game-select').value;
       // Poll current vampire sheet
-      if (sel.value) {
-        t.push(_chkFile(GITHUB_API + '/' + encodeURIComponent(sel.value), 'v'));
+      if (filename) {
+        t.push(_chkFile(GITHUB_API + '/' + encodeURIComponent(filename), 'v'));
       } else {
         t.push(_chkFile(GITHUB_API, 'g')); // refresh game list
       }
@@ -808,7 +807,7 @@
         + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
         + '<div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);">📖 Journal</div>'
         + '<button class="top-btn" onclick="event.stopPropagation();getAndSetNextPrompt()" title="'
-        + (promptBtnDisabled ? 'Resolve current entry first': 'Get next prompt')
+        + (promptBtnDisabled ? 'Resolve current entry first' : 'Get next prompt')
         + '" style="font-size:11px;padding:5px 12px;'
         + (promptBtnDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
         + (promptBtnDisabled ? ' disabled' : '') + '>🎲 Next Prompt</button>'
@@ -2348,8 +2347,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const token = getVaultKey();
       if (!token) { openKeyPanel(); alert('Please enter your vault key (🔑 icon) first.'); return; }
 
-      const sel = document.getElementById('game-select');
-      if (!sel.value) { alert('Select a vampire first.'); return; }
+      const filename = currentFilename || document.getElementById('game-select').value;
+      if (!filename) { alert('Select a vampire first.'); return; }
 
       const promptsReady = await ensurePromptsLoaded();
       if (!promptsReady) { openKeyPanel(); alert('Could not load prompts. Please check your vault key.'); return; }
@@ -2397,7 +2396,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         parsedData.frontmatter.current_prompt = String(result.prompt);
 
         // Save to GitHub
-        const filename = sel.value;
         const fileUrl = GITHUB_API + '/' + encodeURIComponent(filename);
 
         // Get current SHA
