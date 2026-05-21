@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-14",
   "modified": "2026-05-21",
-  "current_prompt": 14,
+  "current_prompt": 18,
   "epitaph": null,
   "marks": [
     {
@@ -28,7 +28,8 @@
       "theme": "The art of murderising",
       "description": "",
       "experiences": [
-        "They come for a haircut or a shave, so I shave them a little too close. drink their blood and mush their bodies into Mrs Rabbit's pies downstairs."
+        "They come for a haircut or a shave, so I shave them a little too close. drink their blood and mush their bodies into Mrs Rabbit's pies downstairs.",
+        "Jack used my old homestead to show them how I used to live. I used my art of murderising to get out of it"
       ]
     },
     {
@@ -187,7 +188,7 @@
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
-      "gained_turn": 0,
+      "gained_turn": null,
       "lost_turn": null
     },
     {
@@ -260,6 +261,15 @@
     {
       "turn": 6,
       "prompt": 14,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:05:44.380Z",
+      "experience": "Jack used my old homestead to show them how I used to live. I used my art of murderising to get out of it",
+      "changes": ""
+    },
+    {
+      "turn": 7,
+      "prompt": 18,
       "entry": 1,
       "resolved": false,
       "resolved_at": null,
