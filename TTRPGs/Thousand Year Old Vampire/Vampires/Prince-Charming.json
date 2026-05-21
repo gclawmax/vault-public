@@ -1,11 +1,11 @@
 {
-  "draft": false,
   "name": "Prince Charming",
   "vampire_desc": "A noble knight. Has nice hair",
   "game_over": false,
   "game_start": "2026-05-21",
   "modified": "2026-05-21",
-  "current_prompt": 0,
+  "current_prompt": 1,
+  "epitaph": null,
   "marks": [
     {
       "description": "The worlds most perfect(ly sharp) teeth",
@@ -55,7 +55,6 @@
       ]
     }
   ],
-  "diary_memories": {},
   "lost_memories": [],
   "skills": [
     {
@@ -103,11 +102,12 @@
       "lost_turn": null
     }
   ],
+  "diary_memories": {},
   "characters": [
     {
       "name": "Lancelot",
-      "description": "His mate",
       "type": "mortal",
+      "description": "His mate",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -116,8 +116,8 @@
     },
     {
       "name": "Gwen",
-      "description": "His girl",
       "type": "mortal",
+      "description": "His girl",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -126,8 +126,8 @@
     },
     {
       "name": "Arthur",
-      "description": "His boss",
       "type": "mortal",
+      "description": "His boss",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -136,8 +136,8 @@
     },
     {
       "name": "Morgan le Fay",
-      "description": "Arthur's weird kid sister. Has magic powers.",
       "type": "immortal",
+      "description": "Arthur's weird kid sister. Has magic powers.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -145,5 +145,15 @@
       "lost_turn": null
     }
   ],
-  "journal": []
+  "journal": [
+    {
+      "turn": 1,
+      "prompt": 1,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
+    }
+  ]
 }
