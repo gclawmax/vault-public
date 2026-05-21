@@ -3,8 +3,8 @@
   "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
   "game_over": false,
   "game_start": "2026-05-14",
-  "modified": "2026-05-20",
-  "current_prompt": 4,
+  "modified": "2026-05-21",
+  "current_prompt": 5,
   "epitaph": null,
   "marks": [
     {
@@ -16,9 +16,11 @@
   "memories": [
     {
       "n": 1,
-      "theme": "",
+      "theme": "Drinks all round",
       "description": "",
-      "experiences": []
+      "experiences": [
+        "Ran from my region to the pub"
+      ]
     },
     {
       "n": 2,
@@ -73,7 +75,7 @@
     },
     {
       "name": "Tactics and Command",
-      "status": "unchecked",
+      "status": "checked",
       "gained_turn": null,
       "lost_turn": null
     }
@@ -91,9 +93,9 @@
       "name": "Blackwood Hall",
       "description": "The fortress of your ancestors, perched on a jagged ridge where the wind never stops its wailing. Thick stone walls, a great hall that can house your entire retinue. The heart of your power.",
       "type": "stationary",
-      "status": "active",
+      "status": "lost",
       "gained_turn": null,
-      "lost_turn": null
+      "lost_turn": 3
     },
     {
       "name": "Wintersteel Broadsword",
@@ -188,6 +190,16 @@
       "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": null
+    },
+    {
+      "name": "Sarah",
+      "type": "mortal",
+      "description": "The woman I met that time at the pub.",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 3,
+      "lost_turn": null
     }
   ],
   "journal": [
@@ -212,6 +224,15 @@
     {
       "turn": 3,
       "prompt": 4,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T16:59:21.964Z",
+      "experience": "Ran to the pub. Changed my Jim Cloud. Sarah came with me.",
+      "changes": ""
+    },
+    {
+      "turn": 4,
+      "prompt": 5,
       "entry": 1,
       "resolved": false,
       "resolved_at": null,
