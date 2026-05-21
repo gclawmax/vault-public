@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-21",
   "modified": "2026-05-21",
-  "current_prompt": 1,
+  "current_prompt": 2,
   "epitaph": null,
   "marks": [
     {
@@ -47,7 +47,8 @@
       "description": "",
       "experiences": [
         "He goes to Camelot every day to work for Arthur. Usually to keep the peace. Sometimes to find a missing bloody cup.",
-        "No, I refuse to kill anyone. I want to see people die of old age. Whatever bloodthirsty is, I'll slap a patch on for it."
+        "No, I refuse to kill anyone. I want to see people die of old age. Whatever bloodthirsty is, I'll slap a patch on for it.",
+        "Caught by Connor McCloud of the clan McCloud. Keeps banging on about being the only one. Only one what?"
       ]
     },
     {
@@ -204,6 +205,15 @@
       "turn": 5,
       "prompt": 1,
       "entry": 3,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:19:24.301Z",
+      "experience": "Caught by Connor McCloud of the clan McCloud. Keeps banging on about being the only one. Only one what?",
+      "changes": ""
+    },
+    {
+      "turn": 6,
+      "prompt": 2,
+      "entry": 1,
       "resolved": false,
       "resolved_at": null,
       "experience": "",
