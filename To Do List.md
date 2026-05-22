@@ -13,11 +13,7 @@
 # Stuff I can't be bothered to fix.
 --------------------------
 - Edit Journal needs a re-write, or does it? Right now it's a fixed book.
--  ? button - Overlay or other dialog to explain the process -> Edit, Click various sections -> Save.
 
 # Bugs
 -----
-- ~~Select a vampire first on next prompt?~~
-- ~~skin buttons not consistent.~~
-- Chronicles button broken
-- Next prompt visible when awaiting resolution.
+Adding resources, description doesn't reset.

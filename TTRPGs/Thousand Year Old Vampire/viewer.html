@@ -794,202 +794,206 @@
       if (livingMortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
       livingMortals.forEach(c => {
         html += '<div class="char-row">'
-          + '<div class="char-row-name">' + esc(c.name) + '</div>'
+          + '<div class="char-row-name">'
+          + esc(c.name)
+          + (c._graveIcon ? ' <span title="This mortal may not survive much longer…">🪦</span>' : '')
+          + '</div>'
           + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
           + '</div>';
       });
-      html += '</div></div></div>';
+    });
+    html += '</div></div></div>';
 
-      // Journal
-      html += '<div class="journal-col section-editwrap" data-section="journal" '
-        + (em ? 'onclick="editJournal()" title="Click to add/remove journal entries"' : '') + '>'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
-        + '<div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);">📖 Journal</div>'
-        + '<button class="top-btn" onclick="event.stopPropagation();getAndSetNextPrompt()" title="'
-        + (promptBtnDisabled ? 'Resolve current entry first' : 'Get next prompt')
-        + '" style="font-size:11px;padding:5px 12px;'
-        + (promptBtnDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
-        + (promptBtnDisabled ? ' disabled' : '') + '>🎲 Next Prompt</button>'
+    // Journal
+    html += '<div class="journal-col section-editwrap" data-section="journal" '
+      + (em ? 'onclick="editJournal()" title="Click to add/remove journal entries"' : '') + '>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+      + '<div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);">📖 Journal</div>'
+      + '<button class="top-btn" onclick="event.stopPropagation();getAndSetNextPrompt()" title="'
+      + (promptBtnDisabled ? 'Resolve current entry first' : 'Get next prompt')
+      + '" style="font-size:11px;padding:5px 12px;'
+      + (promptBtnDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
+      + (promptBtnDisabled ? ' disabled' : '') + '>🎲 Next Prompt</button>'
+      + '</div>';
+
+    if (d.journal.length === 0) {
+      html += '<p style="color:var(--ink-faint);font-style:italic;">No journal entries yet.</p>';
+    }
+
+    const journalDisplay = [...d.journal].sort((a, b) => {
+      if (a.awaiting && !b.awaiting) return -1;
+      if (!a.awaiting && b.awaiting) return 1;
+      if (a.resolved_at && b.resolved_at) return new Date(b.resolved_at) - new Date(a.resolved_at);
+      return b.turn - a.turn;
+    });
+
+    journalDisplay.forEach(j => {
+      const trueIdx = d.journal.indexOf(j);
+      html += '<div class="journal-entry" data-entry-idx="' + trueIdx + '" '
+        + (em ? 'onclick="event.stopPropagation();editjournalentry(' + trueIdx + ')" title="Click to edit this entry"' : '') + '>'
+        + '<div class="journal-turn">Turn ' + j.turn + ' — Prompt ' + j.prompt + ', Entry ' + j.entry + '</div>'
+        + '<div class="journal-scrap">'
+        + '<div class="journal-prompt-text">' + esc(getPromptText(j.prompt, j.entry)) + '</div>'
+        + '<div class="journal-body">';
+      if (j.prose) html += '<p>' + esc(j.prose) + '</p>';
+      if (!j.resolved) {
+        html += '<p class="journal-awaiting">Awaiting resolution…</p>';
+      } else if (j.changes) {
+        html += '<p style="font-size:.85rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:10px;margin-top:10px;"><strong>Changes:</strong> ' + esc(j.changes) + '</p>';
+      }
+      if (j.resolved_at) {
+        const rd = new Date(j.resolved_at);
+        const resolvedDate = String(rd.getDate()).padStart(2, '0') + '-'
+          + String(rd.getMonth() + 1).padStart(2, '0') + '-'
+          + rd.getFullYear() + ' '
+          + String(rd.getHours()).padStart(2, '0') + ':'
+          + String(rd.getMinutes()).padStart(2, '0');
+        html += '<p style="font-size:.75rem;color:var(--ink-faint);margin-top:6px;">Resolved ' + resolvedDate + '</p>';
+      }
+      html += '</div></div></div>';
+    });
+    html += '</div>'; // journal-col
+
+    // Immortal Characters — living only
+    const livingImmortals = d.characters.filter(c => c.type === 'immortal' && !c.dead)
+      .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
+
+    html += '<div class="char-col section-editwrap" data-section="characters-immortal" '
+      + (em ? 'onclick="editCharacters(\'immortal\')" title="Click to edit immortal characters"' : '') + '>'
+      + '<div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧛</span> Immortal Characters</div>'
+      + '<div class="char-list">';
+    if (livingImmortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
+    livingImmortals.forEach(c => {
+      html += '<div class="char-row">'
+        + '<div class="char-row-name">' + esc(c.name) + '</div>'
+        + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
         + '</div>';
+    });
+    html += '</div></div></div>';
 
-      if (d.journal.length === 0) {
-        html += '<p style="color:var(--ink-faint);font-style:italic;">No journal entries yet.</p>';
+    html += '</div>'; // main-layout
+
+    // Memories
+    // Active memories
+    html += '<div class="memories-section section-editwrap" data-section="memories" '
+      + (em ? 'onclick="editMemories()" title="Click to edit memories"' : '') + '>'
+      + '<div class="memories-section-label"><span class="section-icon">🧠</span> Memories</div>'
+      + '<div class="memories-grid">';
+    d.memories.forEach(mem => {
+      const isEmpty = !mem.theme && mem.experiences.length === 0;
+      const cls = isEmpty ? 'memory-block empty-slot' : 'memory-block';
+      html += '<div class="' + cls + '">'
+        + '<div class="memory-title">'
+        + (isEmpty ? 'Empty — Slot ' + mem.n : 'Memory ' + mem.n + ' — ' + esc(mem.theme))
+        + '</div>';
+      if (!isEmpty) {
+        html += '<ol>';
+        mem.experiences.forEach(exp => { html += '<li>' + esc(exp) + '</li>'; });
+        html += '</ol>';
+      } else {
+        html += '<p style="font-size:.85rem;color:var(--ink-faint);font-style:italic;">Awaiting new memory.</p>';
       }
+      html += '</div>';
+    });
+    html += '</div></div>';
 
-      const journalDisplay = [...d.journal].sort((a, b) => {
-        if (a.awaiting && !b.awaiting) return -1;
-        if (!a.awaiting && b.awaiting) return 1;
-        if (a.resolved_at && b.resolved_at) return new Date(b.resolved_at) - new Date(a.resolved_at);
-        return b.turn - a.turn;
+    // Diary memories — one section per active diary
+    const activeDiary = d.resources.find(r => r.type === 'diary' && r.status === 'active');
+    if (activeDiary) {
+      const mems = d.diaryMemories[activeDiary.name] || [];
+      let contentHtml = '<div class="memories-grid">';
+      if (mems.length === 0) {
+        contentHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary.</p>';
+      }
+      mems.forEach(mem => {
+        contentHtml += '<div class="memory-block">'
+          + '<div class="memory-title">Memory ' + mem.n + '</div>'
+          + '<ol>';
+        mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
+        contentHtml += '</ol></div>';
       });
+      contentHtml += '</div>';
+      html += '<div class="memories-section section-editwrap" '
+        + (em ? 'onclick="editDiaryMemories(\'' + activeDiary.name.replace(/'/g, "\\'") + '\')" title="Click to edit diary memories"' : '') + '>'
+        + '<div class="memories-section-label"><span class="section-icon">📖</span> ' + esc(activeDiary.name) + '</div>'
+        + contentHtml
+        + '</div>';
+    }
 
-      journalDisplay.forEach(j => {
-        const trueIdx = d.journal.indexOf(j);
-        html += '<div class="journal-entry" data-entry-idx="' + trueIdx + '" '
-          + (em ? 'onclick="event.stopPropagation();editjournalentry(' + trueIdx + ')" title="Click to edit this entry"' : '') + '>'
-          + '<div class="journal-turn">Turn ' + j.turn + ' — Prompt ' + j.prompt + ', Entry ' + j.entry + '</div>'
-          + '<div class="journal-scrap">'
-          + '<div class="journal-prompt-text">' + esc(getPromptText(j.prompt, j.entry)) + '</div>'
-          + '<div class="journal-body">';
-        if (j.prose) html += '<p>' + esc(j.prose) + '</p>';
-        if (!j.resolved) {
-          html += '<p class="journal-awaiting">Awaiting resolution…</p>';
-        } else if (j.changes) {
-          html += '<p style="font-size:.85rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:10px;margin-top:10px;"><strong>Changes:</strong> ' + esc(j.changes) + '</p>';
-        }
-        if (j.resolved_at) {
-          const rd = new Date(j.resolved_at);
-          const resolvedDate = String(rd.getDate()).padStart(2, '0') + '-'
-            + String(rd.getMonth() + 1).padStart(2, '0') + '-'
-            + rd.getFullYear() + ' '
-            + String(rd.getHours()).padStart(2, '0') + ':'
-            + String(rd.getMinutes()).padStart(2, '0');
-          html += '<p style="font-size:.75rem;color:var(--ink-faint);margin-top:6px;">Resolved ' + resolvedDate + '</p>';
-        }
-        html += '</div></div></div>';
+    // Lost Memories
+    if (d.lostMemories && d.lostMemories.length > 0) {
+      const sorted = [...d.lostMemories].sort((a, b) => new Date(b.lost_at) - new Date(a.lost_at));
+      let contentHtml = '<div class="memories-grid">';
+      sorted.forEach(mem => {
+        const ld = new Date(mem.lost_at);
+        const lostDate = String(ld.getDate()).padStart(2, '0') + '-'
+          + String(ld.getMonth() + 1).padStart(2, '0') + '-' + ld.getFullYear();
+        contentHtml += '<div class="memory-block forgotten">'
+          + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme)
+          + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + ' · ' + lostDate + '</span></div>'
+          + '<ol>';
+        mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
+        contentHtml += '</ol></div>';
       });
-      html += '</div>'; // journal-col
+      contentHtml += '</div>';
+      html += collapsibleSection('lost-memories', '🌒', 'Lost Memories', contentHtml, em ? 'editLostMemories()' : null, sorted.length);
+    }
 
-      // Immortal Characters — living only
-      const livingImmortals = d.characters.filter(c => c.type === 'immortal' && !c.dead)
-        .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
-
-      html += '<div class="char-col section-editwrap" data-section="characters-immortal" '
-        + (em ? 'onclick="editCharacters(\'immortal\')" title="Click to edit immortal characters"' : '') + '>'
-        + '<div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧛</span> Immortal Characters</div>'
-        + '<div class="char-list">';
-      if (livingImmortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
-      livingImmortals.forEach(c => {
-        html += '<div class="char-row">'
-          + '<div class="char-row-name">' + esc(c.name) + '</div>'
-          + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
+    // ── Lost Resources ──
+    const lostResources = d.resources.filter(r => r.status === 'lost')
+      .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
+    if (lostResources.length > 0) {
+      let contentHtml = '<div class="memories-grid">';
+      lostResources.forEach(r => {
+        const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
+        contentHtml += '<div class="memory-block forgotten">'
+          + '<div class="memory-title">' + icon + ' ' + esc(r.name)
+          + (r.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + r.lost_turn + '</span>' : '')
+          + '</div>'
+          + (r.description ? '<p style="font-size:.88rem;">' + esc(r.description) + '</p>' : '')
           + '</div>';
       });
-      html += '</div></div></div>';
+      contentHtml += '</div>';
+      html += collapsibleSection('lost-resources', '🏚', 'Lost Resources', contentHtml, em ? 'editResources()' : null, lostResources.length);
+    }
 
-      html += '</div>'; // main-layout
-
-      // Memories
-      // Active memories
-      html += '<div class="memories-section section-editwrap" data-section="memories" '
-        + (em ? 'onclick="editMemories()" title="Click to edit memories"' : '') + '>'
-        + '<div class="memories-section-label"><span class="section-icon">🧠</span> Memories</div>'
-        + '<div class="memories-grid">';
-      d.memories.forEach(mem => {
-        const isEmpty = !mem.theme && mem.experiences.length === 0;
-        const cls = isEmpty ? 'memory-block empty-slot' : 'memory-block';
-        html += '<div class="' + cls + '">'
-          + '<div class="memory-title">'
-          + (isEmpty ? 'Empty — Slot ' + mem.n : 'Memory ' + mem.n + ' — ' + esc(mem.theme))
+    // ── Checked Skills ──
+    const checkedSkills = d.skills.filter(sk => sk.status === 'checked')
+      .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
+    if (checkedSkills.length > 0) {
+      let contentHtml = '<div class="memories-grid">';
+      checkedSkills.forEach(sk => {
+        contentHtml += '<div class="memory-block forgotten">'
+          + '<div class="memory-title">☑ ' + esc(sk.name)
+          + (sk.gained_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — gained turn ' + sk.gained_turn + '</span>' : '')
+          + '</div>'
+          + (sk.description ? '<p style="font-size:.88rem;">' + esc(sk.description) + '</p>' : '')
           + '</div>';
-        if (!isEmpty) {
-          html += '<ol>';
-          mem.experiences.forEach(exp => { html += '<li>' + esc(exp) + '</li>'; });
-          html += '</ol>';
-        } else {
-          html += '<p style="font-size:.85rem;color:var(--ink-faint);font-style:italic;">Awaiting new memory.</p>';
-        }
-        html += '</div>';
       });
-      html += '</div></div>';
+      contentHtml += '</div>';
+      html += collapsibleSection('checked-skills', '☑', 'Checked Skills', contentHtml, em ? 'editSkills()' : null, checkedSkills.length);
+    }
 
-      // Diary memories — one section per active diary
-      const activeDiary = d.resources.find(r => r.type === 'diary' && r.status === 'active');
-      if (activeDiary) {
-        const mems = d.diaryMemories[activeDiary.name] || [];
-        let contentHtml = '<div class="memories-grid">';
-        if (mems.length === 0) {
-          contentHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary.</p>';
-        }
-        mems.forEach(mem => {
-          contentHtml += '<div class="memory-block">'
-            + '<div class="memory-title">Memory ' + mem.n + '</div>'
-            + '<ol>';
-          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
-          contentHtml += '</ol></div>';
-        });
-        contentHtml += '</div>';
-        html += '<div class="memories-section section-editwrap" '
-          + (em ? 'onclick="editDiaryMemories(\'' + activeDiary.name.replace(/'/g, "\\'") + '\')" title="Click to edit diary memories"' : '') + '>'
-          + '<div class="memories-section-label"><span class="section-icon">📖</span> ' + esc(activeDiary.name) + '</div>'
-          + contentHtml
+    // ── Obituary ──
+    const deadChars = d.characters.filter(c => c.dead)
+      .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
+    if (deadChars.length > 0) {
+      let contentHtml = '<div class="memories-grid">';
+      deadChars.forEach(c => {
+        contentHtml += '<div class="memory-block forgotten">'
+          + '<div class="memory-title">' + esc(c.name)
+          + ' <span style="font-size:.75em;color:var(--ink-faint);">— ' + c.type
+          + (c.lost_turn ? ' · died turn ' + c.lost_turn : '') + '</span></div>'
+          + (c.desc ? '<p style="font-size:.88rem;margin-bottom:6px;">' + esc(c.desc) + '</p>' : '')
+          + (c.death_reason ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">' + esc(c.death_reason) + '</p>' : '')
+          + (c.death_epitaph ? '<p style="font-size:.82rem;color:var(--blood);font-style:italic;border-left:2px solid var(--blood);padding-left:8px;margin-top:6px;">' + esc(c.death_epitaph) + '</p>' : '')
           + '</div>';
-      }
+      });
+      contentHtml += '</div>';
+      html += collapsibleSection('obituary', '💀', 'Obituary', contentHtml, em ? 'editObituary()' : null, deadChars.length);
+    }
 
-      // Lost Memories
-      if (d.lostMemories && d.lostMemories.length > 0) {
-        const sorted = [...d.lostMemories].sort((a, b) => new Date(b.lost_at) - new Date(a.lost_at));
-        let contentHtml = '<div class="memories-grid">';
-        sorted.forEach(mem => {
-          const ld = new Date(mem.lost_at);
-          const lostDate = String(ld.getDate()).padStart(2, '0') + '-'
-            + String(ld.getMonth() + 1).padStart(2, '0') + '-' + ld.getFullYear();
-          contentHtml += '<div class="memory-block forgotten">'
-            + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme)
-            + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + ' · ' + lostDate + '</span></div>'
-            + '<ol>';
-          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
-          contentHtml += '</ol></div>';
-        });
-        contentHtml += '</div>';
-        html += collapsibleSection('lost-memories', '🌒', 'Lost Memories', contentHtml, em ? 'editLostMemories()' : null, sorted.length);
-      }
-
-      // ── Lost Resources ──
-      const lostResources = d.resources.filter(r => r.status === 'lost')
-        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
-      if (lostResources.length > 0) {
-        let contentHtml = '<div class="memories-grid">';
-        lostResources.forEach(r => {
-          const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
-          contentHtml += '<div class="memory-block forgotten">'
-            + '<div class="memory-title">' + icon + ' ' + esc(r.name)
-            + (r.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + r.lost_turn + '</span>' : '')
-            + '</div>'
-            + (r.description ? '<p style="font-size:.88rem;">' + esc(r.description) + '</p>' : '')
-            + '</div>';
-        });
-        contentHtml += '</div>';
-        html += collapsibleSection('lost-resources', '🏚', 'Lost Resources', contentHtml, em ? 'editResources()' : null, lostResources.length);
-      }
-
-      // ── Checked Skills ──
-      const checkedSkills = d.skills.filter(sk => sk.status === 'checked')
-        .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
-      if (checkedSkills.length > 0) {
-        let contentHtml = '<div class="memories-grid">';
-        checkedSkills.forEach(sk => {
-          contentHtml += '<div class="memory-block forgotten">'
-            + '<div class="memory-title">☑ ' + esc(sk.name)
-            + (sk.gained_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — gained turn ' + sk.gained_turn + '</span>' : '')
-            + '</div>'
-            + (sk.description ? '<p style="font-size:.88rem;">' + esc(sk.description) + '</p>' : '')
-            + '</div>';
-        });
-        contentHtml += '</div>';
-        html += collapsibleSection('checked-skills', '☑', 'Checked Skills', contentHtml, em ? 'editSkills()' : null, checkedSkills.length);
-      }
-
-      // ── Obituary ──
-      const deadChars = d.characters.filter(c => c.dead)
-        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
-      if (deadChars.length > 0) {
-        let contentHtml = '<div class="memories-grid">';
-        deadChars.forEach(c => {
-          contentHtml += '<div class="memory-block forgotten">'
-            + '<div class="memory-title">' + esc(c.name)
-            + ' <span style="font-size:.75em;color:var(--ink-faint);">— ' + c.type
-            + (c.lost_turn ? ' · died turn ' + c.lost_turn : '') + '</span></div>'
-            + (c.desc ? '<p style="font-size:.88rem;margin-bottom:6px;">' + esc(c.desc) + '</p>' : '')
-            + (c.death_reason ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">' + esc(c.death_reason) + '</p>' : '')
-            + (c.death_epitaph ? '<p style="font-size:.82rem;color:var(--blood);font-style:italic;border-left:2px solid var(--blood);padding-left:8px;margin-top:6px;">' + esc(c.death_epitaph) + '</p>' : '')
-            + '</div>';
-        });
-        contentHtml += '</div>';
-        html += collapsibleSection('obituary', '💀', 'Obituary', contentHtml, em ? 'editObituary()' : null, deadChars.length);
-      }
-
-      el.innerHTML = html;
+    el.innerHTML = html;
     }
 
     // ═══════════════════════════════════════════════════
@@ -2382,11 +2386,11 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
           mortals.forEach(m => {
             if (!m.dead) {
               const gt = Number(m.gained_turn) || 0;
-              const threshold = Math.floor(Math.random() * 2) + 4; // 4 or 5
+              // Stable threshold per character — odd gained_turn = 4, even = 5
+              const threshold = (gt % 2 === 0) ? 5 : 4;
               if (result.turn - gt >= threshold) m._graveIcon = true;
             }
           });
-          // Rerender immediately so the UI reflects any grave prefixes.
           renderChronicle(parsedData);
         }
 
