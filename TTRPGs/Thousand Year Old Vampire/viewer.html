@@ -1299,6 +1299,7 @@
           + (sk.gained_turn ? '<span style="color:var(--ink-faint);font-size:.8rem;"> · gained turn ' + sk.gained_turn + '</span>' : '')
           + '</div>'
           + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="renameSkill(' + i + ')">✎</button>'
           + '<select class="form-select" id="sk-status-' + i + '" style="width:130px;font-size:13px;" onchange="updateSkillStatus(' + i + ', this.value)">'
           + '<option value="unchecked" ' + (sk.status === 'unchecked' ? 'selected' : '') + '>☐ Unchecked</option>'
           + '<option value="checked" ' + (sk.status === 'checked' ? 'selected' : '') + '>☑ Checked</option>'
@@ -1315,6 +1316,21 @@
         const name = document.getElementById('ed-skill-name').value.trim();
         if (name) {
           parsedData.skills.push({ name, status: 'unchecked', gained_turn: currentTurn() });
+          markUnsaved();
+        }
+      });
+    }
+
+    function renameSkill(i) {
+      const sk = parsedData.skills[i];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Skill Name</label>'
+        + '<input class="form-input" id="ed-skill-rename" value="' + esc(sk.name) + '">'
+        + '</div>';
+      openModal('Rename Skill', bodyHtml, () => {
+        const name = document.getElementById('ed-skill-rename').value.trim();
+        if (name) {
+          sk.name = name;
           markUnsaved();
         }
       });
