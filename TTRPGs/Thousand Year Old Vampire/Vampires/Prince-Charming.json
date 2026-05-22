@@ -3,7 +3,7 @@
   "vampire_desc": "A noble knight. Has nice hair",
   "game_over": false,
   "game_start": "2026-05-21",
-  "modified": "2026-05-21",
+  "modified": "2026-05-22",
   "current_prompt": 2,
   "epitaph": null,
   "marks": [
@@ -38,7 +38,8 @@
       "theme": "Killing for work and sport",
       "description": "",
       "experiences": [
-        "He uses excalibur to practice his swords"
+        "He uses excalibur to practice his swords",
+        "Killed to live in this guys fancy castle. No idea what it's called. I'm gong to call it Castle Charming"
       ]
     },
     {
@@ -100,9 +101,9 @@
       "name": "Camelot",
       "description": "His House",
       "type": "stationary",
-      "status": "active",
+      "status": "lost",
       "gained_turn": 0,
-      "lost_turn": null
+      "lost_turn": 6
     },
     {
       "name": "Exclibur",
@@ -118,6 +119,14 @@
       "type": "portable",
       "status": "active",
       "gained_turn": 3,
+      "lost_turn": null
+    },
+    {
+      "name": "Castle Charming",
+      "description": "My new digs",
+      "type": "stationary",
+      "status": "active",
+      "gained_turn": 6,
       "lost_turn": null
     }
   ],
@@ -161,6 +170,16 @@
       "death_reason": "",
       "death_epitaph": "",
       "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Connor McLeod of the clan McLeod",
+      "type": "immortal",
+      "description": "As opposed to the other clans he could be from...",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 6,
       "lost_turn": null
     }
   ],
@@ -214,6 +233,15 @@
       "turn": 6,
       "prompt": 2,
       "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-22T08:41:37.890Z",
+      "experience": "I mean, I was horrified for about a minute. but my teeth are beautiful.\nI hide in plain sight. I feed with my mouth?\nI found a lovely little castle, the owners didn't seem to mind if I lived there. On account of being murdered by me.",
+      "changes": ""
+    },
+    {
+      "turn": 7,
+      "prompt": 2,
+      "entry": 2,
       "resolved": false,
       "resolved_at": null,
       "experience": "",
