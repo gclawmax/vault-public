@@ -1215,13 +1215,13 @@
       const lostMarks = parsedData.marks.filter(m => m.status === 'lost');
       let bodyHtml = '';
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add New Mark</div>'
+      bodyHtml += '<div class="edit-section-title">Add New Mark</div>'
         + '<div class="form-row"><label class="form-label">Description</label>'
         + '<input class="form-input" id="ed-mark-desc" placeholder="e.g. Cold skin that never warms"></div>'
         + '<div class="form-row"><label class="form-label">How is it concealed?</label>'
         + '<input class="form-input" id="ed-mark-conc" placeholder="e.g. hidden under heavy vestments"></div>';
 
-      bodyHtml += '<div class="edit-section-title">Active Marks</div>';
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Active Marks</div>';
       if (activeMarks.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active marks.</p>';
       }
@@ -1291,11 +1291,11 @@
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
       let bodyHtml = '';
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add New Skill</div>'
+      bodyHtml += '<div class="edit-section-title">Add New Skill</div>'
         + '<div class="form-row"><label class="form-label">Skill Name</label>'
         + '<input class="form-input" id="ed-skill-name" placeholder="e.g. Herbalism"></div>';
 
-      bodyHtml += '<div class="edit-section-title">Skills</div>';
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Skills</div>';
 
       if (skills.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No skills yet.</p>';
@@ -1355,7 +1355,7 @@
 
       let bodyHtml = '';
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add Resource</div>'
+      bodyHtml += '<div class="edit-section-title">Add Resource</div>'
         + '<div class="form-row"><label class="form-label">Type</label>'
         + '<select class="form-select" id="ed-res-type">'
         + '<option value="portable">📦 Portable</option>'
@@ -1367,7 +1367,7 @@
         + '<div class="form-row"><label class="form-label">Description</label>'
         + '<input class="form-input" id="ed-res-desc" placeholder="Brief description…"></div>';
 
-      bodyHtml += '<div class="edit-section-title">Active Resources</div>';
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Active Resources</div>';
       if (activeResources.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active resources.</p>';
       }
@@ -1527,13 +1527,13 @@
 
       let bodyHtml = '';
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add ' + label + ' Character</div>'
+      bodyHtml += '<div class="edit-section-title">Add ' + label + ' Character</div>'
         + '<div class="form-row"><label class="form-label">Name</label>'
         + '<input class="form-input" id="ed-char-name" placeholder="e.g. Sister Agatha"></div>'
         + '<div class="form-row"><label class="form-label">Description</label>'
         + '<textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea></div>';
 
-      bodyHtml += '<div class="edit-section-title">Living ' + label + ' Characters</div>';
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Living ' + label + ' Characters</div>';
       if (living.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">None yet.</p>';
       }
@@ -1961,7 +1961,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
       // List existing journal entries (for deletion)
       if (parsedData.journal.length > 0) {
-        bodyHtml += `<div class="edit-section-title">Journal Entries</div>`;
+        bodyHtml += `<hr class="edit-divider"><div class="edit-section-title">Journal Entries</div>`;
 
         const sortedJournal = [...parsedData.journal]
           .sort((a, b) => (b.turn || 0) - (a.turn || 0));
