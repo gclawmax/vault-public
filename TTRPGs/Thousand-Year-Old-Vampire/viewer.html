@@ -228,6 +228,14 @@
         .replace(/"/g, '&quot;');
     }
 
+    function renderProse(s) {
+      if (!s) return '';
+      return esc(s)
+        .split('\n\n')
+        .map(para => '<p>' + para.replace(/\n/g, '<br>') + '</p>')
+        .join('');
+    }
+
     // ═══════════════════════════════════════════════════
     // SKIN SWITCHER
     // ═══════════════════════════════════════════════════
@@ -841,7 +849,7 @@
           + '<div class="journal-scrap">'
           + '<div class="journal-prompt-text">' + esc(getPromptText(j.prompt, j.entry)) + '</div>'
           + '<div class="journal-body">';
-        if (j.prose) html += '<p>' + esc(j.prose) + '</p>';
+        if (j.prose) html += renderProse(j.prose);
         if (!j.resolved) {
           html += '<p class="journal-awaiting">Awaiting resolution…</p>';
         } else if (j.changes) {
