@@ -237,6 +237,15 @@
       "resolved_at": "2026-05-22T08:41:37.890Z",
       "experience": "I mean, I was horrified for about a minute. but my teeth are beautiful.\nI hide in plain sight. I feed with my mouth?\nI found a lovely little castle, the owners didn't seem to mind if I lived there. On account of being murdered by me.",
       "changes": ""
+    },
+    {
+      "turn": 7,
+      "prompt": 2,
+      "entry": 2,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
     }
   ]
 }
