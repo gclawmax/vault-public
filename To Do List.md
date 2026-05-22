@@ -17,4 +17,5 @@
 # Bugs
 -----
 ~~Mortals not dying of old age~~
-Adding resources, description doesn't reset.
+~~Adding resources, description doesn't reset.~~
+On everything (use edit journal as example) Scroll on journal entries, not on dialog. I want to see the update button regardless
