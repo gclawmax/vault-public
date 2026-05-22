@@ -1213,8 +1213,15 @@
       if (!editMode) return;
       const activeMarks = parsedData.marks.filter(m => m.status === 'active');
       const lostMarks = parsedData.marks.filter(m => m.status === 'lost');
+      let bodyHtml = '';
 
-      let bodyHtml = '<div class="edit-section-title">Active Marks</div>';
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add New Mark</div>'
+        + '<div class="form-row"><label class="form-label">Description</label>'
+        + '<input class="form-input" id="ed-mark-desc" placeholder="e.g. Cold skin that never warms"></div>'
+        + '<div class="form-row"><label class="form-label">How is it concealed?</label>'
+        + '<input class="form-input" id="ed-mark-conc" placeholder="e.g. hidden under heavy vestments"></div>';
+
+      bodyHtml += '<div class="edit-section-title">Active Marks</div>';
       if (activeMarks.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active marks.</p>';
       }
@@ -1243,11 +1250,6 @@
         });
       }
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add New Mark</div>'
-        + '<div class="form-row"><label class="form-label">Description</label>'
-        + '<input class="form-input" id="ed-mark-desc" placeholder="e.g. Cold skin that never warms"></div>'
-        + '<div class="form-row"><label class="form-label">How is it concealed?</label>'
-        + '<input class="form-input" id="ed-mark-conc" placeholder="e.g. hidden under heavy vestments"></div>';
 
       openModal('Edit Marks', bodyHtml, () => {
         const desc = document.getElementById('ed-mark-desc').value.trim();
@@ -1287,8 +1289,14 @@
       if (!editMode) return;
       const skills = [...parsedData.skills]
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
+      let bodyHtml = '';
 
-      let bodyHtml = '<div class="edit-section-title">Skills</div>';
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add New Skill</div>'
+        + '<div class="form-row"><label class="form-label">Skill Name</label>'
+        + '<input class="form-input" id="ed-skill-name" placeholder="e.g. Herbalism"></div>';
+
+      bodyHtml += '<div class="edit-section-title">Skills</div>';
+
       if (skills.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No skills yet.</p>';
       }
@@ -1307,10 +1315,6 @@
           + '<button class="trash-btn" onclick="deleteSkill(' + i + ')">🗑</button>'
           + '</div></div>';
       });
-
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add New Skill</div>'
-        + '<div class="form-row"><label class="form-label">Skill Name</label>'
-        + '<input class="form-input" id="ed-skill-name" placeholder="e.g. Herbalism"></div>';
 
       openModal('Edit Skills', bodyHtml, () => {
         const name = document.getElementById('ed-skill-name').value.trim();
@@ -1349,7 +1353,21 @@
       const lostResources = parsedData.resources.filter(r => r.status === 'lost')
         .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
 
-      let bodyHtml = '<div class="edit-section-title">Active Resources</div>';
+      let bodyHtml = '';
+
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add Resource</div>'
+        + '<div class="form-row"><label class="form-label">Type</label>'
+        + '<select class="form-select" id="ed-res-type">'
+        + '<option value="portable">📦 Portable</option>'
+        + '<option value="stationary">📍 Stationary</option>'
+        + '<option value="diary">📖 Diary</option>'
+        + '</select></div>'
+        + '<div class="form-row"><label class="form-label">Name</label>'
+        + '<input class="form-input" id="ed-res-name" placeholder="e.g. The Red Diary"></div>'
+        + '<div class="form-row"><label class="form-label">Description</label>'
+        + '<input class="form-input" id="ed-res-desc" placeholder="Brief description…"></div>';
+
+      bodyHtml += '<div class="edit-section-title">Active Resources</div>';
       if (activeResources.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active resources.</p>';
       }
@@ -1384,18 +1402,6 @@
             + '</div></div>';
         });
       }
-
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add Resource</div>'
-        + '<div class="form-row"><label class="form-label">Type</label>'
-        + '<select class="form-select" id="ed-res-type">'
-        + '<option value="portable">📦 Portable</option>'
-        + '<option value="stationary">📍 Stationary</option>'
-        + '<option value="diary">📖 Diary</option>'
-        + '</select></div>'
-        + '<div class="form-row"><label class="form-label">Name</label>'
-        + '<input class="form-input" id="ed-res-name" placeholder="e.g. The Red Diary"></div>'
-        + '<div class="form-row"><label class="form-label">Description</label>'
-        + '<input class="form-input" id="ed-res-desc" placeholder="Brief description…"></div>';
 
       openModal('Edit Resources', bodyHtml, () => {
         const name = document.getElementById('ed-res-name').value.trim();
@@ -1519,7 +1525,15 @@
 
       const label = type === 'mortal' ? 'Mortal' : 'Immortal';
 
-      let bodyHtml = '<div class="edit-section-title">Living ' + label + ' Characters</div>';
+      let bodyHtml = '';
+
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add ' + label + ' Character</div>'
+        + '<div class="form-row"><label class="form-label">Name</label>'
+        + '<input class="form-input" id="ed-char-name" placeholder="e.g. Sister Agatha"></div>'
+        + '<div class="form-row"><label class="form-label">Description</label>'
+        + '<textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea></div>';
+
+      bodyHtml += '<div class="edit-section-title">Living ' + label + ' Characters</div>';
       if (living.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">None yet.</p>';
       }
@@ -1537,12 +1551,6 @@
           + '<button class="trash-btn" onclick="deleteCharacter(' + i + ')">🗑</button>'
           + '</div></div>';
       });
-
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add ' + label + ' Character</div>'
-        + '<div class="form-row"><label class="form-label">Name</label>'
-        + '<input class="form-input" id="ed-char-name" placeholder="e.g. Sister Agatha"></div>'
-        + '<div class="form-row"><label class="form-label">Description</label>'
-        + '<textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea></div>';
 
       openModal('Edit ' + label + ' Characters', bodyHtml, () => {
         const name = document.getElementById('ed-char-name').value.trim();
@@ -1940,6 +1948,17 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
       let bodyHtml = '';
 
+      bodyHtml += `<div class="edit-section-title">Add New Journal Entry</div>
+<div class="form-row">
+  <label class="form-label">Prompt Number (1–80)</label>
+  <input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5">
+</div>
+<div class="form-row">
+  <label class="form-label">Entry Number</label>
+  <input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1">
+  <div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>
+</div>`;
+
       // List existing journal entries (for deletion)
       if (parsedData.journal.length > 0) {
         bodyHtml += `<div class="edit-section-title">Journal Entries</div>`;
@@ -1970,16 +1989,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
       // Add new prompt entry
       const hasReady = hasUnexperiencedMemory();
-      bodyHtml += `<div class="edit-section-title">Add New Journal Entry</div>
-<div class="form-row">
-  <label class="form-label">Prompt Number (1–80)</label>
-  <input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5">
-</div>
-<div class="form-row">
-  <label class="form-label">Entry Number</label>
-  <input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1">
-  <div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>
-</div>`;
+
 
       // If there's an awaiting entry and we don't have a ready memory, show memory add
       const awaitingEntry = getAnyAwaitingEntry();
