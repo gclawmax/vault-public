@@ -787,6 +787,13 @@
       const livingMortals = d.characters.filter(c => c.type === 'mortal' && !c.dead)
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
 
+      const currentTurnNum = d.journal.length > 0 ? Math.max(...d.journal.map(j => j.turn)) : 0;
+      d.characters.filter(c => c.type === 'mortal' && !c.dead).forEach(m => {
+        const gt = Number(m.gained_turn) || 0;
+        const threshold = (gt % 2 === 0) ? 5 : 4;
+        m._graveIcon = (currentTurnNum - gt) >= threshold;
+      });
+
       html += '<div class="char-col section-editwrap" data-section="characters-mortal" '
         + (em ? 'onclick="editCharacters(\'mortal\')" title="Click to edit mortal characters"' : '') + '>'
         + '<div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧑</span> Mortal Characters</div>'
@@ -2377,21 +2384,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         const vampire = JSON.parse(serializeJson(parsedData));
         const result = computeNextPrompt(vampire);
         const mortals = parsedData.characters.filter(c => c.type === 'mortal');
-
-        // For each living mortal, randomly decide (4 or 5 turns) whether to
-        // show the grave marker. This uses the upcoming turn number.
-        if (parsedData && Array.isArray(mortals) && !result.error) {
-          mortals.forEach(m => { delete m._graveIcon; });
-          mortals.forEach(m => {
-            if (!m.dead) {
-              const gt = Number(m.gained_turn) || 0;
-              // Stable threshold per character — odd gained_turn = 4, even = 5
-              const threshold = (gt % 2 === 0) ? 5 : 4;
-              if (result.turn - gt >= threshold) m._graveIcon = true;
-            }
-          });
-          renderChronicle(parsedData);
-        }
 
         if (result.error === 'all_prompts_exhausted') {
           displayPromptResult(result);
