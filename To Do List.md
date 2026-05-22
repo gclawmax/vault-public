@@ -16,4 +16,5 @@
 
 # Bugs
 -----
+~~Mortals not dying of old age~~
 Adding resources, description doesn't reset.
