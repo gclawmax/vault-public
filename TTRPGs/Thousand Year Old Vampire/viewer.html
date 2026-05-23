@@ -1231,6 +1231,8 @@
           + '<div class="edit-list-item-text">' + esc(m.desc)
           + ' <span style="color:var(--ink-faint);font-size:.8rem;">(' + esc(m.concealment) + ')</span></div>'
           + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="convertToImmortal(' + i + ')">🧛 Convert</button>'
+          + '<button class="strike-btn" onclick="renameMark(' + i + ')">✎</button>'
           + '<button class="strike-btn" onclick="loseMark(' + i + ')">Lose</button>'
           + '<button class="trash-btn" onclick="deleteMark(' + i + ')">🗑</button>'
           + '</div></div>';
@@ -1256,6 +1258,27 @@
         const conc = document.getElementById('ed-mark-conc').value.trim();
         if (desc && conc) {
           parsedData.marks.push({ desc, concealment: conc, status: 'active' });
+          markUnsaved();
+        }
+      });
+    }
+
+    function renameMark(i) {
+      const m = parsedData.marks[i];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Description</label>'
+        + '<input class="form-input" id="ed-mark-edit-desc" value="' + esc(m.desc) + '">'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">How is it concealed?</label>'
+        + '<input class="form-input" id="ed-mark-edit-conc" value="' + esc(m.concealment) + '">'
+        + '</div>';
+      openModal('Edit Mark', bodyHtml, () => {
+        const desc = document.getElementById('ed-mark-edit-desc').value.trim();
+        const conc = document.getElementById('ed-mark-edit-conc').value.trim();
+        if (desc) {
+          m.desc = desc;
+          m.concealment = conc;
           markUnsaved();
         }
       });
@@ -1381,6 +1404,7 @@
           + (r.description ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(r.description) + '</span>' : '')
           + '</div>'
           + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="renameResource(' + i + ')">✎</button>'
           + '<button class="strike-btn" onclick="loseResource(' + i + ')">Lose</button>'
           + '<button class="trash-btn" onclick="deleteResource(' + i + ')">🗑</button>'
           + '</div></div>';
@@ -1400,6 +1424,32 @@
             + '<button class="strike-btn" onclick="restoreResource(' + i + ')">Restore</button>'
             + '<button class="trash-btn" onclick="deleteResource(' + i + ')">🗑</button>'
             + '</div></div>';
+        });
+      }
+
+      function renameResource(i) {
+        const r = parsedData.resources[i];
+        const bodyHtml = '<div class="form-row">'
+          + '<label class="form-label">Name</label>'
+          + '<input class="form-input" id="ed-res-rename" value="' + esc(r.name) + '">'
+          + '</div>'
+          + '<div class="form-row">'
+          + '<label class="form-label">Description</label>'
+          + '<input class="form-input" id="ed-res-redesc" value="' + esc(r.description || '') + '">'
+          + '</div>';
+        openModal('Edit Resource', bodyHtml, () => {
+          const name = document.getElementById('ed-res-rename').value.trim();
+          const desc = document.getElementById('ed-res-redesc').value.trim();
+          if (name) {
+            // If it's a diary, update the diaryMemories key too
+            if (r.type === 'diary' && parsedData.diaryMemories[r.name]) {
+              parsedData.diaryMemories[name] = parsedData.diaryMemories[r.name];
+              delete parsedData.diaryMemories[r.name];
+            }
+            r.name = name;
+            r.description = desc;
+            markUnsaved();
+          }
         });
       }
 
@@ -1546,7 +1596,7 @@
           + (c.desc ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(c.desc) + '</span>' : '')
           + '</div>'
           + '<div class="edit-list-actions">'
-          + '<button class="strike-btn" onclick="convertToImmortal(' + i + ')">🧛 Convert</button>'
+          + '<button class="strike-btn" onclick="editCharacter(' + i + ')">✎</button>'
           + '<button class="strike-btn" onclick="killCharacter(' + i + ')">Kill</button>'
           + '<button class="trash-btn" onclick="deleteCharacter(' + i + ')">🗑</button>'
           + '</div></div>';
@@ -1561,6 +1611,36 @@
             death_reason: '', death_epitaph: '',
             gained_turn: currentTurn(), lost_turn: null
           });
+          markUnsaved();
+        }
+      });
+    }
+
+    function editCharacter(i) {
+      const c = parsedData.characters[i];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Name</label>'
+        + '<input class="form-input" id="ed-char-edit-name" value="' + esc(c.name) + '">'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Description</label>'
+        + '<textarea class="form-textarea" id="ed-char-edit-desc" style="min-height:80px;">' + esc(c.desc) + '</textarea>'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Type</label>'
+        + '<select class="form-select" id="ed-char-edit-type">'
+        + '<option value="mortal" ' + (c.type === 'mortal' ? 'selected' : '') + '>🧑 Mortal</option>'
+        + '<option value="immortal" ' + (c.type === 'immortal' ? 'selected' : '') + '>🧛 Immortal</option>'
+        + '</select>'
+        + '</div>';
+      openModal('Edit Character', bodyHtml, () => {
+        const name = document.getElementById('ed-char-edit-name').value.trim();
+        const desc = document.getElementById('ed-char-edit-desc').value.trim();
+        const type = document.getElementById('ed-char-edit-type').value;
+        if (name) {
+          c.name = name;
+          c.desc = desc;
+          c.type = type;
           markUnsaved();
         }
       });
