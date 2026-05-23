@@ -2026,59 +2026,46 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
     function editJournal() {
       if (!editMode) return;
 
-      let bodyHtml = '';
+      let bodyHtml = '<div class="edit-section-title">Add New Journal Entry</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Prompt Number (1–80)</label>'
+        + '<input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5">'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Entry Number</label>'
+        + '<input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1">'
+        + '<div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>'
+        + '</div>';
 
-      bodyHtml += `<div class="edit-section-title">Add New Journal Entry</div>
-<div class="form-row">
-  <label class="form-label">Prompt Number (1–80)</label>
-  <input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5">
-</div>
-<div class="form-row">
-  <label class="form-label">Entry Number</label>
-  <input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1">
-  <div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>
-</div>`;
+      const awaitingEntry = getAnyAwaitingEntry();
+      const hasReady = hasUnexperiencedMemory();
+      if (awaitingEntry && !hasReady) {
+        bodyHtml += '<div style="background:var(--blood);border-left:3px solid var(--blood-bright);padding:8px 12px;margin-top:14px;font-size:.88rem;color:var(--blood-bright);font-style:italic;">Resolve requires an unrecorded memory. Add one below using the per-entry edit (✎ button), then click Update.</div>';
+      }
 
-      // List existing journal entries (for deletion)
       if (parsedData.journal.length > 0) {
-        bodyHtml += `<hr class="edit-divider"><div class="edit-section-title">Journal Entries</div>`;
+        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Journal Entries</div>'
+          + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
 
         const sortedJournal = [...parsedData.journal]
           .sort((a, b) => (b.turn || 0) - (a.turn || 0));
 
-        sortedJournal.forEach((je) => {
+        sortedJournal.forEach(je => {
           const idx = parsedData.journal.indexOf(je);
-
-          bodyHtml += `<div class="edit-list-item">
-            <div class="edit-list-item-text">
-              <strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br>
-              <span style="color:var(--ink-dim);font-size:.85rem">
-                Awaiting: ${!je.resolved ? 'Yes' : 'No'}
-                ${je.prose ? ' — Has prose' : ''}
-              </span>
-            </div>
-            <div class="edit-list-actions">
-              <button class="trash-btn"
-                onclick="deleteJournalEntry(${idx})"
-                title="Delete journal entry entirely">🗑</button>
-            </div>
-          </div>`;
+          bodyHtml += '<div class="edit-list-item">'
+            + '<div class="edit-list-item-text">'
+            + '<strong>Turn ' + je.turn + ' — Prompt ' + je.prompt + ', Entry ' + je.entry + '</strong><br>'
+            + '<span style="color:var(--ink-dim);font-size:.85rem">Awaiting: ' + (!je.resolved ? 'Yes' : 'No') + (je.prose ? ' — Has prose' : '') + '</span>'
+            + '</div>'
+            + '<div class="edit-list-actions">'
+            + '<button class="trash-btn" onclick="deleteJournalEntry(' + idx + ')" title="Delete journal entry entirely">🗑</button>'
+            + '</div></div>';
         });
-        bodyHtml += `<hr class="edit-divider">`;
-      }
 
-      // Add new prompt entry
-      const hasReady = hasUnexperiencedMemory();
-
-
-      // If there's an awaiting entry and we don't have a ready memory, show memory add
-      const awaitingEntry = getAnyAwaitingEntry();
-      if (awaitingEntry && !hasReady) {
-        bodyHtml += `<div style="background:var(--blood);border-left:3px solid var(--blood-bright);padding:8px 12px;margin-top:14px;font-size:.88rem;color:var(--blood-bright);font-style:italic;">Resolve requires an unrecorded memory. Add one below using the per-entry edit (✎ button), then click Update.</div>`;
+        bodyHtml += '</div>'; // end scrollable
       }
 
       openModal('Edit Journal', bodyHtml, () => {
-        // Add new entry — no promptText stored
         const promptNum = parseInt(document.getElementById('ed-j-prompt').value || '0');
         const entryNum = parseInt(document.getElementById('ed-j-entry').value || '1');
         if (promptNum >= 1) {
