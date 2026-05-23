@@ -431,6 +431,7 @@ body {
 .modal-body {
   padding: 20px 22px;
   flex: 1;
+  overflow-y: visible; /* let inner containers handle scroll */
 }
 
 .modal-footer {
