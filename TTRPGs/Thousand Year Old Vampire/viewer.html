@@ -1231,7 +1231,6 @@
           + '<div class="edit-list-item-text">' + esc(m.desc)
           + ' <span style="color:var(--ink-faint);font-size:.8rem;">(' + esc(m.concealment) + ')</span></div>'
           + '<div class="edit-list-actions">'
-          + '<button class="strike-btn" onclick="convertToImmortal(' + i + ')">🧛 Convert</button>'
           + '<button class="strike-btn" onclick="renameMark(' + i + ')">✎</button>'
           + '<button class="strike-btn" onclick="loseMark(' + i + ')">Lose</button>'
           + '<button class="trash-btn" onclick="deleteMark(' + i + ')">🗑</button>'
@@ -1596,6 +1595,7 @@
           + (c.desc ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(c.desc) + '</span>' : '')
           + '</div>'
           + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="convertToImmortal(' + i + ')">🧛 Convert</button>'
           + '<button class="strike-btn" onclick="editCharacter(' + i + ')">✎</button>'
           + '<button class="strike-btn" onclick="killCharacter(' + i + ')">Kill</button>'
           + '<button class="trash-btn" onclick="deleteCharacter(' + i + ')">🗑</button>'
