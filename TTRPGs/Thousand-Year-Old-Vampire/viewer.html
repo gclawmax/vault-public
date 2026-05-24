@@ -1317,7 +1317,8 @@
         + '<div class="form-row"><label class="form-label">Skill Name</label>'
         + '<input class="form-input" id="ed-skill-name" placeholder="e.g. Herbalism"></div>';
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Skills</div>';
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Skills</div>'
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
 
       if (skills.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No skills yet.</p>';
@@ -1337,6 +1338,8 @@
           + '<button class="trash-btn" onclick="deleteSkill(' + i + ')">🗑</button>'
           + '</div></div>';
       });
+
+      bodyHtml += '</div>'; // end scrollable
 
       openModal('Edit Skills', bodyHtml, () => {
         const name = document.getElementById('ed-skill-name').value.trim();
@@ -1389,7 +1392,9 @@
         + '<div class="form-row"><label class="form-label">Description</label>'
         + '<input class="form-input" id="ed-res-desc" placeholder="Brief description…"></div>';
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Active Resources</div>';
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Active Resources</div>'
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
+
       if (activeResources.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active resources.</p>';
       }
@@ -1408,9 +1413,12 @@
           + '<button class="trash-btn" onclick="deleteResource(' + i + ')">🗑</button>'
           + '</div></div>';
       });
+      bodyHtml += '</div>'; // end scrollable
+
 
       if (lostResources.length > 0) {
-        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Lost Resources</div>';
+        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Lost Resources</div>'
+          + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
         lostResources.forEach(r => {
           const i = parsedData.resources.indexOf(r);
           const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
@@ -1424,6 +1432,8 @@
             + '<button class="trash-btn" onclick="deleteResource(' + i + ')">🗑</button>'
             + '</div></div>';
         });
+        bodyHtml += '</div>'; // end scrollable
+
       }
 
       function renameResource(i) {
@@ -1518,7 +1528,8 @@
       if (!parsedData.diaryMemories) parsedData.diaryMemories = {};
       const mems = parsedData.diaryMemories[diaryName] || [];
 
-      let bodyHtml = '<div class="edit-section-title">' + esc(diaryName) + ' (' + mems.length + '/4 memories)</div>';
+      let bodyHtml = '<div class="edit-section-title">' + esc(diaryName) + ' (' + mems.length + '/4 memories)</div>'
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
 
       if (mems.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary yet.</p>';
@@ -1535,6 +1546,7 @@
         });
         bodyHtml += '</div>';
       });
+      bodyHtml += '</div>'; // end scrollable
 
       openModal('Diary — ' + diaryName, bodyHtml, () => { });
     }
@@ -1582,7 +1594,9 @@
         + '<div class="form-row"><label class="form-label">Description</label>'
         + '<textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea></div>';
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Living ' + label + ' Characters</div>';
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Living ' + label + ' Characters</div>'
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
+
       if (living.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">None yet.</p>';
       }
@@ -1601,6 +1615,7 @@
           + '<button class="trash-btn" onclick="deleteCharacter(' + i + ')">🗑</button>'
           + '</div></div>';
       });
+      bodyHtml += '</div>'; // end scrollable
 
       openModal('Edit ' + label + ' Characters', bodyHtml, () => {
         const name = document.getElementById('ed-char-name').value.trim();
@@ -1710,7 +1725,9 @@
     // ── Memories ──────────────────────────────────────
     function editMemories() {
       if (!editMode) return;
-      let bodyHtml = '<div class="edit-section-title">Active Memories (' + parsedData.memories.length + '/5)</div>';
+      let bodyHtml = '<div class="edit-section-title">Active Memories (' + parsedData.memories.length + '/5)</div>'
+              + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
+
 
       parsedData.memories.forEach((mem, i) => {
         bodyHtml += '<div class="edit-list-item" style="flex-direction:column;align-items:stretch;">'
@@ -1737,6 +1754,7 @@
         }
         bodyHtml += '</div>';
       });
+      bodyHtml += '</div>'; // end scrollable
 
       if (parsedData.memories.length < 5) {
         bodyHtml += '<hr class="edit-divider">'
