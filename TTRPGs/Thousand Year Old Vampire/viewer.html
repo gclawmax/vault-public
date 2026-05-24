@@ -69,7 +69,6 @@
         <div id="picker-row">
           <button class="tome-back-btn" onclick="returnToContents()">❮ Chronicles</button>
           <select id="game-select" style="display:none;"></select>
-          <button id="refresh-btn" class="top-btn" onclick="refreshCurrent()">↻</button>
           <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
           <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
           <div id="skin-switcher">
@@ -402,12 +401,6 @@
       document.getElementById('empty-state').style.display = 'block';
       document.getElementById('game-select').value = '';
       currentJson = null; workingJson = null; parsedData = null;
-    }
-
-    async function refreshCurrent() {
-      const sel = document.getElementById('game-select');
-      if (sel && sel.value) await loadVampire(sel.value);
-      else await loadTomeList();
     }
 
     // ═══════════════════════════════════════════════════
