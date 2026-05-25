@@ -1,9 +1,9 @@
 {
-  "name": "James McCloud",
+  "name": "James Macleod",
   "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
   "game_over": false,
   "game_start": "2026-05-14",
-  "modified": "2026-05-21",
+  "modified": "2026-05-25",
   "current_prompt": 15,
   "epitaph": null,
   "marks": [
@@ -265,15 +265,6 @@
       "resolved": true,
       "resolved_at": "2026-05-21T17:05:44.380Z",
       "experience": "Jack used my old homestead to show them how I used to live. I used my art of murderising to get out of it",
-      "changes": ""
-    },
-    {
-      "turn": 7,
-      "prompt": 15,
-      "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
       "changes": ""
     }
   ]
