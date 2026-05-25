@@ -1,9 +1,9 @@
 {
-  "name": "James McCloud",
+  "name": "James Macleod",
   "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
   "game_over": false,
   "game_start": "2026-05-14",
-  "modified": "2026-05-21",
+  "modified": "2026-05-25",
   "current_prompt": 15,
   "epitaph": null,
   "marks": [
