@@ -151,6 +151,36 @@
     // ═══════════════════════════════════════════════════
     // UTILITY
     // ═══════════════════════════════════════════════════
+    function findNextFreePromptEntry() {
+      const journal = parsedData.journal;
+      // Find the last resolved prompt as base
+      const resolved = journal.filter(j => j.resolved === true);
+      const basePrompt = resolved.length > 0
+        ? resolved[resolved.length - 1].prompt
+        : 1;
+
+      // Build a map of used prompt/entry combos
+      const used = new Set(journal.map(j => j.prompt + ',' + j.entry));
+
+      // Search from base prompt onwards
+      for (let pn = basePrompt; pn <= 80; pn++) {
+        for (let en = 1; en <= 3; en++) {
+          if (!used.has(pn + ',' + en)) {
+            return { prompt: pn, entry: en };
+          }
+        }
+      }
+      // Wrap around from 1 if nothing found after base
+      for (let pn = 1; pn < basePrompt; pn++) {
+        for (let en = 1; en <= 3; en++) {
+          if (!used.has(pn + ',' + en)) {
+            return { prompt: pn, entry: en };
+          }
+        }
+      }
+      return null; // all exhausted
+    }
+
     function toDateString(val) {
       if (!val) return '';
       const d = new Date(val);
@@ -1719,7 +1749,7 @@
     function editMemories() {
       if (!editMode) return;
       let bodyHtml = '<div class="edit-section-title">Active Memories (' + parsedData.memories.length + '/5)</div>'
-              + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
 
 
       parsedData.memories.forEach((mem, i) => {
@@ -2037,22 +2067,26 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
     function editJournal() {
       if (!editMode) return;
 
-      let bodyHtml = '<div class="edit-section-title">Add New Journal Entry</div>'
-        + '<div class="form-row">'
+      const hasUnresolved = parsedData.journal.some(j => j.resolved === false);
+      const next = findNextFreePromptEntry();
+
+      let bodyHtml = '<div class="edit-section-title">Add New Journal Entry</div>';
+
+      if (hasUnresolved) {
+        bodyHtml += '<div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:12px;font-size:.88rem;color:var(--blood);">You have an unresolved entry. Resolve it before adding a new one.</div>';
+      }
+
+      bodyHtml += '<div class="form-row">'
         + '<label class="form-label">Prompt Number (1–80)</label>'
-        + '<input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5">'
+        + '<input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5"'
+        + (hasUnresolved ? ' disabled' : '') + '>'
         + '</div>'
         + '<div class="form-row">'
         + '<label class="form-label">Entry Number</label>'
-        + '<input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1">'
+        + '<input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1"'
+        + (hasUnresolved ? ' disabled' : '') + '>'
         + '<div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>'
-        + '</div>';
-
-      const awaitingEntry = getAnyAwaitingEntry();
-      const hasReady = hasUnexperiencedMemory();
-      if (awaitingEntry && !hasReady) {
-        bodyHtml += '<div style="background:var(--blood);border-left:3px solid var(--blood-bright);padding:8px 12px;margin-top:14px;font-size:.88rem;color:var(--blood-bright);font-style:italic;">Resolve requires an unrecorded memory. Add one below using the per-entry edit (✎ button), then click Update.</div>';
-      }
+        + '</div>'
 
       if (parsedData.journal.length > 0) {
         bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Journal Entries</div>'
@@ -2065,34 +2099,77 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
           const idx = parsedData.journal.indexOf(je);
           bodyHtml += '<div class="edit-list-item">'
             + '<div class="edit-list-item-text">'
-            + '<strong>Turn ' + je.turn + ' — Prompt ' + je.prompt + ', Entry ' + je.entry + '</strong><br>'
-            + '<span style="color:var(--ink-dim);font-size:.85rem">Awaiting: ' + (!je.resolved ? 'Yes' : 'No') + (je.prose ? ' — Has prose' : '') + '</span>'
+            + '<strong>Turn ' + je.turn + ' — Prompt ' + je.prompt + ', Entry ' + je.entry + '</strong>'
+            + ' <span style="font-size:.8rem;color:' + (je.resolved ? 'var(--status-ok)' : 'var(--blood)') + ';">'
+            + (je.resolved ? '✓ Resolved' : '⚠ Awaiting') + '</span><br>'
+            + (je.experience ? '<span style="color:var(--ink-dim);font-size:.85rem">' + esc(je.experience.substring(0, 60)) + (je.experience.length > 60 ? '…' : '') + '</span>' : '')
             + '</div>'
             + '<div class="edit-list-actions">'
             + '<button class="trash-btn" onclick="deleteJournalEntry(' + idx + ')" title="Delete journal entry entirely">🗑</button>'
             + '</div></div>';
         });
 
-        bodyHtml += '</div>'; // end scrollable
+        bodyHtml += '</div>';
       }
 
       openModal('Edit Journal', bodyHtml, () => {
+        if (hasUnresolved) return;
+
         const promptNum = parseInt(document.getElementById('ed-j-prompt').value || '0');
         const entryNum = parseInt(document.getElementById('ed-j-entry').value || '1');
-        if (promptNum >= 1) {
-          const maxTurn = parsedData.journal.length > 0 ? Math.max(...parsedData.journal.map(j => j.turn)) : 0;
-          parsedData.journal.push({
-            turn: maxTurn + 1,
-            prompt: promptNum,
-            entry: entryNum,
-            prose: '',
-            changes: '',
-            awaiting: true
-          });
-          parsedData.frontmatter.current_prompt = promptNum;
-          markUnsaved();
+        const validationEl = document.getElementById('ed-j-validation');
+
+        if (!promptNum || promptNum < 1 || promptNum > 80) {
+          validationEl.style.display = '';
+          validationEl.textContent = 'Please enter a prompt number between 1 and 80.';
+          return;
         }
+
+        const duplicate = parsedData.journal.some(j => j.prompt === promptNum && j.entry === entryNum);
+        if (duplicate) {
+          const suggestion = findNextFreePromptEntry();
+          validationEl.style.display = '';
+          validationEl.textContent = 'Prompt ' + promptNum + ', Entry ' + entryNum + ' already exists.'
+            + (suggestion ? ' Next free: Prompt ' + suggestion.prompt + ', Entry ' + suggestion.entry + '.' : ' All entries exhausted.');
+          return;
+        }
+
+        const maxTurn = parsedData.journal.length > 0 ? Math.max(...parsedData.journal.map(j => j.turn)) : 0;
+        parsedData.journal.push({
+          turn: maxTurn + 1,
+          prompt: promptNum,
+          entry: entryNum,
+          prose: '',
+          changes: '',
+          resolved: false,
+          resolved_at: null
+        });
+        parsedData.frontmatter.current_prompt = promptNum;
+        markUnsaved();
       });
+
+      // Live validation on input
+      setTimeout(() => {
+        const used = new Set(parsedData.journal.map(j => j.prompt + ',' + j.entry));
+        function validate() {
+          const p = parseInt(document.getElementById('ed-j-prompt').value || '0');
+          const e = parseInt(document.getElementById('ed-j-entry').value || '1');
+          const msg = document.getElementById('ed-j-validation');
+          if (!msg) return;
+          if (p && used.has(p + ',' + e)) {
+            const suggestion = findNextFreePromptEntry();
+            msg.style.display = '';
+            msg.textContent = 'Prompt ' + p + ', Entry ' + e + ' already exists.'
+              + (suggestion ? ' Next free: Prompt ' + suggestion.prompt + ', Entry ' + suggestion.entry + '.' : ' All entries exhausted.');
+          } else {
+            msg.style.display = 'none';
+          }
+        }
+        const promptEl = document.getElementById('ed-j-prompt');
+        const entryEl = document.getElementById('ed-j-entry');
+        if (promptEl) promptEl.addEventListener('input', validate);
+        if (entryEl) entryEl.addEventListener('input', validate);
+      }, 0);
     }
 
     function previewMemoryState(val) {
