@@ -266,15 +266,6 @@
       "resolved_at": "2026-05-21T17:05:44.380Z",
       "experience": "Jack used my old homestead to show them how I used to live. I used my art of murderising to get out of it",
       "changes": ""
-    },
-    {
-      "turn": 7,
-      "prompt": 15,
-      "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
     }
   ]
 }
