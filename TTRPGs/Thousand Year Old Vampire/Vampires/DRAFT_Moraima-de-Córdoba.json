@@ -1,0 +1,81 @@
+{
+  "draft": true,
+  "name": "Moraima de Córdoba",
+  "vampire_desc": "The wife of the Moorish King of Grenada, when the area was taken by the Christians in 1236, Moraima was taken as hostage to Cordoba and trapped in the palace, stripped of her titles, and navigating a new life as a Morisca, forced to convert to Christianity. Her father was a royal physician and she used this knowledge to leverage herself into some autonomy, proving medical care for the destitute in Cordoba. ",
+  "game_over": false,
+  "game_start": "2026-05-25",
+  "modified": "2026-05-25",
+  "current_prompt": 0,
+  "marks": [],
+  "memories": [
+    {
+      "n": 1,
+      "theme": "Mortal life",
+      "description": "",
+      "experiences": [
+        "The wife of the Moorish King of Grenada, when the area was taken by the Christians in 1236, Moraima was taken as hostage to Cordoba and trapped in the palace, stripped of her titles, and navigating a new life as a Morisca, forced to convert to Christianity. Her father was a royal physician and she used this knowledge to leverage herself into some autonomy, proving medical care for the destitute in Cordoba. "
+      ]
+    },
+    {
+      "n": 2,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 3,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 4,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 5,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    }
+  ],
+  "diary_memories": {},
+  "lost_memories": [],
+  "skills": [],
+  "resources": [],
+  "characters": [
+    {
+      "name": "Nafi al-Garnati",
+      "description": "Her father, respected Nabib to the royal court. Raised his daughter at his right hand, passing on the secrets of medicine and teaching principles of pragmatism and compassion.",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Ahmed ibn Malik al-Boabdil al-Garnati",
+      "description": "Her son. Taken alongside his mother at the age of 3 and raised in the Christian court and baptised. They were kept separated, with him being raised as a squire, but fell ill. She was not allowed to tend him and he died of dysentery aged 9.",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Maimon ben Yosef",
+      "description": "A Sephardic Jewish Boticario in the Suq al-Attarin. She has a long standing professional and occasional intimate relationship as he supplies her with the ingredients she uses to craft medicine. A widower.",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "journal": []
+}
