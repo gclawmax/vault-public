@@ -1164,15 +1164,17 @@
       document.getElementById('modal-overlay').classList.remove('open');
       currentModalConfirm = null;
     }
+
     function modalConfirm() {
-      let cb = currentModalConfirm;
+      const cb = currentModalConfirm;
+      if (cb) {
+        const result = cb();
+        if (result === false) return; // validation failed — keep modal open
+      }
       currentModalConfirm = null;
       document.getElementById('modal-overlay').classList.remove('open');
-      if (cb) {
-        cb();
-        markUnsaved();           // persist draft after every modal confirm
-        renderChronicle(parsedData);
-      }
+      markUnsaved();
+      renderChronicle(parsedData);
     }
 
     let _modalMinimised = false;
@@ -2113,7 +2115,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
 
       openModal('Edit Journal', bodyHtml, () => {
-        if (hasUnresolved) return;
+        if (hasUnresolved) return false;
 
         const promptNum = parseInt(document.getElementById('ed-j-prompt').value || '0');
         const entryNum = parseInt(document.getElementById('ed-j-entry').value || '1');
@@ -2122,7 +2124,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         if (!promptNum || promptNum < 1 || promptNum > 80) {
           validationEl.style.display = '';
           validationEl.textContent = 'Please enter a prompt number between 1 and 80.';
-          return;
+          return false;
         }
 
         const duplicate = parsedData.journal.some(j => j.prompt === promptNum && j.entry === entryNum);
@@ -2131,7 +2133,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
           validationEl.style.display = '';
           validationEl.textContent = 'Prompt ' + promptNum + ', Entry ' + entryNum + ' already exists.'
             + (suggestion ? ' Next free: Prompt ' + suggestion.prompt + ', Entry ' + suggestion.entry + '.' : ' All entries exhausted.');
-          return;
+          return false;
         }
 
         const maxTurn = parsedData.journal.length > 0 ? Math.max(...parsedData.journal.map(j => j.turn)) : 0;
