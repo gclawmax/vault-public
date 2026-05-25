@@ -2089,6 +2089,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         + (hasUnresolved ? ' disabled' : '') + '>'
         + '<div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>'
         + '</div>'
+        + '<div id="ed-j-validation" style="display:none;background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-top:4px;font-size:.88rem;color:var(--blood);"></div>';
 
       if (parsedData.journal.length > 0) {
         bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Journal Entries</div>'
@@ -2114,47 +2115,37 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         bodyHtml += '</div>';
       }
 
-openModal('Edit Journal', bodyHtml, () => {
-  if (hasUnresolved) return false;
+      openModal('Edit Journal', bodyHtml, () => {
+        if (hasUnresolved) return false;
 
-  const promptNum = parseInt(document.getElementById('ed-j-prompt').value || '0');
-  const entryNum = parseInt(document.getElementById('ed-j-entry').value || '1');
-  const validationEl = document.getElementById('ed-j-validation');
+        const promptNum = parseInt(document.getElementById('ed-j-prompt').value || '0');
+        const entryNum = parseInt(document.getElementById('ed-j-entry').value || '1');
+        const validationEl = document.getElementById('ed-j-validation');
 
-  const showError = (msg) => {
-    if (validationEl) {
-      validationEl.style.display = '';
-      validationEl.textContent = msg;
-    } else {
-      alert(msg); // fallback if element not found
-    }
-    return false;
-  };
+        if (!promptNum || promptNum < 1 || promptNum > 80) {
+          return showError('Please enter a prompt number between 1 and 80.');
+        }
 
-  if (!promptNum || promptNum < 1 || promptNum > 80) {
-    return showError('Please enter a prompt number between 1 and 80.');
-  }
+        const duplicate = parsedData.journal.some(j => j.prompt === promptNum && j.entry === entryNum);
+        if (duplicate) {
+          const suggestion = findNextFreePromptEntry();
+          return showError('Prompt ' + promptNum + ', Entry ' + entryNum + ' already exists.'
+            + (suggestion ? ' Next free: Prompt ' + suggestion.prompt + ', Entry ' + suggestion.entry + '.' : ' All entries exhausted.'));
+        }
 
-  const duplicate = parsedData.journal.some(j => j.prompt === promptNum && j.entry === entryNum);
-  if (duplicate) {
-    const suggestion = findNextFreePromptEntry();
-    return showError('Prompt ' + promptNum + ', Entry ' + entryNum + ' already exists.'
-      + (suggestion ? ' Next free: Prompt ' + suggestion.prompt + ', Entry ' + suggestion.entry + '.' : ' All entries exhausted.'));
-  }
-
-  const maxTurn = parsedData.journal.length > 0 ? Math.max(...parsedData.journal.map(j => j.turn)) : 0;
-  parsedData.journal.push({
-    turn: maxTurn + 1,
-    prompt: promptNum,
-    entry: entryNum,
-    prose: '',
-    changes: '',
-    resolved: false,
-    resolved_at: null
-  });
-  parsedData.frontmatter.current_prompt = promptNum;
-  markUnsaved();
-});
+        const maxTurn = parsedData.journal.length > 0 ? Math.max(...parsedData.journal.map(j => j.turn)) : 0;
+        parsedData.journal.push({
+          turn: maxTurn + 1,
+          prompt: promptNum,
+          entry: entryNum,
+          prose: '',
+          changes: '',
+          resolved: false,
+          resolved_at: null
+        });
+        parsedData.frontmatter.current_prompt = promptNum;
+        markUnsaved();
+      });
 
       // Live validation on input
       setTimeout(() => {
