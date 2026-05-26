@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-25",
   "modified": "2026-05-26",
-  "current_prompt": 10,
+  "current_prompt": 11,
   "epitaph": null,
   "marks": [
     {
@@ -42,11 +42,10 @@
     },
     {
       "n": 4,
-      "theme": "Motherhood",
+      "theme": "Human Anatomy.",
       "description": "",
       "experiences": [
-        "On the occasion of her child’s second birthday, when he had survived the perilous early years of childhood, her husband gifted her a filigree locket, delicate and beautiful with a motif of an exotic flower. Within was a tiny etching of this precious child and a small compartment.",
-        "The days are long and the nights intense. Waking from death’s slumber is disorienting, the sense of myself only a formless ghost attempting to influence the animal that has taken possession of my body."
+        "The idea that I should have only one child, one life to protect is anathema.  THe curse or blessing that befalls me can be used to protect so many more..."
       ]
     },
     {
@@ -58,7 +57,18 @@
       ]
     }
   ],
-  "lost_memories": [],
+  "lost_memories": [
+    {
+      "n": 4,
+      "theme": "Motherhood",
+      "experiences": [
+        "On the occasion of her child’s second birthday, when he had survived the perilous early years of childhood, her husband gifted her a filigree locket, delicate and beautiful with a motif of an exotic flower. Within was a tiny etching of this precious child and a small compartment.",
+        "The days are long and the nights intense. Waking from death’s slumber is disorienting, the sense of myself only a formless ghost attempting to influence the animal that has taken possession of my body."
+      ],
+      "lost_at": "2026-05-26T16:49:57.506Z",
+      "lost_on_turn": 4
+    }
+  ],
   "skills": [
     {
       "name": "Herbal remedies",
@@ -76,6 +86,24 @@
       "name": "The Adab: the ability to give comfort and dignity to others.",
       "status": "unchecked",
       "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Bloodthirsty",
+      "status": "unchecked",
+      "gained_turn": 4,
+      "lost_turn": null
+    },
+    {
+      "name": "Objectivity",
+      "status": "unchecked",
+      "gained_turn": 4,
+      "lost_turn": null
+    },
+    {
+      "name": "Anatomy",
+      "status": "unchecked",
+      "gained_turn": 4,
       "lost_turn": null
     }
   ],
@@ -111,41 +139,41 @@
       "name": "Nafi al-Garnati",
       "type": "mortal",
       "description": "Her father, respected Nabib to the royal court. Raised his daughter at his right hand, passing on the secrets of medicine and teaching principles of pragmatism and compassion.",
-      "status": "alive",
-      "death_reason": "",
+      "status": "dead",
+      "death_reason": "Killed by the Christians in the acquistion of Grenada",
       "death_epitaph": "",
       "gained_turn": 0,
-      "lost_turn": null
+      "lost_turn": 4
     },
     {
       "name": "Ahmed ibn Malik al-Boabdil al-Garnati",
       "type": "mortal",
       "description": "Her son. Taken alongside his mother at the age of 3 and raised in the Christian court and baptised. They were kept separated, with him being raised as a squire, but fell ill. She was not allowed to tend him and he died of dysentery aged 9.",
-      "status": "alive",
-      "death_reason": "",
+      "status": "dead",
+      "death_reason": "Died of dysentry at the Christian Court, Aged 7",
       "death_epitaph": "",
       "gained_turn": 0,
-      "lost_turn": null
+      "lost_turn": 4
     },
     {
       "name": "Maimon ben Yosef",
       "type": "mortal",
       "description": "A Sephardic Jewish Boticario in the Suq al-Attarin. She has a long standing professional and occasional intimate relationship as he supplies her with the ingredients she uses to craft medicine. A widower.",
-      "status": "alive",
-      "death_reason": "",
+      "status": "dead",
+      "death_reason": "Killed by me",
       "death_epitaph": "",
       "gained_turn": 0,
-      "lost_turn": null
+      "lost_turn": 4
     },
     {
       "name": "Paloma \"La Partera\"",
       "type": "mortal",
       "description": "Castilian midwife: rough-tongued, practical, and carries the keys to the slum of Cordoba. She sees all and knows all, delivering babies from the most destitute of working girls to the secret mistresses of wealthy knights.",
-      "status": "alive",
-      "death_reason": "",
-      "death_epitaph": "",
+      "status": "dead",
+      "death_reason": "Killed by me",
+      "death_epitaph": "What is necessary must be done.",
       "gained_turn": 0,
-      "lost_turn": null
+      "lost_turn": 4
     },
     {
       "name": "Moses Maimonides,  רוֹפֵא הָעוֹלָם",
@@ -189,6 +217,15 @@
     {
       "turn": 4,
       "prompt": 10,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-26T16:49:57.506Z",
+      "experience": "Time passes.  My hungers are reined, control stronger and the thirst less pressing.  My education continues, practiced on the corpses of the dead.",
+      "changes": "All mortals died.  Gained anatomy knowledge."
+    },
+    {
+      "turn": 5,
+      "prompt": 11,
       "entry": 1,
       "resolved": false,
       "resolved_at": null,
