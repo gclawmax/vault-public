@@ -45,7 +45,7 @@
       "name": "Feudal Ledgercraft",
       "description": "A practiced ability to track obligations, debts, inheritances, and overlapping claims across multiple lords and institutions.",
       "status": "unchecked",
-      "gained_TURN": 0
+      "gained_turn": 0
     },
     {
       "name": "Weaving the Crown's Net",
