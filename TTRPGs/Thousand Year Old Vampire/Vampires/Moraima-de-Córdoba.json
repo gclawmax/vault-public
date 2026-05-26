@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-25",
   "modified": "2026-05-26",
-  "current_prompt": 1,
+  "current_prompt": 5,
   "epitaph": null,
   "marks": [
     {
@@ -19,7 +19,8 @@
       "theme": "Mortal life",
       "description": "",
       "experiences": [
-        "The wife of the Moorish King of Grenada, when the area was taken by the Christians in 1236, Moraima was taken as hostage to Cordoba and trapped in the palace, stripped of her titles, and navigating a new life as a Morisca, forced to convert to Christianity. Her father was a royal physician and she used this knowledge to leverage herself into some autonomy, proving medical care for the destitute in Cordoba. "
+        "The wife of the Moorish King of Grenada, when the area was taken by the Christians in 1236, Moraima was taken as hostage to Cordoba and trapped in the palace, stripped of her titles, and navigating a new life as a Morisca, forced to convert to Christianity. Her father was a royal physician and she used this knowledge to leverage herself into some autonomy, proving medical care for the destitute in Cordoba. ",
+        "Once fed, with conscious thought regained, I'm bereft - this was exactly what I feared I would become..."
       ]
     },
     {
@@ -169,6 +170,15 @@
     {
       "turn": 2,
       "prompt": 1,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-26T16:32:44.232Z",
+      "experience": "Maimon ben Yosef.  He visits, intending to see my progress, but it is early days.  We talk a little, and fall into the habits of old lovers, but the instincts are indistinct, impossible to control and he is killed in a moment of both passion and despair.",
+      "changes": "Gained skill bloodthirsty"
+    },
+    {
+      "turn": 3,
+      "prompt": 5,
       "entry": 1,
       "resolved": false,
       "resolved_at": null,
