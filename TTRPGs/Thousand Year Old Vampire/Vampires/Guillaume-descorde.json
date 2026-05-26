@@ -19,7 +19,8 @@
       "theme": "Mortal life",
       "description": "",
       "experiences": [
-        "Born in 1182 to a minor marcher lord near a disputed frontier. Inherited little land but an instinct for division. Built power through feuds, shifting alliances, marriages, debts, and whispered promises. By middle age, became indispensable to greater lords who publicly condemned him while privately relying upon. A negotiator of truces that never fully hold, patron of mercenaries, and master of exploiting quarrels between neighboring houses. Chroniclers described him with admiration and unease in the same sentence."
+        "Born in 1182 to a minor marcher lord near a disputed frontier. Inherited little land but an instinct for division. Built power through feuds, shifting alliances, marriages, debts, and whispered promises. By middle age, became indispensable to greater lords who publicly condemned him while privately relying upon. A negotiator of truces that never fully hold, patron of mercenaries, and master of exploiting quarrels between neighboring houses. Chroniclers described him with admiration and unease in the same sentence.",
+        "foo"
       ]
     },
     {
@@ -150,9 +151,9 @@
       "turn": 1,
       "prompt": 1,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
+      "resolved": true,
+      "resolved_at": "2026-05-26T16:57:17.186Z",
+      "experience": "I'm using line breaks and carriage returns.\n\nLook at me go.",
       "changes": ""
     }
   ]
