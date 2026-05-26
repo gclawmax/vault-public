@@ -60,7 +60,32 @@
       "gained_turn": 0
     }
   ],
-  "resources": [],
+  "resources": [
+    {
+      "name": "The Signet of Descorde",
+      "description": "Engraved with a fractured cord motif. Seals charters, toll grants, and private treaties. Any document bearing its seal is treated as legally plausible unless explicitly disproven in court.",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "The Black Chest of Vaucelles",
+      "description": "An iron-bound oak chest in a monastic dependency, containing sealed charters, debt acknowledgments, and sworn confessions. It is Guillaume's strategic archive of leverage—partially shielded by ecclesiastical authority, making unauthorized access politically perilous.",
+      "type": "stationary",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "The Toll Bridge of Saint-Vire",
+      "description": "A fortified stone bridge spanning a contested river crossing. Equipped with gatehouses and barracks, it serves as an economic engine and a diplomatic pressure point by taxing commerce and selectively controlling regional mobility.",
+      "type": "stationary",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
   "lost_memories": [],
   "diary_memories": {},
   "characters": [
