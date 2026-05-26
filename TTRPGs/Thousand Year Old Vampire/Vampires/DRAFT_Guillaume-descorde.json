@@ -1,10 +1,10 @@
 {
   "name": "Guillaume de la Descorde",
-  "game_start": "2024-01-15",
-  "game_over": false,
-  "current_prompt": 0,
-  "modified": "2026-05-26",
   "vampire_desc": "Second son of a marcher lord who built power through feuds and shifting alliances",
+  "game_over": false,
+  "game_start": "2024-01-15",
+  "modified": "2026-05-26",
+  "current_prompt": 0,
   "memories": [
     {
       "n": 1,
@@ -40,11 +40,61 @@
     }
   ],
   "marks": [],
-  "skills": [],
+  "skills": [
+    {
+      "name": "Feudal Ledgercraft",
+      "description": "A practiced ability to track obligations, debts, inheritances, and overlapping claims across multiple lords and institutions.",
+      "status": "unchecked",
+      "gained_TURN": 0
+    },
+    {
+      "name": "Weaving the Crown's Net",
+      "description": "Turn a royal suspicion into an actionable threat against any rival noble.",
+      "status": "unchecked",
+      "gained_turn": 0
+    },
+    {
+      "name": "Crown Calibration",
+      "description": "A refined instinct for reading royal intent and adjusting behavior so that royal intervention always works in his favor, even when it appears neutral or punitive.",
+      "status": "unchecked",
+      "gained_turn": 0
+    }
+  ],
   "resources": [],
   "lost_memories": [],
   "diary_memories": {},
-  "characters": [],
+  "characters": [
+    {
+      "name": "Hugues de Saint-Rémy",
+      "description": "An aging castellan who took Guillaume in as a page. Taught him discipline, resourcefulness, and the value of peace.",
+      "type": "mortal",
+      "status": "alive",
+      "gained_turn": 0,
+      "lost_turn": null,
+      "death_reason": "",
+      "death_epitaph": ""
+    },
+    {
+      "name": "King Philippe II",
+      "description": "The Quiet Architect of Instability. King of France who uses indirect manipulation to maintain control. Uses Guillaume to keep rival barons from consolidating power.",
+      "type": "mortal",
+      "status": "alive",
+      "gained_turn": 0,
+      "lost_turn": null,
+      "death_reason": "",
+      "death_epitaph": ""
+    },
+    {
+      "name": "Brother Étienne de Vaucelles",
+      "description": "A papal legate sent to enforce reform. A dangerous figure for Guillaume, as his work turns ambiguous local politics into clear legal or church matters.",
+      "type": "mortal",
+      "status": "alive",
+      "gained_turn": 0,
+      "lost_turn": null,
+      "death_reason": "",
+      "death_epitaph": ""
+    }
+  ],
   "journal": [],
   "draft": true
 }
