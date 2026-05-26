@@ -1,0 +1,55 @@
+{
+  "name": "Guillaume de la Descorde",
+  "game_start": "2024-01-15",
+  "game_over": false,
+  "current_prompt": 0,
+  "modified": "2024-01-15",
+  "vampire_desc": "Second son of a marcher lord who built power through feuds and shifting alliances",
+  "memories": [
+    {
+      "n": 1,
+      "theme": "Mortal life",
+      "description": "Born in 1182 to a minor marcher lord near a disputed frontier. Inherited little land but an instinct for division. Built power through feuds, shifting alliances, marriages, debts, and whispered promises. By middle age, became indispensable to greater lords who publicly condemned him while privately relying upon. A negotiator of truces that never fully hold, patron of mercenaries, and master of exploiting quarrels between neighboring houses. Chroniclers described him with admiration and unease in the same sentence.",
+      "experiences": [
+        {
+          "description": "",
+          "theme": "The Mortal Self"
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 3,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 4,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 5,
+      "theme": "Transformation",
+      "description": "",
+      "experiences": []
+    }
+  ],
+  "marks": [],
+  "skills": [],
+  "resources": [],
+  "lost_memories": [],
+  "diary_memories": {},
+  "characters": {
+    "mortals": [],
+    "immortals": []
+  },
+  "journal": []
+}

@@ -1,0 +1,159 @@
+{
+  "name": "Biggus Dufus",
+  "vampire_desc": "A germanic moron, desperate for a Pax Romanus.  Never got one...",
+  "game_over": false,
+  "game_start": "2026-05-19",
+  "modified": "2026-05-19",
+  "current_prompt": 2,
+  "epitaph": null,
+  "marks": [
+    {
+      "description": "Pale skin, unkempt hair, long nails.",
+      "concealment": "Hooded garnents.  Stillness.  Isolation.",
+      "status": "active"
+    }
+  ],
+  "memories": [
+    {
+      "n": 1,
+      "theme": "Mortal life",
+      "description": "",
+      "experiences": [
+        "A germanic moron, desperate for a Pax Romanus.  Never got one..."
+      ]
+    },
+    {
+      "n": 2,
+      "theme": "Solitary \"life\"",
+      "description": "",
+      "experiences": [
+        "Stillness, often overlooked.  Ignored and walked past by countless people."
+      ]
+    },
+    {
+      "n": 3,
+      "theme": "Protection of animals",
+      "description": "",
+      "experiences": [
+        "Dogs are often beaten or attacked.  Dufus protects.  Bad people don't like being beaten."
+      ]
+    },
+    {
+      "n": 4,
+      "theme": "Domination by others",
+      "description": "",
+      "experiences": [
+        "Giovani often beats Dufus.  Trying to force him to feed.  Giovani is too strong and can't be resisted.  He's not a nice person."
+      ]
+    },
+    {
+      "n": 5,
+      "theme": "The bandits always come eventually",
+      "description": "",
+      "experiences": [
+        "He followed roman military units around.  He was often beaten.  One night he was beaten and bitten.  After that he was very ill, and avoided the sunlight ever since."
+      ]
+    }
+  ],
+  "lost_memories": [],
+  "skills": [
+    {
+      "name": "Stillness",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Rarely feels hunger.",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Physical strength",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "resources": [
+    {
+      "name": "Clothing",
+      "description": "Charity clothes and shoes arranged usually through the church.",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "A wooden branch",
+      "description": "Often found from church grounds.",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Good boots",
+      "description": "A particularly nice pair of boots",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "diary_memories": {},
+  "characters": [
+    {
+      "name": "Doggo",
+      "type": "mortal",
+      "description": "A breed changing dog.  Easily confused.",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Giovani Punchinello",
+      "type": "mortal",
+      "description": "Horrible man.  Wish he'd die.  Never does.",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Cleric",
+      "type": "mortal",
+      "description": "They're usually kind.",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "The Dark Thing",
+      "type": "immortal",
+      "description": "Dufus doesn't remember.  He was attacked in the night.  Sometimes it talks to him when he's alone.",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "journal": [
+    {
+      "turn": 1,
+      "prompt": 2,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
+    }
+  ]
+}

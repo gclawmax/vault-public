@@ -213,6 +213,7 @@ body {
   display: flex;
   gap: 6px;
   align-items: center;
+  margin-left: auto;
 }
 
 /* ── App layout ── */
@@ -527,4 +528,23 @@ a.xlink:hover {
   li {
     font-size: 19px;
   }
+}
+
+.tome-back-btn {
+  background: none;
+  border: none;
+  color: var(--blood);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0 12px 0 0;
+  margin-right: 8px;
+  margin-left: 16px;
+  border-right: 1px solid var(--border);
+}
+
+.tome-back-btn:hover {
+  color: var(--blood-bright);
 }

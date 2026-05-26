@@ -1,0 +1,251 @@
+{
+  "name": "Prince Charming",
+  "vampire_desc": "A noble knight. Has nice hair",
+  "game_over": false,
+  "game_start": "2026-05-21",
+  "modified": "2026-05-22",
+  "current_prompt": 2,
+  "epitaph": null,
+  "marks": [
+    {
+      "description": "The worlds most perfect(ly sharp) teeth",
+      "concealment": "I don't really. I smile a LOT.",
+      "status": "active"
+    }
+  ],
+  "memories": [
+    {
+      "n": 1,
+      "theme": "Mortal life",
+      "description": "",
+      "experiences": [
+        "A noble knight. Has nice hair",
+        "Exposed? What, like naked?\n I guess I leave Camelot behind in shame. I change my name to Mr Charming. I'm sneaky."
+      ]
+    },
+    {
+      "n": 2,
+      "theme": "Love",
+      "description": "",
+      "experiences": [
+        "He orates a poem to his girl, gwen",
+        "Gwen! She find me and discovers my shiny teeth. She helps me murderise. Turns out I do need to do it sometimes. To live, you know.",
+        "Who, whoops. Sorry Gwen! I am ashamed. Does this mean she isn't my partner in crime any more?"
+      ]
+    },
+    {
+      "n": 3,
+      "theme": "Killing for work and sport",
+      "description": "",
+      "experiences": [
+        "He uses excalibur to practice his swords",
+        "Killed to live in this guys fancy castle. No idea what it's called. I'm gong to call it Castle Charming"
+      ]
+    },
+    {
+      "n": 4,
+      "theme": "Loyalty",
+      "description": "",
+      "experiences": [
+        "He goes to Camelot every day to work for Arthur. Usually to keep the peace. Sometimes to find a missing bloody cup.",
+        "No, I refuse to kill anyone. I want to see people die of old age. Whatever bloodthirsty is, I'll slap a patch on for it.",
+        "Caught by Connor McCloud of the clan McCloud. Keeps banging on about being the only one. Only one what?"
+      ]
+    },
+    {
+      "n": 5,
+      "theme": "Transformation",
+      "description": "",
+      "experiences": [
+        "Arthur's bloody kid ran me through, and his sister (?) brings me back? Not sure what's going on there."
+      ]
+    }
+  ],
+  "lost_memories": [],
+  "skills": [
+    {
+      "name": "Swords",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Orator",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Riding",
+      "status": "unchecked",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Bloodthirsty as a patch",
+      "status": "unchecked",
+      "gained_turn": 1,
+      "lost_turn": null
+    }
+  ],
+  "resources": [
+    {
+      "name": "Horsey Twinkletoes",
+      "description": "A horse",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Camelot",
+      "description": "His House",
+      "type": "stationary",
+      "status": "lost",
+      "gained_turn": 0,
+      "lost_turn": 6
+    },
+    {
+      "name": "Exclibur",
+      "description": "His Sword",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Partner in crime",
+      "description": "It's Gwen for now. It might not always be. She's getting on a bit.",
+      "type": "portable",
+      "status": "active",
+      "gained_turn": 3,
+      "lost_turn": null
+    },
+    {
+      "name": "Castle Charming",
+      "description": "My new digs",
+      "type": "stationary",
+      "status": "active",
+      "gained_turn": 6,
+      "lost_turn": null
+    }
+  ],
+  "diary_memories": {},
+  "characters": [
+    {
+      "name": "Lancelot",
+      "type": "mortal",
+      "description": "His mate",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Gwen",
+      "type": "immortal",
+      "description": "Not his girl any more. Now an evil undead thing.",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Arthur",
+      "type": "mortal",
+      "description": "His boss",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Morgan le Fay",
+      "type": "immortal",
+      "description": "Arthur's weird kid sister. Has magic powers.",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    },
+    {
+      "name": "Connor McLeod of the clan McLeod",
+      "type": "immortal",
+      "description": "As opposed to the other clans he could be from...",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 6,
+      "lost_turn": null
+    }
+  ],
+  "journal": [
+    {
+      "turn": 1,
+      "prompt": 1,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:14:04.325Z",
+      "experience": "No, I refuse to kill anyone. I want to see people die of old age.",
+      "changes": "Killed the need to kill."
+    },
+    {
+      "turn": 2,
+      "prompt": 4,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:15:11.141Z",
+      "experience": "Exposed? What, like naked?\n I guess I leave Camelot behind in shame. I change my name to Mr Charming. I'm sneaky.",
+      "changes": ""
+    },
+    {
+      "turn": 3,
+      "prompt": 3,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:16:23.277Z",
+      "experience": "Gwen! She find me and discovers my shiny teeth. She helps me murderise. Turns out I do need to do it sometimes. To live, you know.",
+      "changes": "Gwens my partner in crime"
+    },
+    {
+      "turn": 4,
+      "prompt": 1,
+      "entry": 2,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:17:29.988Z",
+      "experience": "Who, whoops. Sorry Gwen! I am ashamed. Does this mean she isn't my partner in crime any more?",
+      "changes": "Gwen's now a vampire!"
+    },
+    {
+      "turn": 5,
+      "prompt": 1,
+      "entry": 3,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:19:24.301Z",
+      "experience": "Caught by Connor McLeod of the clan McLeod. Keeps banging on about being the only one. Only one what?",
+      "changes": ""
+    },
+    {
+      "turn": 6,
+      "prompt": 2,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-22T08:41:37.890Z",
+      "experience": "I mean, I was horrified for about a minute. but my teeth are beautiful.\nI hide in plain sight. I feed with my mouth?\nI found a lovely little castle, the owners didn't seem to mind if I lived there. On account of being murdered by me.",
+      "changes": ""
+    },
+    {
+      "turn": 7,
+      "prompt": 2,
+      "entry": 2,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
+    }
+  ]
+}

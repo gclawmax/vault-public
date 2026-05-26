@@ -1,0 +1,61 @@
+{
+  "draft": true,
+  "name": "Drafty McDrafterson",
+  "vampire_desc": "He's a draft",
+  "game_over": false,
+  "game_start": "2026-05-20",
+  "modified": "2026-05-20",
+  "current_prompt": 0,
+  "marks": [],
+  "memories": [
+    {
+      "n": 1,
+      "theme": "Mortal life",
+      "description": "",
+      "experiences": [
+        "He's a draft"
+      ]
+    },
+    {
+      "n": 2,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 3,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 4,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 5,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    }
+  ],
+  "diary_memories": {},
+  "lost_memories": [],
+  "skills": [],
+  "resources": [],
+  "characters": [
+    {
+      "name": "John",
+      "description": "John",
+      "type": "mortal",
+      "status": "alive",
+      "death_reason": "",
+      "death_epitaph": "",
+      "gained_turn": 0,
+      "lost_turn": null
+    }
+  ],
+  "journal": []
+}

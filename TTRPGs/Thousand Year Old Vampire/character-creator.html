@@ -15,7 +15,7 @@
 
 <body>
 
-  <button id="key-toggle" style="display:none;">🔑</button>
+  <button id="key-toggle">🔑</button>
   <div id="key-panel">
     <div class="key-label">🔑 Vault Key</div>
     <input type="password" id="vault-key" class="key-input" placeholder="GitHub personal access token">
@@ -24,14 +24,18 @@
   </div>
   <div id="top-bar">
     <div id="picker-row">
-      <span id="picker-label">Character Creator</span>
-      <a id="title-link" href="viewer.html">Chronicle Viewer</a>
-      <a id="core-link" href="core-rules.html">Core Rules</a>
+      <button class="tome-back-btn" onclick="returnToContents()">❮ Chronicles</button>
+      <button class="top-btn" onclick="saveDraft()">💾 Save Draft</button>
+      <button class="top-btn" id="load-draft-btn" onclick="loadDraft()" style="display:none;">📂 Resume Draft</button>
       <div id="skin-switcher">
-        <button class="skin-btn active" data-s="book" title="Book skin"></button>
-        <button class="skin-btn" data-s="dark" title="Dark skin"></button>
-        <button class="skin-btn" data-s="scholar" title="Scholar skin"></button>
+        <button class="skin-btn active" data-s="book"></button>
+        <button class="skin-btn" data-s="dark"></button>
+        <button class="skin-btn" data-s="scholar"></button>
       </div>
+    </div>
+    <div id="status-row">
+      <div id="status-dot"></div>
+      <span id="status-text">Ready</span>
     </div>
   </div>
 
@@ -48,19 +52,17 @@
       <h2>Step 1: Create Your Mortal Self</h2>
       <p class="step-subtitle">Define who you were before the curse</p>
       <p class="step-description">
-        Imagine a person in the distant past — a Roman emperor, a Mesopotamian midwife, a French knight. Write one Experience encapsulating their history. This is a broad summary of their mortal life, not a single event.
+        Imagine a person in the distant past — a Roman emperor, a Mesopotamian midwife, a French knight. Write one
+        Experience encapsulating their history. This is a broad summary of their mortal life, not a single event.
       </p>
       <div class="form-group">
         <label for="mortal-name">Name</label>
         <input type="text" id="mortal-name" placeholder="Your mortal name (e.g., Marcus Aurelius)">
       </div>
       <div class="form-group">
-        <label for="mortal-time">Time Period</label>
-        <input type="text" id="mortal-time" placeholder="e.g., 1st Century Rome, 12th Century France">
-      </div>
-      <div class="form-group">
         <label for="mortal-life">Your Mortal Life (Experience)</label>
-        <textarea id="mortal-life" placeholder="A broad summary of your mortal existence. Be poetic or practical as suits you..."></textarea>
+        <textarea id="mortal-life"
+          placeholder="A broad summary of your mortal existence. Be poetic or practical as suits you..."></textarea>
       </div>
 
       <div class="form-navigation">
@@ -73,7 +75,8 @@
       <h2>Step 2: Mortal Characters</h2>
       <p class="step-subtitle">The people who shaped your mortal life</p>
       <p class="step-description">
-        Create at least three Characters: relatives, friends, lovers, enemies, mentors, or debtors. Add them one at a time with a short description.
+        Create at least three Characters: relatives, friends, lovers, enemies, mentors, or debtors. Add them one at a
+        time with a short description.
       </p>
       <div class="item-list" id="character-list"></div>
       <button class="add-item-btn" onclick="showCharacterForm()">+ Add Character</button>
@@ -106,7 +109,8 @@
       <h2>Step 3: Skills</h2>
       <p class="step-subtitle">What your vampire can do</p>
       <p class="step-description">
-        Give your vampire three Skills that fit their mortal life and historical context. Examples: Swordplay, Relaxing Banter, Operate Heavy Machinery, or evocative phrases like "I Do Not Blink The Sand Away".
+        Give your vampire three Skills that fit their mortal life and historical context. Examples: Swordplay, Relaxing
+        Banter, Operate Heavy Machinery, or evocative phrases like "I Do Not Blink The Sand Away".
       </p>
       <div class="item-list" id="skill-list"></div>
       <button class="add-item-btn" onclick="showSkillForm()">+ Add Skill</button>
@@ -135,7 +139,9 @@
       <h2>Step 4: Resources</h2>
       <p class="step-subtitle">What your vampire possesses</p>
       <p class="step-description">
-        Give your vampire three Resources: assets, structures, or items of value. Size doesn't matter — an obsidian knife or a fleet of warships both work. Examples: A lucky penny, Castle Umbrecht, A business empire, A carboy of acid.
+        Give your vampire three Resources: assets, structures, or items of value. Size doesn't matter — an obsidian
+        knife or a fleet of warships both work. Examples: A lucky penny, Castle Umbrecht, A business empire, A carboy of
+        acid.
       </p>
       <div class="item-list" id="resource-list"></div>
       <button class="add-item-btn" onclick="showResourceForm()">+ Add Resource</button>
@@ -145,6 +151,11 @@
           <div class="form-group">
             <label for="resource-name">Resource</label>
             <input type="text" id="resource-name" placeholder="e.g., A diamond tiara, Ancient family crypt">
+          </div>
+          <div class="form-group">
+            <label for="resource-desc">Description</label>
+            <textarea id="resource-desc"
+              placeholder="A short description (background, quality, significance)"></textarea>
           </div>
           <div class="form-group">
             <label for="resource-stationary">
@@ -168,12 +179,14 @@
       <h2>Step 5: Three More Experiences</h2>
       <p class="step-subtitle">Memories that define you</p>
       <p class="step-description">
-        Create three Experiences, one for each of Memories 2–4. Each should combine two of your existing traits (a Character with a Skill, a Resource with a Skill, etc.).
+        Create three Experiences, one for each of Memories 2–4. Each should combine two of your existing traits (a
+        Character with a Skill, a Resource with a Skill, etc.).
       </p>
 
       <div class="summary-section" id="step5-overview">
         <h3>Overview</h3>
-        <p class="step-description">See your Characters, Skills, and Resources together before you write the next Memories.</p>
+        <p class="step-description">See your Characters, Skills, and Resources together before you write the next
+          Memories.</p>
         <div class="overview-grid">
           <div class="overview-card">
             <h4>Characters</h4>
@@ -191,13 +204,25 @@
       </div>
 
       <div id="experience-forms">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="mem-2-theme">Memory 2 — Theme</label>
+          <input type="text" id="mem-2-theme" placeholder="A theme for this memory…">
+        </div>
         <div class="form-group" style="margin-bottom: 32px;">
           <label for="exp-2">Memory 2 — Experience</label>
           <textarea id="exp-2" placeholder="Combine two of your traits in this experience..."></textarea>
         </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="mem-3-theme">Memory 3 — Theme</label>
+          <input type="text" id="mem-3-theme" placeholder="A theme for this memory…">
+        </div>
         <div class="form-group" style="margin-bottom: 32px;">
           <label for="exp-3">Memory 3 — Experience</label>
           <textarea id="exp-3" placeholder="Combine two of your traits in this experience..."></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="mem-4-theme">Memory 4 — Theme</label>
+          <input type="text" id="mem-4-theme" placeholder="A theme for this memory…">
         </div>
         <div class="form-group" style="margin-bottom: 32px;">
           <label for="exp-4">Memory 4 — Experience</label>
@@ -216,7 +241,8 @@
       <h2>Step 6: Become a Vampire</h2>
       <p class="step-subtitle">The curse and the mark</p>
       <p class="step-description">
-        Create an Immortal — the creature that cursed you. Then create a Mark (visible indicator of your undying state) and describe how you became a creature of the night. This completes your fifth Memory.
+        Create an Immortal — the creature that cursed you. Then create a Mark (visible indicator of your undying state)
+        and describe how you became a creature of the night. This completes your fifth Memory.
       </p>
 
       <div class="summary-section">
@@ -228,25 +254,35 @@
         </div>
         <div class="form-group">
           <label for="immortal-desc">Description</label>
-          <textarea id="immortal-desc" placeholder="What is this being? How do they appear? What is their nature?"></textarea>
+          <textarea id="immortal-desc"
+            placeholder="What is this being? How do they appear? What is their nature?"></textarea>
         </div>
       </div>
 
       <div class="summary-section">
         <h3>Your Mark</h3>
-        <p class="step-description">A visible indication of your undying state or what sets you apart. Include how you conceal it.</p>
+        <p class="step-description">A visible indication of your undying state or what sets you apart.</p>
         <div class="form-group">
           <label for="mark">Your Mark</label>
-          <textarea id="mark" placeholder="e.g., A pair of great bat wings — I cut them off with a saw but the stubs remain"></textarea>
+          <textarea id="mark" placeholder="e.g., A pair of great bat wings"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="mark-concealment">How is it concealed?</label>
+          <input type="text" id="mark-concealment" placeholder="e.g. I saw them off each night">
         </div>
       </div>
 
       <div class="summary-section">
         <h3>Your Transformation</h3>
-        <p class="step-description">Describe how you became a vampire. This is Memory 5 — your final foundational Experience.</p>
+        <p class="step-description">Describe how you became a vampire. This is Memory 5 — your final foundational
+          Experience.</p>
+        <div class="form-group">
+          <label for="mem-5-theme">Memory 5 — Theme</label>
+          <input type="text" id="mem-5-theme" placeholder="A title for your transformation memory…">
+        </div>
         <div class="form-group">
           <label for="exp-5">Memory 5 — The Transformation</label>
-          <textarea id="exp-5" placeholder="How did the curse take hold? What changed? How do you feel about your new existence?"></textarea>
+          <textarea id="exp-5" placeholder="How did the curse take hold?..."></textarea>
         </div>
       </div>
 
@@ -273,7 +309,8 @@
     <div class="step" id="step-8">
       <div class="completion-box">
         <h3>Your Chronicle Awaits</h3>
-        <p>Your vampire has been born into the endless night. Now begins a tale of centuries, suffering, and strange victories.</p>
+        <p>Your vampire has been born into the endless night. Now begins a tale of centuries, suffering, and strange
+          victories.</p>
         <div class="completion-actions">
           <button class="btn" onclick="downloadCharacter()">⬇ Download JSON</button>
           <button class="btn btn-secondary" onclick="copyCharacterCode()">📋 Copy as Text</button>
@@ -293,20 +330,26 @@
 
     let currentStep = 1;
     let characterData = {
+      draft: true,   // ← add this
       name: '',
-      player: 'Solo',
-      created: new Date().toISOString(),
+      vampire_desc: '',
+      game_over: false,
+      game_start: new Date().toISOString().slice(0, 10),
+      modified: new Date().toISOString().slice(0, 10),
+      current_prompt: 0,
+      marks: [],
       memories: [
-        { label: '1', experiences: [] },
-        { label: '2', experiences: [] },
-        { label: '3', experiences: [] },
-        { label: '4', experiences: [] },
-        { label: '5', experiences: [] }
+        { n: 1, "theme": "", "description": "", "experiences": [] },
+        { n: 2, "theme": "", "description": "", "experiences": [] },
+        { n: 3, "theme": "", "description": "", "experiences": [] },
+        { n: 4, "theme": "", "description": "", "experiences": [] },
+        { n: 5, "theme": "", "description": "", "experiences": [] }
       ],
+      diary_memories: {},
+      lost_memories: [],
       skills: [],
       resources: [],
       characters: [],
-      marks: [],
       journal: []
     };
 
@@ -316,7 +359,17 @@
     function closeKeyPanel() { document.getElementById('key-panel').classList.remove('open'); }
 
     function setStatus(state, msg) {
-      console.log(`[${state}] ${msg}`);
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      if (!dot || !text) { console.log('[' + state + '] ' + msg); return; }
+      dot.className = state;
+      text.textContent = msg;
+    }
+
+    function returnToContents() {
+      document.body.style.transition = 'opacity .4s ease';
+      document.body.style.opacity = '0';
+      setTimeout(() => { window.location.href = 'viewer.html'; }, 400);
     }
 
     (function () {
@@ -340,8 +393,17 @@
         if (btn.dataset.s !== 'book') document.body.setAttribute('data-skin', btn.dataset.s);
         document.querySelectorAll('.skin-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        localStorage.setItem('tyov-skin', btn.dataset.s);
       });
     });
+
+    (function () {
+      const s = localStorage.getItem('tyov-skin') || 'book';
+      if (s !== 'book') document.body.setAttribute('data-skin', s);
+      document.querySelectorAll('.skin-btn').forEach(b => {
+        if (b.dataset.s === s) b.classList.add('active'); else b.classList.remove('active');
+      });
+    })();
 
     // ═══════════════════════════════════════════════════
     // STEP NAVIGATION
@@ -412,10 +474,12 @@
             return false;
           }
           characterData.name = document.getElementById('mortal-name').value;
+          characterData.vampire_desc = document.getElementById('mortal-life').value;
           // Only add the mortal experience if it hasn't been added yet
           if (characterData.memories[0].experiences.length === 0) {
             characterData.memories[0].experiences.push(document.getElementById('mortal-life').value);
           }
+          characterData.memories[0].theme = 'Mortal life';
           return true;
         case 2:
           if (characterData.characters.length < 3) {
@@ -439,12 +503,21 @@
           const exp2 = document.getElementById('exp-2').value.trim();
           const exp3 = document.getElementById('exp-3').value.trim();
           const exp4 = document.getElementById('exp-4').value.trim();
+          const theme2 = document.getElementById('mem-2-theme').value.trim();
+          const theme3 = document.getElementById('mem-3-theme').value.trim();
+          const theme4 = document.getElementById('mem-4-theme').value.trim();
+          if (!theme2 || !theme3 || !theme4) {
+            alert('Please enter a theme for each memory.');
+            return false;
+          }
           if (!exp2 || !exp3 || !exp4) {
             alert('Please fill in all three Experiences.');
             return false;
           }
-          // Only add the experiences if they haven't been added yet
           if (characterData.memories[1].experiences.length === 0) {
+            characterData.memories[1].theme = theme2;
+            characterData.memories[2].theme = theme3;
+            characterData.memories[3].theme = theme4;
             characterData.memories[1].experiences.push(exp2);
             characterData.memories[2].experiences.push(exp3);
             characterData.memories[3].experiences.push(exp4);
@@ -463,18 +536,34 @@
             alert('Please describe your transformation.');
             return false;
           }
+          if (!document.getElementById('mem-5-theme').value.trim()) {
+            alert('Please enter a theme for Memory 5.');
+            return false;
+          }
+          // in the memories section:
+          if (characterData.memories[4].experiences.length === 0) {
+            characterData.memories[4].theme = document.getElementById('mem-5-theme').value.trim();
+            characterData.memories[4].experiences.push(document.getElementById('exp-5').value.trim());
+          }
           // Add immortal character (only if not already added)
           if (!characterData.characters.some(c => c.type === 'immortal')) {
             characterData.characters.push({
-              name: document.getElementById('immortal-name').value,
-              description: document.getElementById('immortal-desc').value,
-              type: 'immortal'
+              name: document.getElementById('immortal-name').value.trim(),
+              description: document.getElementById('immortal-desc').value.trim(),
+              type: 'immortal',
+              status: 'alive',
+              death_reason: '',
+              death_epitaph: '',
+              gained_turn: 0,
+              lost_turn: null
             });
           }
           // Add mark (only if not already added)
           if (characterData.marks.length === 0) {
             characterData.marks.push({
-              mark: document.getElementById('mark').value
+              description: document.getElementById('mark').value.trim(),
+              concealment: document.getElementById('mark-concealment').value.trim(),
+              status: 'active'
             });
           }
           // Add final experience (only if not already added)
@@ -507,8 +596,10 @@
         alert('Please enter a character name.');
         return;
       }
-      characterData.characters.push({ name, description: desc, type: 'mortal' });
-      renderCharacters();
+      characterData.characters.push({
+        name, description: desc, type: 'mortal', status: 'alive',
+        death_reason: '', death_epitaph: '', gained_turn: 0, lost_turn: null
+      }); renderCharacters();
       hideCharacterForm();
       updateStep2Next();
     }
@@ -560,7 +651,7 @@
         alert('You can only have three Skills.');
         return;
       }
-      characterData.skills.push({ skill: name });
+      characterData.skills.push({ name: name, status: "unchecked", "gained_turn": 0, "lost_turn": null });
       renderSkills();
       hideSkillForm();
       updateStep3Next();
@@ -576,13 +667,11 @@
       const list = document.getElementById('skill-list');
       list.innerHTML = characterData.skills
         .map((skill, i) => `
-        <div class="item-card">
-          <div>
-            <h4>${skill.skill}</h4>
-          </div>
-          <button class="item-remove" onclick="removeSkill(${i})">×</button>
-        </div>
-      `).join('');
+      <div class="item-card">
+        <div><h4>${skill.name}</h4></div>
+        <button class="item-remove" onclick="removeSkill(${i})">×</button>
+      </div>
+    `).join('');
     }
 
     function updateStep3Next() {
@@ -601,10 +690,13 @@
       document.getElementById('resource-form-container').style.display = 'none';
       document.getElementById('resource-name').value = '';
       document.getElementById('resource-stationary').checked = false;
+      document.getElementById('resource-desc').value = ''; // ← add this
+
     }
 
     function addResource() {
       const name = document.getElementById('resource-name').value.trim();
+      const description = document.getElementById('resource-desc').value.trim();
       const stationary = document.getElementById('resource-stationary').checked;
       if (!name) {
         alert('Please enter a resource name.');
@@ -614,7 +706,7 @@
         alert('You can only have three Resources.');
         return;
       }
-      characterData.resources.push({ resource: name, stationary });
+      characterData.resources.push({ name: name, description: description, type: document.getElementById('resource-stationary').checked ? 'stationary' : 'portable', status: "active", "gained_turn": 0, "lost_turn": null });
       renderResources();
       hideResourceForm();
       updateStep4Next();
@@ -632,8 +724,9 @@
         .map((res, i) => `
         <div class="item-card">
           <div>
-            <h4>${res.resource}</h4>
-            ${res.stationary ? '<p><em>Stationary</em></p>' : ''}
+            <h4>${res.name}</h4>
+            <p>${res.description || '(no description)'}</p>
+            ${res.type === 'stationary' ? '<p><em>Stationary</em></p>' : ''}
           </div>
           <button class="item-remove" onclick="removeResource(${i})">×</button>
         </div>
@@ -650,11 +743,11 @@
         : '<p class="overview-empty">Add at least three Characters in Step 2.</p>';
 
       skillContainer.innerHTML = characterData.skills.length
-        ? characterData.skills.map(skill => `<div class="overview-item">${skill.skill}</div>`).join('')
+        ? characterData.skills.map(skill => `<div class="overview-item">${skill.name}</div>`).join('')
         : '<p class="overview-empty">Add three Skills in Step 3.</p>';
 
       resourceContainer.innerHTML = characterData.resources.length
-        ? characterData.resources.map(res => `<div class="overview-item">${res.resource}${res.stationary ? ' <em>(stationary)</em>' : ''}</div>`).join('')
+        ? characterData.resources.map(res => `<div class="overview-item">${res.name}${res.type === 'stationary' ? ' <em>(stationary)</em>' : ''}</div>`).join('')
         : '<p class="overview-empty">Add three Resources in Step 4.</p>';
     }
 
@@ -677,7 +770,7 @@
           <h3>Memories & Experiences</h3>
           ${characterData.memories.map((mem, i) => `
             <div style="margin-bottom: 16px;">
-              <strong style="color: var(--blood);">Memory ${i + 1}:</strong>
+            <strong style="color: var(--blood);">Memory ${i + 1}${mem.theme ? ' — ' + mem.theme : ''}:</strong>
               ${mem.experiences.map(exp => `<div class="summary-item">${exp}</div>`).join('')}
             </div>
           `).join('')}
@@ -685,12 +778,12 @@
 
         <div class="summary-section">
           <h3>Skills (${characterData.skills.length})</h3>
-          ${characterData.skills.map(skill => `<div class="summary-item">${skill.skill}</div>`).join('')}
+          ${characterData.skills.map(skill => `<div class="summary-item">${skill.name}</div>`).join('')}
         </div>
 
         <div class="summary-section">
           <h3>Resources (${characterData.resources.length})</h3>
-          ${characterData.resources.map(res => `<div class="summary-item">${res.resource}${res.stationary ? ' <em>(stationary)</em>' : ''}</div>`).join('')}
+          ${characterData.resources.map(res => `<div class="summary-item">${res.name}${res.type === 'stationary' ? ' <em>(stationary)</em>' : ''}</div>`).join('')}
         </div>
 
         <div class="summary-section">
@@ -705,7 +798,7 @@
 
         <div class="summary-section">
           <h3>Marks (${characterData.marks.length})</h3>
-          ${characterData.marks.map(mark => `<div class="summary-item">${mark.mark}</div>`).join('')}
+          ${characterData.marks.map(mark => `<div class="summary-item">${mark.description}</div>`).join('')}
         </div>
       `;
     }
@@ -718,28 +811,27 @@
 
     async function saveCharacter() {
       const token = getVaultKey();
-      if (!token) {
-        openKeyPanel();
-        alert('Please enter your GitHub vault key first.');
-        return;
-      }
+      if (!token) { openKeyPanel(); alert('Please enter your GitHub vault key first.'); return; }
       setStatus('busy', 'Saving to GitHub…');
       try {
+        characterData.draft = false; // mark as complete
         await pushCharacterToGitHub(token);
-        const json = JSON.stringify(characterData, null, 2);
-        localStorage.setItem('tyov-draft-' + characterData.name, json);
+        clearDraft(); // remove local draft on successful save
+        localStorage.setItem('tyov-last-chronicle', sanitizeFilename(characterData.name || 'untitled') + '.json');
         currentStep++;
         showStep(currentStep);
         initStepIndicator();
         setStatus('ok', 'Saved to GitHub ✓');
       } catch (e) {
+        characterData.draft = true; // restore draft flag on failure
         setStatus('err', 'Save failed: ' + e.message);
         alert('Save failed: ' + e.message);
       }
     }
 
-    async function pushCharacterToGitHub(token) {
-      const filename = sanitizeFilename(characterData.name || 'untitled') + '.json';
+    async function pushCharacterToGitHub(token, isDraft = false) {
+      const prefix = isDraft ? 'DRAFT_' : '';
+      const filename = prefix + sanitizeFilename(characterData.name || 'untitled') + '.json';
       const fileUrl = `${GITHUB_API}/${encodeURIComponent(filename)}`;
       let sha = null;
 
@@ -801,11 +893,98 @@
     }
 
     // ═══════════════════════════════════════════════════
+    // Draft
+    // ═══════════════════════════════════════════════════
+    const DRAFT_KEY = 'tyov-creator-draft';
+
+    async function saveDraft() {
+      const token = getVaultKey();
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          step: currentStep,
+          data: characterData,
+          fields: captureFields()
+        }));
+        if (token) {
+          await pushCharacterToGitHub(token, true);
+          setStatus('ok', 'Draft saved to GitHub');
+        }
+      } catch (e) {
+        alert('Failed to save draft: ' + e.message);
+      }
+    }
+
+    function captureFields() {
+      // Capture any currently visible form field values that haven't been
+      // committed to characterData yet (validateStep only commits on Next)
+      const fields = {};
+      const ids = [
+        'mortal-name', 'mortal-life', 'memory-1-theme',
+        'exp-2', 'exp-3', 'exp-4', 'mem-2-theme', 'mem-3-theme', 'mem-4-theme',
+        'immortal-name', 'immortal-desc', 'mark', 'mark-concealment',
+        'mem-5-theme', 'exp-5'
+      ];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) fields[id] = el.value;
+      });
+      return fields;
+    }
+
+    function restoreFields(fields) {
+      if (!fields) return;
+      Object.entries(fields).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      });
+    }
+
+    function loadDraft() {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return false;
+        const draft = JSON.parse(raw);
+        characterData = draft.data;
+        currentStep = draft.step;
+        showStep(currentStep);
+        initStepIndicator();
+        restoreFields(draft.fields);
+        renderCharacters();
+        renderSkills();
+        renderResources();
+        updateStep2Next();
+        updateStep3Next();
+        updateStep4Next();
+        setStatus('ok', '📂 Draft loaded — ' + (characterData.name || 'unnamed'));
+        return true;
+      } catch (e) {
+        console.error('Failed to load draft:', e);
+        return false;
+      }
+    }
+
+    function clearDraft() {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+
+
+    // ═══════════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════════
-    initStepIndicator();
-  </script>
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity .4s ease';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.body.style.opacity = '1';
+      });
+    });
 
+    initStepIndicator();
+    if (localStorage.getItem(DRAFT_KEY)) {
+      document.getElementById('load-draft-btn').style.display = '';
+    }
+
+  </script>
 </body>
 
 </html>

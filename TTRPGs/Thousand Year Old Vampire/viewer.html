@@ -14,8 +14,7 @@
 </head>
 
 <body>
-  <!-- Key Panel -->
-  <button id="key-toggle" style="display:none;">🔑</button>
+  <button id="key-toggle">🔑</button>
   <div id="key-panel">
     <div class="key-label">🔑 Vault Key</div>
     <input type="password" id="vault-key" class="key-input" placeholder="ghp_...">
@@ -23,49 +22,88 @@
     <button class="modal-btn primary" onclick="closeKeyPanel()" style="width:100%">Done</button>
   </div>
 
-  <!-- Edit Mode Banner -->
-  <div id="edit-mode-banner">✎ Edit Mode Active — Changes are local until you save</div>
+  <div id="tome-wrap">
 
-  <div id="top-bar">
-    <div id="picker-row">
-      <span id="picker-label">Chronicle</span>
-      <a id="new-character-btn" class="top-btn" href="character-creator.html">+ New Character</a>
-      <select id="game-select">
-        <option value="">— Loading games… —</option>
-      </select>
-      <a id="game-link" href="core-rules.html">Core Rules</a>
-      <button id="refresh-btn" class="top-btn" onclick="refreshCurrent()">↻ Refresh</button>
-      <button id="edit-mode-btn" class="top-btn" style="display:none;" onclick="toggleEditMode()">✎ Edit</button>
-      <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
-      <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
-      <div id="skin-switcher">
-        <button class="skin-btn active" data-s="book"></button>
-        <button class="skin-btn" data-s="dark"></button>
-        <button class="skin-btn" data-s="scholar"></button>
+    <!-- Contents Page -->
+    <div id="contents-page">
+      <div id="contents-inner">
+        <div class="tome-header">
+          <div style="position:absolute;top:16px;right:16px;display:flex;gap:6px;">
+            <button class="skin-btn active" data-s="book"></button>
+            <button class="skin-btn" data-s="dark"></button>
+            <button class="skin-btn" data-s="scholar"></button>
+          </div>
+          <div class="tome-rule"></div>
+          <h1 class="tome-title">Thousand Year Old Vampire</h1>
+          <div class="tome-rule"></div>
+        </div>
+        <nav id="tome-nav">
+          <div class="tome-entry tome-action" onclick="turnToPage('character-creator.html')">
+            <span class="tome-entry-icon">✦</span>
+            <span class="tome-entry-name">Begin a New Chronicle</span>
+            <span class="tome-entry-meta">character creation</span>
+          </div>
+          <div class="tome-entry tome-action" onclick="turnToPage('core-rules.html')">
+            <span class="tome-entry-icon">✦</span>
+            <span class="tome-entry-name">The Rules</span>
+            <span class="tome-entry-meta">core rules reference</span>
+          </div>
+          <div class="tome-section-header">Vampires</div>
+          <div id="tome-chronicle-list">
+            <div class="tome-loading">Consulting the archives…</div>
+          </div>
+        </nav>
+        <div class="tome-footer">
+          <div id="status-row">
+            <div id="status-dot"></div>
+            <span id="status-text">Loading…</span>
+          </div>
+        </div>
       </div>
     </div>
-    <div id="status-row">
-      <div id="status-dot"></div>
-      <span id="status-text">Loading game list…</span>
-    </div>
-  </div>
 
-  <div id="app">
-    <div id="empty-state">
-      <h2>Thousand Year Old Vampire</h2>
-      <p>Select a chronicle to begin.</p>
+    <!-- Chronicle Page -->
+    <div id="chronicle-page">
+      <div id="edit-mode-banner">✎ Edit Mode Active — Changes are local until you save</div>
+      <div id="top-bar">
+        <div id="picker-row">
+          <button class="tome-back-btn" onclick="returnToContents()">❮ Chronicles</button>
+          <select id="game-select" style="display:none;"></select>
+          <button id="save-btn" class="top-btn" style="display:none;" onclick="saveChronicle()">✓ Save</button>
+          <button id="cancel-btn" class="top-btn" style="display:none;" onclick="cancelEditMode()">✕ Cancel</button>
+          <div id="skin-switcher">
+            <button class="skin-btn active" data-s="book"></button>
+            <button class="skin-btn" data-s="dark"></button>
+            <button class="skin-btn" data-s="scholar"></button>
+          </div>
+        </div>
+        <div id="status-row-chronicle">
+          <div id="status-dot-chronicle"></div>
+          <span id="status-text-chronicle"></span>
+        </div>
+      </div>
+      <div id="app">
+        <div id="empty-state" style="display:none;">
+          <h2>Thousand Year Old Vampire</h2>
+          <p>Select a chronicle from the contents.</p>
+        </div>
+        <div id="content" style="display:none;">
+          <div class="prompt-section" id="prompt-section"></div>
+        </div>
+      </div>
     </div>
-    <div id="content" style="display:none;">
-      <div class="prompt-section" id="prompt-section"></div>
-    </div>
-  </div>
 
-  <!-- Modal Overlay -->
+  </div><!-- end tome-wrap -->
+
+  <!-- Modal Overlay — unchanged -->
   <div id="modal-overlay">
     <div class="modal-box" id="modal-box">
       <div class="modal-header">
-        <span class="modal-title" id="modal-title">Edit</span>
-        <button class="modal-close" onclick="closeModal()">×</button>
+        <span class="modal-title" id="modal-title"></span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="modal-close" id="modal-minimise" onclick="event.stopPropagation();minimiseModal()"
+            title="Minimise">—</button> <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
       </div>
       <div class="modal-body" id="modal-body"></div>
       <div class="modal-footer" id="modal-footer">
@@ -85,7 +123,8 @@
     let currentSha = null;
     let currentFileUrl = null;
     let currentJson = null;   // last saved state from GitHub — never mutated
-    let editMode = false;
+    let editMode = true;
+    let hasUnsaved = false;
     let parsedData = null;    // live working copy — mutated by editors, persisted to localStorage
     let currentModalConfirm = null;
     let currentFilename = null; // tracks which file is loaded, for localStorage key
@@ -109,10 +148,50 @@
       try { const d = localStorage.getItem(key); return d || null; } catch (e) { return null; }
     }
 
-
     // ═══════════════════════════════════════════════════
     // UTILITY
     // ═══════════════════════════════════════════════════
+    function findNextFreePromptEntry() {
+      const journal = parsedData.journal;
+      // Find the last resolved prompt as base
+      const resolved = journal.filter(j => j.resolved === true);
+      const basePrompt = resolved.length > 0
+        ? resolved[resolved.length - 1].prompt
+        : 1;
+
+      // Build a map of used prompt/entry combos
+      const used = new Set(journal.map(j => j.prompt + ',' + j.entry));
+
+      // Search from base prompt onwards
+      for (let pn = basePrompt; pn <= 80; pn++) {
+        for (let en = 1; en <= 3; en++) {
+          if (!used.has(pn + ',' + en)) {
+            return { prompt: pn, entry: en };
+          }
+        }
+      }
+      // Wrap around from 1 if nothing found after base
+      for (let pn = 1; pn < basePrompt; pn++) {
+        for (let en = 1; en <= 3; en++) {
+          if (!used.has(pn + ',' + en)) {
+            return { prompt: pn, entry: en };
+          }
+        }
+      }
+      return null; // all exhausted
+    }
+
+    function toDateString(val) {
+      if (!val) return '';
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return val; // unparseable — return as-is
+      return d.toISOString().slice(0, 10);
+    }
+
+    function toStringArray(arr) {
+      return (arr || []).map(e => typeof e === 'string' ? e : String(e.text || e.description || e || ''));
+    }
+
     function currentTurn() {
       if (!parsedData || !parsedData.journal || parsedData.journal.length === 0) return null;
       return Math.max(...parsedData.journal.map(j => j.turn));
@@ -127,8 +206,44 @@
     }
 
     function setStatus(state, msg) {
-      document.getElementById('status-dot').className = state;
-      document.getElementById('status-text').textContent = msg;
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      if (dot) dot.className = state;
+      if (text) text.textContent = msg;
+      const dotC = document.getElementById('status-dot-chronicle');
+      const textC = document.getElementById('status-text-chronicle');
+      if (dotC) dotC.className = state;
+      if (textC) textC.textContent = msg;
+    }
+
+    let _onContentsPage = true;
+
+    function turnToChronicle() {
+      _onContentsPage = false;
+      const wrap = document.getElementById('tome-wrap');
+      wrap.classList.add('turning');
+      setTimeout(() => { wrap.classList.add('turned'); wrap.classList.remove('turning'); }, 600);
+    }
+
+    function turnToPage(url) {
+      const wrap = document.getElementById('tome-wrap');
+      wrap.classList.add('turning');
+      setTimeout(() => { window.location.href = url; }, 600);
+    }
+
+    function returnToContents() {
+      if (editMode && hasUnsaved) {
+        if (!confirm('Return to contents? You have unsaved changes.')) return;
+        cancelEditMode();
+      }
+      _onContentsPage = true;
+      const wrap = document.getElementById('tome-wrap');
+      wrap.classList.add('turning-back');
+      setTimeout(() => {
+        wrap.classList.remove('turned');
+        wrap.classList.remove('turning-back');
+        loadTomeList();
+      }, 600);
     }
 
     function getVaultKey() { return document.getElementById('vault-key').value.trim(); }
@@ -140,6 +255,14 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    function renderProse(s) {
+      if (!s) return '';
+      return esc(s)
+        .split('\n\n')
+        .map(para => '<p>' + para.replace(/\n/g, '<br>') + '</p>')
+        .join('');
     }
 
     // ═══════════════════════════════════════════════════
@@ -178,8 +301,8 @@
     // ═══════════════════════════════════════════════════
     // GAME LIST LOADING
     // ═══════════════════════════════════════════════════
-    async function loadGameList() {
-      setStatus('busy', 'Loading chronicles…');
+    async function loadTomeList() {
+      setStatus('busy', 'Consulting the archives…');
       try {
         const resp = await fetch(GITHUB_API, {
           headers: getVaultKey() ? { Authorization: 'token ' + getVaultKey() } : {}
@@ -190,26 +313,68 @@
           f.name.endsWith('.json') &&
           f.name !== 'vampire-schema.json' &&
           !f.name.startsWith('TEST_') &&
-          !f.name.startsWith('test_')
+          !f.name.startsWith('test_') &&
+          !f.name.startsWith('DRAFT_')
         );
-        const sel = document.getElementById('game-select');
-        sel.innerHTML = '<option value="">— Select a chronicle —</option>';
-        jsonFiles.forEach(f => {
-          const o = document.createElement('option');
-          o.value = f.name;
-          o.textContent = f.name.replace('.json', '');
-          sel.appendChild(o);
-        });
-        setStatus('ok', `${jsonFiles.length} chronicle${jsonFiles.length !== 1 ? 's' : ''} found`);
+
+        // Fetch metadata for each file
+        const chronicles = await Promise.all(jsonFiles.map(async f => {
+          try {
+            const raw = await fetch(GITHUB_API + '/' + encodeURIComponent(f.name), {
+              headers: getVaultKey() ? { Authorization: 'token ' + getVaultKey() } : {}
+            });
+            if (!raw.ok) return { name: f.name, display: f.name.replace('.json', ''), modified: null, turn: null };
+            const data = await raw.json();
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, '')))));
+            return {
+              name: f.name,
+              display: decoded.name || f.name.replace('.json', ''),
+              modified: decoded.modified || null,
+              turn: decoded.journal ? decoded.journal.length : 0
+            };
+          } catch (e) {
+            return { name: f.name, display: f.name.replace('.json', ''), modified: null, turn: null };
+          }
+        }));
+
+        renderTomeList(chronicles);
+        setStatus('ok', chronicles.length + ' chronicle' + (chronicles.length !== 1 ? 's' : '') + ' found');
       } catch (e) {
-        setStatus('err', 'Failed to load game list: ' + e.message);
+        setStatus('err', 'Failed to load chronicles: ' + e.message);
+        document.getElementById('tome-chronicle-list').innerHTML = '<div class="tome-loading">Failed to load chronicles.</div>';
       }
     }
 
-    document.getElementById('game-select').addEventListener('change', async (e) => {
-      if (!e.target.value) return;
-      await loadVampire(e.target.value);
-    });
+    function renderTomeList(chronicles) {
+      const list = document.getElementById('tome-chronicle-list');
+      if (!list) return;
+      if (chronicles.length === 0) {
+        list.innerHTML = '<div class="tome-loading">No chronicles found.</div>';
+        return;
+      }
+      const sorted = [...chronicles].sort((a, b) => {
+        if (!a.modified && !b.modified) return a.display.localeCompare(b.display);
+        if (!a.modified) return 1;
+        if (!b.modified) return -1;
+        return new Date(b.modified) - new Date(a.modified);
+      });
+      list.innerHTML = sorted.map(c =>
+        '<div class="tome-entry tome-chronicle-entry" onclick="openChronicle(\'' + c.name.replace(/'/g, "\\'") + '\')">'
+        + '<span class="tome-entry-icon">†</span>'
+        + '<span class="tome-entry-name">' + esc(c.display) + '</span>'
+        + '<span class="tome-entry-meta">'
+        + (c.modified ? c.modified : '—')
+        + (c.turn !== null ? ' · turn ' + c.turn : '')
+        + '</span>'
+        + '</div>'
+      ).join('');
+    }
+
+    async function openChronicle(filename) {
+      document.getElementById('game-select').value = filename;
+      await loadVampire(filename);
+      turnToChronicle();
+    }
 
     async function loadVampire(filename) {
       setStatus('busy', `Loading ${filename}…`);
@@ -233,8 +398,7 @@
           const resume = confirm('You have unsaved edits for this chronicle. Resume editing?');
           if (resume) {
             parsedData = parseSource(draft);
-            editMode = true;
-            applyEditModeUI();
+            showEditControls();
           } else {
             clearDraft();
             parsedData = parseSource(currentJson);
@@ -243,21 +407,19 @@
           parsedData = parseSource(currentJson);
         }
 
-        if (!parsedData.lastPlayed && data.committed_date) {
-          parsedData.lastPlayed = data.committed_date.slice(0, 10);
+        if (!parsedData.frontmatter.modified && data.committed_date) {
+          parsedData.frontmatter.modified = data.committed_date.slice(0, 10);
         }
 
         renderChronicle(parsedData);
-        const select = document.getElementById('game-select');
-        if (select) select.value = filename;
-        document.getElementById('empty-state').style.display = 'none';
-        document.getElementById('content').style.display = 'block';
-        document.getElementById('edit-mode-btn').style.display = '';
-        setStatus('ok', draft && editMode ? `Resumed draft: ${filename}` : `Loaded: ${filename}`);
+        document.getElementById('empty-state').style.display = 'none'
+        document.getElementById('content').style.display = 'block'
+        setStatus('ok', draft && editMode ? `Resumed draft: ${currentFilename}` : `Loaded: ${currentFilename}`);
+        localStorage.setItem('tyov-last-chronicle', currentFilename); // ← here, inside try
+
       } catch (e) {
         setStatus('err', 'Load failed: ' + e.message);
       }
-      localStorage.setItem('tyov-last-chronicle', filename);
     }
 
     function resetToGameList() {
@@ -267,15 +429,8 @@
       leaveEditMode();
       document.getElementById('content').style.display = 'none';
       document.getElementById('empty-state').style.display = 'block';
-      document.getElementById('edit-mode-btn').style.display = 'none';
       document.getElementById('game-select').value = '';
       currentJson = null; workingJson = null; parsedData = null;
-    }
-
-    async function refreshCurrent() {
-      const sel = document.getElementById('game-select');
-      if (sel.value) await loadVampire(sel.value);
-      else await loadGameList();
     }
 
     // ═══════════════════════════════════════════════════
@@ -346,12 +501,12 @@
     function _disPoll() { clearTimeout(_ptl); _ptl = null; }
 
     function _pollTick() {
-      if (!_pviz || editMode) { _ptl = setTimeout(_pollTick, 30000); return; } // don't poll during edits
+      if (!_pviz || hasUnsaved) { _ptl = setTimeout(_pollTick, 30000); return; } // don't poll during edits
       var t = [];
-      var sel = document.getElementById('game-select');
+      const filename = currentFilename || document.getElementById('game-select').value;
       // Poll current vampire sheet
-      if (sel.value) {
-        t.push(_chkFile(GITHUB_API + '/' + encodeURIComponent(sel.value), 'v'));
+      if (filename) {
+        t.push(_chkFile(GITHUB_API + '/' + encodeURIComponent(filename), 'v'));
       } else {
         t.push(_chkFile(GITHUB_API, 'g')); // refresh game list
       }
@@ -420,30 +575,40 @@
         frontmatter: {},
         vampireName: json.name || '',
         subtitle: json.vampire_desc || '',
-        mortalSelf: json.mortal_self || '',
+        epitaph: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
         marks: (json.marks || []).map(m => ({
           desc: m.description || '',
           concealment: m.concealment || '',
-          struck: m.status === 'struck'
+          status: m.status || 'active'
         })),
+        characters: (json.characters || []).map(c => ({
+          name: c.name || '',
+          desc: c.description || '',
+          type: c.type === 'immortal' ? 'immortal' : 'mortal',
+          dead: c.status === 'dead',
+          death_reason: c.death_reason || '',
+          death_epitaph: c.death_epitaph || '',
+          gained_turn: c.gained_turn !== undefined ? c.gained_turn : null,
+          lost_turn: c.lost_turn || null
+        })),
+
         memories: (json.memories || []).map((mem, idx) => ({
           n: mem.n || idx + 1,
           theme: mem.theme || '',
-          experiences: (mem.experiences || []).map(e => typeof e === 'string' ? e : (e.text || '')),
-          description: mem.description || ''
+          description: mem.description || '',
+          experiences: toStringArray(mem.experiences),
         })),
         lostMemories: (json.lost_memories || []).map(m => ({
           n: m.n,
-          theme: m.theme || m.name || '',
-          experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : (e.text || '')),
+          theme: m.theme || '',
+          experiences: toStringArray(m.experiences),
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
         skills: (json.skills || []).map(sk => ({
           name: sk.name || '',
-          description: sk.description || '',
           status: sk.status || 'unchecked',
-          gained_turn: sk.gained_turn || null,
+          gained_turn: sk.gained_turn !== undefined ? sk.gained_turn : null,
           lost_turn: sk.lost_turn || null
         })),
         resources: (json.resources || []).map(r => ({
@@ -451,7 +616,7 @@
           description: r.description || '',
           type: r.type || 'portable',
           status: r.status || 'active',
-          gained_turn: r.gained_turn || null,
+          gained_turn: r.gained_turn !== undefined ? r.gained_turn : null,
           lost_turn: r.lost_turn || null
         })),
         diaryMemories: Object.fromEntries(
@@ -459,53 +624,27 @@
             k,
             (v || []).map(m => ({
               n: m.n,
-              theme: m.theme || '',
-              experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : (e.text || ''))
+              experiences: toStringArray(m.experiences)
             }))
           ])
         ),
-        mortals: [],
-        immortals: [],
         journal: (json.journal || []).map(j => ({
           turn: j.turn,
           prompt: j.prompt,
           entry: j.entry,
           prose: j.experience || '',
           changes: j.changes || '',
-          awaiting: j.resolved === false,
+          resolved: j.resolved === true, // default true if missing
           resolved_at: j.resolved_at || null
         })),
-        epitaph: (json.epitaph && json.epitaph.experience) ? json.epitaph.experience : '',
         gameOver: !!json.game_over,
-        lastPlayed: json.modified || '',
-        rawAfterJournal: ''
       };
-
-      (json.characters || []).forEach(c => {
-        const entry = {
-          name: c.name || '',
-          desc: c.description || '',
-          description: c.description || '',
-          dead: c.status === 'dead',
-          death_reason: c.death_reason || '',
-          death_epitaph: c.death_epitaph || '',
-          gained_turn: c.gained_turn || null,
-          lost_turn: c.lost_turn || null
-        };
-        if (c.type === 'mortal') data.mortals.push(entry);
-        else data.immortals.push(entry);
-      });
 
       data.frontmatter = {
         game_start: json.game_start || '',
-        modified: json.modified || '',
+        modified: toDateString(json.modified) || '',
         game_over: json.game_over ? 'true' : 'false',
-        game_completed: json.game_completed || '',
-        current_prompt: json.current_prompt !== undefined ? String(json.current_prompt) : '',
-        prompts_resolved: json.prompts_resolved !== undefined ? String(json.prompts_resolved) : '',
-        show_suggestions: json.show_suggestions ? 'true' : 'false',
-        vampire: data.vampireName,
-        vampire_desc: json.vampire_desc || ''
+        current_prompt: json.current_prompt !== undefined ? String(json.current_prompt) : ''
       };
 
       return data;
@@ -515,33 +654,33 @@
       const json = {
         name: d.vampireName || '',
         vampire_desc: d.subtitle || '',
-        mortal_self: d.mortalSelf || '',
         game_over: d.frontmatter.game_over === 'true',
         game_start: d.frontmatter.game_start || '',
         modified: new Date().toISOString().slice(0, 10),
-        game_completed: d.frontmatter.game_completed || '',
-        show_suggestions: d.frontmatter.show_suggestions === 'true',
         current_prompt: d.frontmatter.current_prompt ? parseInt(d.frontmatter.current_prompt, 10) : 0,
-        prompts_resolved: d.frontmatter.prompts_resolved ? parseInt(d.frontmatter.prompts_resolved, 10) : 0,
-        marks: (d.marks || []).map(m => ({ description: m.desc || '', concealment: m.concealment || '', status: m.struck ? 'struck' : 'available' })),
+        epitaph: d.epitaph ? { experience: d.epitaph } : null,
+        marks: (d.marks || []).map(m => ({
+          description: m.desc || '',
+          concealment: m.concealment || '',
+          status: m.status || 'active'
+        })),
         memories: (d.memories || []).map(mem => ({
           n: mem.n,
           theme: mem.theme || '',
           description: mem.description || '',
-          experiences: (mem.experiences || []).map(e => typeof e === 'string' ? e : String(e || ''))
+          experiences: toStringArray(mem.experiences)
         })),
         lost_memories: (d.lostMemories || []).map(m => ({
           n: m.n,
           theme: m.theme || '',
-          experiences: (m.experiences || []).map(e => typeof e === 'string' ? e : String(e || '')),
+          experiences: toStringArray(m.experiences),
           lost_at: m.lost_at || null,
           lost_on_turn: m.lost_on_turn || null
         })),
         skills: (d.skills || []).map(sk => ({
           name: sk.name || '',
-          description: sk.description || '',
           status: sk.status || 'unchecked',
-          gained_turn: sk.gained_turn || null,
+          gained_turn: sk.gained_turn !== undefined ? sk.gained_turn : null,
           lost_turn: sk.lost_turn || null
         })),
         resources: (d.resources || []).map(r => ({
@@ -549,7 +688,7 @@
           description: r.description || '',
           type: r.type || 'portable',
           status: r.status || 'active',
-          gained_turn: r.gained_turn || null,
+          gained_turn: r.gained_turn !== undefined ? r.gained_turn : null,
           lost_turn: r.lost_turn || null
         })),
         diary_memories: Object.fromEntries(
@@ -557,32 +696,31 @@
             k,
             (v || []).map(m => ({
               n: m.n,
-              theme: m.theme || '',
-              experiences: m.experiences || []
+              experiences: toStringArray(m.experiences)
             }))
           ])
-        ), characters: [
-          ...(d.mortals || []).map(c => ({
-            name: c.name || '', type: 'mortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
-              lost_turn: c.lost_turn || null, death_epitaph: c.death_epitaph || ''
-          })),
-          ...(d.immortals || []).map(c => ({
-            name: c.name || '', type: 'immortal', description: c.description || c.desc || '', status: c.dead ? 'dead' : 'alive', death_reason: c.death_reason || '', gained_turn: c.gained_turn || null,
-              lost_turn: c.lost_turn || null, death_epitaph: c.death_epitaph || ''
-          }))
-        ],
+        ),
+        characters: (d.characters || []).map(c => ({
+          name: c.name || '',
+          type: c.type || 'mortal',
+          description: c.desc || '',
+          status: c.dead ? 'dead' : 'alive',
+          death_reason: c.death_reason || '',
+          death_epitaph: c.death_epitaph || '',
+          gained_turn: c.gained_turn !== undefined ? c.gained_turn : null,
+          lost_turn: c.lost_turn || null
+        })),
         journal: (d.journal || []).map(j => ({
           turn: j.turn,
           prompt: j.prompt,
           entry: j.entry,
-          resolved: j.resolved !== undefined ? j.resolved : (j.awaiting === undefined ? false : !j.awaiting),
+          resolved: j.resolved === true,
           resolved_at: j.resolved_at || null,
-          experience: j.experience || j.prose || '',
+          experience: j.prose || '',
           changes: j.changes || ''
-        }))
+        })),
       };
 
-      if (d.epitaph) json.epitaph = { experience: d.epitaph };
       return JSON.stringify(json, null, 2);
     }
 
@@ -598,8 +736,8 @@
         return em ? 'onclick="event.stopPropagation();' + fn + '" style="cursor:pointer;"' : '';
       }
 
-      const hasUnresolved = d.journal.some(j => j.awaiting === true);
-      const promptBtnDisabled = em || hasUnresolved;
+      const hasUnresolved = d.journal.some(j => j.resolved === false);
+      const promptBtnDisabled = hasUnresolved;
 
       let html = '';
 
@@ -616,7 +754,7 @@
         + '<div class="meta-row">'
         + (fm.game_start ? '<span class="meta-pill">Started <span>' + fm.game_start + '</span></span>' : '')
         + (fm.game_over === 'true' ? '<span class="meta-pill" style="color:var(--blood)">Game Over</span>' : '')
-        + (d.lastPlayed ? '<span class="meta-pill">Last played <span>' + d.lastPlayed + '</span></span>' : '')
+        + (d.frontmatter.modified ? '<span class="meta-pill">Last played <span>' + d.frontmatter.modified + '</span></span>' : '')
         + '</div>'
         + '</div>'
         + '</div>';
@@ -624,32 +762,34 @@
       // ── Dashboard ──
       html += '<div class="dashboard-strip">';
 
-      // Marks
-      html += '<div class="strip-cell section-editwrap" data-section="marks" '
-        + (em ? 'onclick="editMarks()" title="Click to edit marks"' : '') + '>'
-        + '<div class="strip-label"><span class="section-icon">⚰</span> Marks</div>'
-        + '<div class="marks-inline">';
-      d.marks.filter(m => !m.struck).forEach(m => {
-        html += '<span class="mark-chip" title="Concealed: ' + esc(m.concealment) + '">' + esc(m.desc) + '</span>';
-      });
-      if (d.marks.filter(m => !m.struck).length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
-      html += '</div></div>';
-
       // Skills
-      const activeSkills = d.skills.filter(sk => sk.status !== 'lost')
+      const uncheckedSkills = d.skills.filter(sk => sk.status === 'unchecked')
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
 
       html += '<div class="strip-cell section-editwrap" data-section="skills" '
         + (em ? 'onclick="editSkills()" title="Click to edit skills"' : '') + '>'
         + '<div class="strip-label"><span class="section-icon">⚔</span> Skills</div>'
         + '<div class="skills-inline">';
-      if (activeSkills.length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
-      activeSkills.forEach(sk => {
-        const cls = sk.status === 'checked' ? 'checked' : '';
-        html += '<span class="skill-chip ' + cls + '" title="' + (sk.gained_turn ? 'Gained turn ' + sk.gained_turn : '') + '">'
-          + '<span class="skill-box">' + (sk.status === 'checked' ? '✓' : '') + '</span>'
+      if (uncheckedSkills.length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
+      uncheckedSkills.forEach(sk => {
+        html += '<span class="skill-chip" title="' + (sk.gained_turn ? 'Gained turn ' + sk.gained_turn : '') + '">'
+          + '<span class="skill-box"></span>'
           + esc(sk.name) + '</span>';
       });
+      html += '</div></div>';
+
+      // Marks
+      html += '<div class="strip-cell section-editwrap" data-section="marks" '
+        + (em ? 'onclick="editMarks()" title="Click to edit marks"' : '') + '>'
+        + '<div class="strip-label"><span class="section-icon">⚰</span> Marks</div>'
+        + '<div class="marks-inline">';
+      d.marks.filter(m => m.status === 'active').forEach(m => {
+        html += '<span class="mark-chip">'
+          + esc(m.desc)
+          + (m.concealment ? '<span style="font-size:.8rem;color:var(--ink-faint);display:block;"> ' + esc(m.concealment) + '</span>' : '')
+          + '</span>';
+      });
+      if (d.marks.filter(m => m.status === 'active').length === 0) html += '<span style="color:var(--ink-faint);font-size:.85rem;">None</span>';
       html += '</div></div>';
 
       // Resources
@@ -675,16 +815,27 @@
       html += '<div class="main-layout">';
 
       // Mortal Characters — living only
+      const livingMortals = d.characters.filter(c => c.type === 'mortal' && !c.dead)
+        .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
+
+      const currentTurnNum = d.journal.length > 0 ? Math.max(...d.journal.map(j => j.turn)) : 0;
+      d.characters.filter(c => c.type === 'mortal' && !c.dead).forEach(m => {
+        const gt = Number(m.gained_turn) || 0;
+        const threshold = (gt % 2 === 0) ? 5 : 4;
+        m._graveIcon = (currentTurnNum - gt) >= threshold;
+      });
+
       html += '<div class="char-col section-editwrap" data-section="characters-mortal" '
-        + (em ? 'onclick="editCharacters()" title="Click to edit characters"' : '') + '>'
+        + (em ? 'onclick="editCharacters(\'mortal\')" title="Click to edit mortal characters"' : '') + '>'
         + '<div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧑</span> Mortal Characters</div>'
         + '<div class="char-list">';
-      const livingMortals = d.mortals.filter(c => !c.dead);
       if (livingMortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
       livingMortals.forEach(c => {
-        const nameDisplay = (c._graveIcon ? '🪦 ' : '') + esc(c.name);
         html += '<div class="char-row">'
-          + '<div class="char-row-name">' + nameDisplay + '</div>'
+          + '<div class="char-row-name">'
+          + esc(c.name)
+          + (c._graveIcon ? ' <span title="This mortal may not survive much longer…">🪦</span>' : '')
+          + '</div>'
           + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
           + '</div>';
       });
@@ -696,7 +847,7 @@
         + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
         + '<div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-dim);">📖 Journal</div>'
         + '<button class="top-btn" onclick="event.stopPropagation();getAndSetNextPrompt()" title="'
-        + (promptBtnDisabled ? (em ? 'Disabled in edit mode' : 'Resolve current entry first') : 'Get next prompt')
+        + (promptBtnDisabled ? 'Resolve current entry first' : 'Get next prompt')
         + '" style="font-size:11px;padding:5px 12px;'
         + (promptBtnDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
         + (promptBtnDisabled ? ' disabled' : '') + '>🎲 Next Prompt</button>'
@@ -721,8 +872,8 @@
           + '<div class="journal-scrap">'
           + '<div class="journal-prompt-text">' + esc(getPromptText(j.prompt, j.entry)) + '</div>'
           + '<div class="journal-body">';
-        if (j.prose) html += '<p>' + esc(j.prose) + '</p>';
-        if (j.awaiting) {
+        if (j.prose) html += renderProse(j.prose);
+        if (!j.resolved) {
           html += '<p class="journal-awaiting">Awaiting resolution…</p>';
         } else if (j.changes) {
           html += '<p style="font-size:.85rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:10px;margin-top:10px;"><strong>Changes:</strong> ' + esc(j.changes) + '</p>';
@@ -741,11 +892,13 @@
       html += '</div>'; // journal-col
 
       // Immortal Characters — living only
+      const livingImmortals = d.characters.filter(c => c.type === 'immortal' && !c.dead)
+        .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
+
       html += '<div class="char-col section-editwrap" data-section="characters-immortal" '
-        + (em ? 'onclick="editCharacters()" title="Click to edit characters"' : '') + '>'
+        + (em ? 'onclick="editCharacters(\'immortal\')" title="Click to edit immortal characters"' : '') + '>'
         + '<div class="char-panel" style="height:100%;"><div class="panel-title"><span class="section-icon">🧛</span> Immortal Characters</div>'
         + '<div class="char-list">';
-      const livingImmortals = d.immortals.filter(c => !c.dead);
       if (livingImmortals.length === 0) html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.85rem;padding:8px 0;">None yet</p>';
       livingImmortals.forEach(c => {
         html += '<div class="char-row">'
@@ -782,162 +935,168 @@
       html += '</div></div>';
 
       // Diary memories — one section per active diary
-      const activeDiaries = d.resources.filter(r => r.type === 'diary' && r.status === 'active');
-      activeDiaries.forEach(diary => {
-        const mems = d.diaryMemories[diary.name] || [];
-        html += '<div class="memories-section section-editwrap" data-section="diary-memories-' + esc(diary.name) + '" '
-          + (em ? 'onclick="editDiaryMemories(\'' + esc(diary.name) + '\')" title="Click to edit diary memories"' : '') + '>'
-          + '<div class="memories-section-label"><span class="section-icon">📖</span> ' + esc(diary.name) + '</div>'
-          + '<div class="memories-grid">';
+      const activeDiary = d.resources.find(r => r.type === 'diary' && r.status === 'active');
+      if (activeDiary) {
+        const mems = d.diaryMemories[activeDiary.name] || [];
+        let contentHtml = '<div class="memories-grid">';
         if (mems.length === 0) {
-          html += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary.</p>';
+          contentHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary.</p>';
         }
         mems.forEach(mem => {
-          html += '<div class="memory-block">'
-            + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme) + '</div>'
+          contentHtml += '<div class="memory-block">'
+            + '<div class="memory-title">Memory ' + mem.n + '</div>'
             + '<ol>';
-          mem.experiences.forEach(exp => { html += '<li>' + esc(exp) + '</li>'; });
-          html += '</ol></div>';
+          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
+          contentHtml += '</ol></div>';
         });
-        html += '</div></div>';
-      });
+        contentHtml += '</div>';
+        html += '<div class="memories-section section-editwrap" '
+          + (em ? 'onclick="editDiaryMemories(\'' + activeDiary.name.replace(/'/g, "\\'") + '\')" title="Click to edit diary memories"' : '') + '>'
+          + '<div class="memories-section-label"><span class="section-icon">📖</span> ' + esc(activeDiary.name) + '</div>'
+          + contentHtml
+          + '</div>';
+      }
 
       // Lost Memories
       if (d.lostMemories && d.lostMemories.length > 0) {
-        const sorted = [...d.lostMemories].sort((a, b) => new Date(a.lost_at) - new Date(b.lost_at));
-        html += '<div class="memories-section section-editwrap" data-section="lost-memories">'
-          + '<div class="memories-section-label"><span class="section-icon">🌒</span> Lost Memories</div>'
-          + '<div class="memories-grid">';
+        const sorted = [...d.lostMemories].sort((a, b) => new Date(b.lost_at) - new Date(a.lost_at));
+        let contentHtml = '<div class="memories-grid">';
         sorted.forEach(mem => {
           const ld = new Date(mem.lost_at);
-          html += '<div class="memory-block forgotten">'
+          const lostDate = String(ld.getDate()).padStart(2, '0') + '-'
+            + String(ld.getMonth() + 1).padStart(2, '0') + '-' + ld.getFullYear();
+          contentHtml += '<div class="memory-block forgotten">'
             + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme)
-            + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + '</span></div>'
+            + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + ' · ' + lostDate + '</span></div>'
             + '<ol>';
-          mem.experiences.forEach(exp => {
-            html += '<li>' + esc(exp) + '</li>';
-          });
-          html += '</ol></div>';
+          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
+          contentHtml += '</ol></div>';
         });
-        html += '</div></div>';
-      }
-
-      // ── Lost Skills ──
-      const lostSkills = d.skills.filter(sk => sk.status === 'lost')
-        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
-      if (lostSkills.length > 0) {
-        html += '<div class="memories-section">'
-          + '<div class="memories-section-label"><span class="section-icon">⚔</span> Lost Skills</div>'
-          + '<div class="memories-grid">';
-        lostSkills.forEach(sk => {
-          html += '<div class="memory-block forgotten">'
-            + '<div class="memory-title">' + esc(sk.name)
-            + (sk.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + sk.lost_turn + '</span>' : '')
-            + '</div>'
-            + (sk.description ? '<p style="font-size:.88rem;">' + esc(sk.description) + '</p>' : '')
-            + '</div>';
-        });
-        html += '</div></div>';
+        contentHtml += '</div>';
+        html += collapsibleSection('lost-memories', '🌒', 'Lost Memories', contentHtml, em ? 'editLostMemories()' : null, sorted.length);
       }
 
       // ── Lost Resources ──
       const lostResources = d.resources.filter(r => r.status === 'lost')
         .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
       if (lostResources.length > 0) {
-        html += '<div class="memories-section">'
-          + '<div class="memories-section-label"><span class="section-icon">🏚</span> Lost Resources</div>'
-          + '<div class="memories-grid">';
+        let contentHtml = '<div class="memories-grid">';
         lostResources.forEach(r => {
           const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
-          html += '<div class="memory-block forgotten">'
+          contentHtml += '<div class="memory-block forgotten">'
             + '<div class="memory-title">' + icon + ' ' + esc(r.name)
             + (r.lost_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — lost turn ' + r.lost_turn + '</span>' : '')
             + '</div>'
             + (r.description ? '<p style="font-size:.88rem;">' + esc(r.description) + '</p>' : '')
             + '</div>';
         });
-        html += '</div></div>';
+        contentHtml += '</div>';
+        html += collapsibleSection('lost-resources', '🏚', 'Lost Resources', contentHtml, em ? 'editResources()' : null, lostResources.length);
+      }
+
+      // ── Checked Skills ──
+      const checkedSkills = d.skills.filter(sk => sk.status === 'checked')
+        .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
+      if (checkedSkills.length > 0) {
+        let contentHtml = '<div class="memories-grid">';
+        checkedSkills.forEach(sk => {
+          contentHtml += '<div class="memory-block forgotten">'
+            + '<div class="memory-title">☑ ' + esc(sk.name)
+            + (sk.gained_turn ? '<span style="font-size:.75em;color:var(--ink-faint);"> — gained turn ' + sk.gained_turn + '</span>' : '')
+            + '</div>'
+            + (sk.description ? '<p style="font-size:.88rem;">' + esc(sk.description) + '</p>' : '')
+            + '</div>';
+        });
+        contentHtml += '</div>';
+        html += collapsibleSection('checked-skills', '☑', 'Checked Skills', contentHtml, em ? 'editSkills()' : null, checkedSkills.length);
       }
 
       // ── Obituary ──
-      const deadChars = [...d.mortals.filter(c => c.dead), ...d.immortals.filter(c => c.dead)]
+      const deadChars = d.characters.filter(c => c.dead)
         .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
       if (deadChars.length > 0) {
-        html += '<div class="memories-section">'
-          + '<div class="memories-section-label"><span class="section-icon">🪦</span> Obituary</div>'
-          + '<div class="memories-grid">';
+        let contentHtml = '<div class="memories-grid">';
         deadChars.forEach(c => {
-          const type = d.mortals.includes(c) ? 'Mortal' : 'Immortal';
-          html += '<div class="memory-block forgotten">'
+          contentHtml += '<div class="memory-block forgotten">'
             + '<div class="memory-title">' + esc(c.name)
-            + ' <span style="font-size:.75em;color:var(--ink-faint);">— ' + type
-            + (c.lost_turn ? ' · died turn ' + c.lost_turn : '')
-            + '</span></div>'
+            + ' <span style="font-size:.75em;color:var(--ink-faint);">— ' + c.type
+            + (c.lost_turn ? ' · died turn ' + c.lost_turn : '') + '</span></div>'
             + (c.desc ? '<p style="font-size:.88rem;margin-bottom:6px;">' + esc(c.desc) + '</p>' : '')
             + (c.death_reason ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">' + esc(c.death_reason) + '</p>' : '')
-            + (c.death_epitaph ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;margin-top:6px;">"' + esc(c.death_epitaph) + '"</p>' : '')
+            + (c.death_epitaph ? '<p style="font-size:.82rem;color:var(--blood);font-style:italic;border-left:2px solid var(--blood);padding-left:8px;margin-top:6px;">' + esc(c.death_epitaph) + '</p>' : '')
             + '</div>';
         });
-        html += '</div></div>';
+        contentHtml += '</div>';
+        html += collapsibleSection('obituary', '💀', 'Obituary', contentHtml, em ? 'editObituary()' : null, deadChars.length);
       }
 
       el.innerHTML = html;
     }
 
     // ═══════════════════════════════════════════════════
-    // EDIT MODE TOGGLE
+    // COLLAPSED SECTIONS
     // ═══════════════════════════════════════════════════
-    function toggleEditMode() {
-      if (!editMode) enterEditMode();
-      else cancelEditMode();
+
+    const _collapsedSections = new Set(['lost-memories', 'lost-resources', 'checked-skills', 'obituary']);
+
+    function toggleSection(id) {
+      const content = document.getElementById('section-content-' + id);
+      const wrap = content ? content.closest('.collapsible-section') : null;
+      if (!content || !wrap) return;
+      if (_collapsedSections.has(id)) {
+        _collapsedSections.delete(id);
+        content.style.display = '';
+        wrap.classList.remove('section-collapsed');
+      } else {
+        _collapsedSections.add(id);
+        content.style.display = 'none';
+        wrap.classList.add('section-collapsed');
+      }
     }
 
-    function applyEditModeUI() {
-      document.body.classList.add('edit-mode');
-      document.getElementById('edit-mode-btn').classList.add('active-edit');
-      document.getElementById('edit-mode-btn').textContent = '✎ Editing';
+    function collapsibleSection(id, icon, label, contentHtml, editFn, count) {
+      const collapsed = _collapsedSections.has(id);
+      return '<div class="memories-section section-editwrap collapsible-section' + (collapsed ? ' section-collapsed' : '') + '"'
+        + (editFn ? ' onclick="' + editFn + '"' : '') + '>'
+        + '<div class="memories-section-label collapsible-label" onclick="event.stopPropagation();toggleSection(\'' + id + '\')" style="cursor:pointer;user-select:none;">'
+        + '<span class="section-icon">' + icon + '</span> ' + label
+        + (collapsed && count ? '<span class="collapse-count">' + count + ' sealed within</span>' : '')
+        + '<span class="collapse-arrow">' + (collapsed ? '✦' : '▾') + '</span>'
+        + '</div>'
+        + '<div id="section-content-' + id + '" style="display:' + (collapsed ? 'none' : '') + ';">'
+        + contentHtml
+        + '</div></div>';
+    }
+
+    // ═══════════════════════════════════════════════════
+    // EDIT MODE
+    // ═══════════════════════════════════════════════════
+    function cancelEditMode() {
+      if (hasUnsaved && !confirm('Discard unsaved changes?')) return;
+      clearDraft();
+      parsedData = parseSource(currentJson);
+      renderChronicle(parsedData);
+      hideEditControls();
+      setStatus('ok', 'Changes discarded.');
+    }
+
+    function showEditControls() {
       document.getElementById('save-btn').style.display = '';
       document.getElementById('cancel-btn').style.display = '';
       document.getElementById('edit-mode-banner').classList.add('visible');
-      document.getElementById('game-select').disabled = true;
-      document.getElementById('key-toggle').style.display = 'flex';
-      document.getElementById('game-link').style.pointerEvents = 'none';  // ← add
-      document.getElementById('game-link').style.opacity = '0.4';
     }
 
-    function enterEditMode() {
-      editMode = true;
-      applyEditModeUI();
-      renderChronicle(parsedData); // re-render to show per-entry edit buttons
-      setStatus('busy', 'Edit mode — changes saved locally, not yet on GitHub');
-    }
-
-    function leaveEditMode() {
-      editMode = false;
-      document.body.classList.remove('edit-mode');
-      document.getElementById('edit-mode-btn').classList.remove('active-edit');
-      document.getElementById('edit-mode-btn').textContent = '✎ Edit';
+    function hideEditControls() {
       document.getElementById('save-btn').style.display = 'none';
       document.getElementById('cancel-btn').style.display = 'none';
       document.getElementById('edit-mode-banner').classList.remove('visible');
-      document.getElementById('game-select').disabled = false;
-      document.getElementById('key-toggle').style.display = 'none';
-      document.getElementById('key-panel').classList.remove('open');
-      document.getElementById('game-link').style.pointerEvents = '';       // ← add
-      document.getElementById('game-link').style.opacity = '';
-    }
-
-    function cancelEditMode() {
-      if (!confirm('Discard all unsaved edits and revert to the last saved version?')) return;
-      clearDraft();
-      leaveEditMode();
-      parsedData = parseSource(currentJson);
-      renderChronicle(parsedData);
-      setStatus('ok', 'Edits discarded — showing last saved version.');
+      hasUnsaved = false;
     }
 
     function markUnsaved() {
-      saveDraft(); // persist to localStorage immediately
+      hasUnsaved = true;
+      saveDraft();
+      showEditControls();
       setStatus('busy', 'Unsaved changes — draft saved locally');
     }
 
@@ -965,7 +1124,7 @@
         currentSha = result.content.sha;
         currentJson = newJson;   // advance the clean reference
         clearDraft();            // draft is now on GitHub — remove local copy
-        leaveEditMode();
+        hideEditControls();
         renderChronicle(parsedData);
         setStatus('ok', 'Saved to GitHub ✓');
       } catch (e) {
@@ -978,16 +1137,26 @@
     // MODAL HELPERS
     // ═══════════════════════════════════════════════════
     function openModal(title, bodyHtml, confirmFn, footerHtml) {
+      if (_modalMinimised) {
+        restoreModal();
+        return;
+      }
+      _modalMinimised = false;
       document.getElementById('modal-title').textContent = title;
       document.getElementById('modal-body').innerHTML = bodyHtml;
+      document.getElementById('modal-body').style.display = '';
       const footer = document.getElementById('modal-footer');
+      footer.style.display = '';
       if (footerHtml !== undefined) {
         footer.innerHTML = footerHtml;
       } else {
-        footer.innerHTML = `
-      <button class="modal-btn" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn primary" id="modal-confirm-btn" onclick="modalConfirm()">Update</button>`;
+        footer.innerHTML = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
+          + '<button class="modal-btn primary" id="modal-confirm-btn" onclick="modalConfirm()">Update</button>';
       }
+      const btn = document.getElementById('modal-minimise');
+      if (btn) btn.textContent = '—';
+      const box = document.getElementById('modal-box');
+      if (box) { box.classList.remove('minimised'); box.onclick = null; box.style.cursor = ''; }
       currentModalConfirm = confirmFn;
       document.getElementById('modal-overlay').classList.add('open');
     }
@@ -995,15 +1164,43 @@
       document.getElementById('modal-overlay').classList.remove('open');
       currentModalConfirm = null;
     }
+
     function modalConfirm() {
-      let cb = currentModalConfirm;
+      const cb = currentModalConfirm;
+      if (cb) {
+        const result = cb();
+        if (result === false) return; // validation failed — keep modal open
+      }
       currentModalConfirm = null;
       document.getElementById('modal-overlay').classList.remove('open');
-      if (cb) {
-        cb();
-        markUnsaved();           // persist draft after every modal confirm
-        renderChronicle(parsedData);
-      }
+      markUnsaved();
+      renderChronicle(parsedData);
+    }
+
+    let _modalMinimised = false;
+
+    function minimiseModal() {
+      const box = document.getElementById('modal-box');
+      const body = document.getElementById('modal-body');
+      const footer = document.getElementById('modal-footer');
+      const btn = document.getElementById('modal-minimise');
+      const overlay = document.getElementById('modal-overlay');
+      if (!box) return;
+      _modalMinimised = !_modalMinimised;
+      body.style.display = _modalMinimised ? 'none' : '';
+      footer.style.display = _modalMinimised ? 'none' : '';
+      btn.textContent = _modalMinimised ? '□' : '—';
+      box.classList.toggle('minimised', _modalMinimised);
+      box.style.cursor = _modalMinimised ? 'pointer' : '';
+      box.onclick = _modalMinimised ? (e) => restoreModal(e) : null;      // Let clicks through to the page when minimised
+      overlay.style.pointerEvents = _modalMinimised ? 'none' : '';
+      overlay.style.background = _modalMinimised ? 'transparent' : '';
+    }
+
+    function restoreModal(e) {
+      if (e) e.stopPropagation();
+      if (!_modalMinimised) return;
+      minimiseModal();
     }
 
     // Inline game actions trigger immediate re-renders
@@ -1039,40 +1236,87 @@
     // ── Marks ─────────────────────────────────────────
     function editMarks() {
       if (!editMode) return;
-      let bodyHtml = `<div class="edit-section-title">Existing Marks</div>`;
-      if (parsedData.marks.length === 0) {
-        bodyHtml += `<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No marks to display.</p>`;
+      const activeMarks = parsedData.marks.filter(m => m.status === 'active');
+      const lostMarks = parsedData.marks.filter(m => m.status === 'lost');
+      let bodyHtml = '';
+
+      bodyHtml += '<div class="edit-section-title">Add New Mark</div>'
+        + '<div class="form-row"><label class="form-label">Description</label>'
+        + '<input class="form-input" id="ed-mark-desc" placeholder="e.g. Cold skin that never warms"></div>'
+        + '<div class="form-row"><label class="form-label">How is it concealed?</label>'
+        + '<input class="form-input" id="ed-mark-conc" placeholder="e.g. hidden under heavy vestments"></div>';
+
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Active Marks</div>';
+      if (activeMarks.length === 0) {
+        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active marks.</p>';
       }
-      parsedData.marks.forEach((m, i) => {
-        bodyHtml += `<div class="edit-list-item ${m.struck ? 'struck-item' : ''}">
-      <div class="edit-list-item-text ${m.struck ? 'struck-text' : ''}">${esc(m.desc)} <span style="color:var(--ink-faint);font-size:.8rem">(${esc(m.concealment)})</span></div>
-      <div class="edit-list-actions">
-        <button class="strike-btn ${m.struck ? 'struck' : ''}" onclick="toggleMarkStruck(${i})">${m.struck ? 'Restore' : 'Strike'}</button>
-        <button class="trash-btn" onclick="deleteMark(${i})" title="Delete mark entirely">🗑</button>
-      </div>
-    </div>`;
+      activeMarks.forEach(m => {
+        const i = parsedData.marks.indexOf(m);
+        bodyHtml += '<div class="edit-list-item">'
+          + '<div class="edit-list-item-text">' + esc(m.desc)
+          + ' <span style="color:var(--ink-faint);font-size:.8rem;">(' + esc(m.concealment) + ')</span></div>'
+          + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="renameMark(' + i + ')">✎</button>'
+          + '<button class="strike-btn" onclick="loseMark(' + i + ')">Lose</button>'
+          + '<button class="trash-btn" onclick="deleteMark(' + i + ')">🗑</button>'
+          + '</div></div>';
       });
-      bodyHtml += `<hr class="edit-divider">
-    <div class="edit-section-title">Add New Mark</div>
-    <div class="form-row">
-      <label class="form-label">Description</label>
-      <input class="form-input" id="ed-mark-desc" placeholder="e.g. Cold skin that never warms">
-    </div>
-    <div class="form-row">
-      <label class="form-label">How is it concealed?</label>
-      <input class="form-input" id="ed-mark-conc" placeholder="e.g. hidden under heavy vestments">
-    </div>`;
+
+      if (lostMarks.length > 0) {
+        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Lost Marks</div>';
+        lostMarks.forEach(m => {
+          const i = parsedData.marks.indexOf(m);
+          bodyHtml += '<div class="edit-list-item struck-item">'
+            + '<div class="edit-list-item-text">' + esc(m.desc)
+            + ' <span style="color:var(--ink-faint);font-size:.8rem;">(' + esc(m.concealment) + ')</span></div>'
+            + '<div class="edit-list-actions">'
+            + '<button class="strike-btn" onclick="restoreMark(' + i + ')">Restore</button>'
+            + '<button class="trash-btn" onclick="deleteMark(' + i + ')">🗑</button>'
+            + '</div></div>';
+        });
+      }
+
+
       openModal('Edit Marks', bodyHtml, () => {
         const desc = document.getElementById('ed-mark-desc').value.trim();
         const conc = document.getElementById('ed-mark-conc').value.trim();
         if (desc && conc) {
-          parsedData.marks.push({ desc, concealment: conc, struck: false });
+          parsedData.marks.push({ desc, concealment: conc, status: 'active' });
+          markUnsaved();
         }
-      }); // modalConfirm() re-renders after Update is clicked
+      });
     }
 
-    function toggleMarkStruck(i) {
-      parsedData.marks[i].struck = !parsedData.marks[i].struck;
+    function renameMark(i) {
+      const m = parsedData.marks[i];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Description</label>'
+        + '<input class="form-input" id="ed-mark-edit-desc" value="' + esc(m.desc) + '">'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">How is it concealed?</label>'
+        + '<input class="form-input" id="ed-mark-edit-conc" value="' + esc(m.concealment) + '">'
+        + '</div>';
+      openModal('Edit Mark', bodyHtml, () => {
+        const desc = document.getElementById('ed-mark-edit-desc').value.trim();
+        const conc = document.getElementById('ed-mark-edit-conc').value.trim();
+        if (desc) {
+          m.desc = desc;
+          m.concealment = conc;
+          markUnsaved();
+        }
+      });
+    }
+
+    function loseMark(i) {
+      parsedData.marks[i].status = 'lost';
+      markUnsaved();
+      editMarks();
+    }
+
+    function restoreMark(i) {
+      parsedData.marks[i].status = 'active';
+      markUnsaved();
       editMarks();
     }
 
@@ -1090,74 +1334,60 @@
     // ── Skills ────────────────────────────────────────
     function editSkills() {
       if (!editMode) return;
-      const activeSkills = parsedData.skills.filter(sk => sk.status !== 'lost')
+      const skills = [...parsedData.skills]
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
-      const lostSkills = parsedData.skills.filter(sk => sk.status === 'lost')
-        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
+      let bodyHtml = '';
 
-      let bodyHtml = '<div class="edit-section-title">Active Skills</div>';
-      if (activeSkills.length === 0) {
-        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active skills.</p>';
+      bodyHtml += '<div class="edit-section-title">Add New Skill</div>'
+        + '<div class="form-row"><label class="form-label">Skill Name</label>'
+        + '<input class="form-input" id="ed-skill-name" placeholder="e.g. Herbalism"></div>';
+
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Skills</div>'
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
+
+      if (skills.length === 0) {
+        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No skills yet.</p>';
       }
-      activeSkills.forEach(sk => {
+      skills.forEach(sk => {
         const i = parsedData.skills.indexOf(sk);
         bodyHtml += '<div class="edit-list-item">'
           + '<div class="edit-list-item-text">' + esc(sk.name)
           + (sk.gained_turn ? '<span style="color:var(--ink-faint);font-size:.8rem;"> · gained turn ' + sk.gained_turn + '</span>' : '')
           + '</div>'
           + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="renameSkill(' + i + ')">✎</button>'
           + '<select class="form-select" id="sk-status-' + i + '" style="width:130px;font-size:13px;" onchange="updateSkillStatus(' + i + ', this.value)">'
           + '<option value="unchecked" ' + (sk.status === 'unchecked' ? 'selected' : '') + '>☐ Unchecked</option>'
           + '<option value="checked" ' + (sk.status === 'checked' ? 'selected' : '') + '>☑ Checked</option>'
           + '</select>'
-          + '<button class="strike-btn" onclick="loseSkill(' + i + ')">Lose</button>'
-          + '<button class="trash-btn" onclick="deleteSkill(' + i + ')" title="Delete skill entirely">🗑</button>'
+          + '<button class="trash-btn" onclick="deleteSkill(' + i + ')">🗑</button>'
           + '</div></div>';
       });
 
-      if (lostSkills.length > 0) {
-        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Lost Skills</div>';
-        lostSkills.forEach(sk => {
-          const i = parsedData.skills.indexOf(sk);
-          bodyHtml += '<div class="edit-list-item struck-item">'
-            + '<div class="edit-list-item-text struck-text">' + esc(sk.name)
-            + (sk.lost_turn ? '<span style="color:var(--ink-faint);font-size:.8rem;"> · lost turn ' + sk.lost_turn + '</span>' : '')
-            + '</div>'
-            + '<div class="edit-list-actions">'
-            + '<button class="strike-btn" onclick="restoreSkill(' + i + ')">Restore</button>'
-            + '<button class="trash-btn" onclick="deleteSkill(' + i + ')" title="Delete skill entirely">🗑</button>'
-            + '</div></div>';
-        });
-      }
-
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add New Skill</div>'
-        + '<div class="form-row"><label class="form-label">Skill Name</label>'
-        + '<input class="form-input" id="ed-skill-name" placeholder="e.g. Herbalism"></div>';
+      bodyHtml += '</div>'; // end scrollable
 
       openModal('Edit Skills', bodyHtml, () => {
         const name = document.getElementById('ed-skill-name').value.trim();
         if (name) {
-          parsedData.skills.push({ name, status: 'unchecked', gained_turn: currentTurn(), lost_turn: null });
+          parsedData.skills.push({ name, status: 'unchecked', gained_turn: currentTurn() });
           markUnsaved();
         }
       });
     }
 
-    function loseSkill(i) {
-      if (!editMode) return;
+    function renameSkill(i) {
       const sk = parsedData.skills[i];
-      if (!confirm('Lose the skill "' + sk.name + '"?')) return;
-      sk.status = 'lost';
-      sk.lost_turn = currentTurn();
-      markUnsaved();
-      editSkills();
-    }
-
-    function restoreSkill(i) {
-      parsedData.skills[i].status = 'unchecked';
-      parsedData.skills[i].lost_turn = null;
-      markUnsaved();
-      editSkills();
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Skill Name</label>'
+        + '<input class="form-input" id="ed-skill-rename" value="' + esc(sk.name) + '">'
+        + '</div>';
+      openModal('Rename Skill', bodyHtml, () => {
+        const name = document.getElementById('ed-skill-rename').value.trim();
+        if (name) {
+          sk.name = name;
+          markUnsaved();
+        }
+      });
     }
 
     function updateSkillStatus(i, val) {
@@ -1173,7 +1403,23 @@
       const lostResources = parsedData.resources.filter(r => r.status === 'lost')
         .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
 
-      let bodyHtml = '<div class="edit-section-title">Active Resources</div>';
+      let bodyHtml = '';
+
+      bodyHtml += '<div class="edit-section-title">Add Resource</div>'
+        + '<div class="form-row"><label class="form-label">Type</label>'
+        + '<select class="form-select" id="ed-res-type">'
+        + '<option value="portable">📦 Portable</option>'
+        + '<option value="stationary">📍 Stationary</option>'
+        + '<option value="diary">📖 Diary</option>'
+        + '</select></div>'
+        + '<div class="form-row"><label class="form-label">Name</label>'
+        + '<input class="form-input" id="ed-res-name" placeholder="e.g. The Red Diary"></div>'
+        + '<div class="form-row"><label class="form-label">Description</label>'
+        + '<input class="form-input" id="ed-res-desc" placeholder="Brief description…"></div>';
+
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Active Resources</div>'
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
+
       if (activeResources.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No active resources.</p>';
       }
@@ -1187,13 +1433,17 @@
           + (r.description ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(r.description) + '</span>' : '')
           + '</div>'
           + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="renameResource(' + i + ')">✎</button>'
           + '<button class="strike-btn" onclick="loseResource(' + i + ')">Lose</button>'
           + '<button class="trash-btn" onclick="deleteResource(' + i + ')">🗑</button>'
           + '</div></div>';
       });
+      bodyHtml += '</div>'; // end scrollable
+
 
       if (lostResources.length > 0) {
-        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Lost Resources</div>';
+        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Lost Resources</div>'
+          + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
         lostResources.forEach(r => {
           const i = parsedData.resources.indexOf(r);
           const icon = r.type === 'diary' ? '📖' : r.type === 'portable' ? '📦' : '📍';
@@ -1207,25 +1457,48 @@
             + '<button class="trash-btn" onclick="deleteResource(' + i + ')">🗑</button>'
             + '</div></div>';
         });
+        bodyHtml += '</div>'; // end scrollable
+
       }
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add Resource</div>'
-        + '<div class="form-row"><label class="form-label">Type</label>'
-        + '<select class="form-select" id="ed-res-type">'
-        + '<option value="portable">📦 Portable</option>'
-        + '<option value="stationary">📍 Stationary</option>'
-        + '<option value="diary">📖 Diary</option>'
-        + '</select></div>'
-        + '<div class="form-row"><label class="form-label">Name</label>'
-        + '<input class="form-input" id="ed-res-name" placeholder="e.g. The Red Diary"></div>'
-        + '<div class="form-row"><label class="form-label">Description</label>'
-        + '<input class="form-input" id="ed-res-desc" placeholder="Brief description…"></div>';
+      function renameResource(i) {
+        const r = parsedData.resources[i];
+        const bodyHtml = '<div class="form-row">'
+          + '<label class="form-label">Name</label>'
+          + '<input class="form-input" id="ed-res-rename" value="' + esc(r.name) + '">'
+          + '</div>'
+          + '<div class="form-row">'
+          + '<label class="form-label">Description</label>'
+          + '<input class="form-input" id="ed-res-redesc" value="' + esc(r.description || '') + '">'
+          + '</div>';
+        openModal('Edit Resource', bodyHtml, () => {
+          const name = document.getElementById('ed-res-rename').value.trim();
+          const desc = document.getElementById('ed-res-redesc').value.trim();
+          if (name) {
+            // If it's a diary, update the diaryMemories key too
+            if (r.type === 'diary' && parsedData.diaryMemories[r.name]) {
+              parsedData.diaryMemories[name] = parsedData.diaryMemories[r.name];
+              delete parsedData.diaryMemories[r.name];
+            }
+            r.name = name;
+            r.description = desc;
+            markUnsaved();
+          }
+        });
+      }
 
       openModal('Edit Resources', bodyHtml, () => {
         const name = document.getElementById('ed-res-name').value.trim();
         const desc = document.getElementById('ed-res-desc').value.trim();
         const type = document.getElementById('ed-res-type').value;
         if (name) {
+          if (type === 'diary') {
+            const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+            if (activeDiary) {
+              alert('You already have an active diary — "' + activeDiary.name + '". Lose it before creating a new one.');
+              return;
+            }
+          }
           parsedData.resources.push({ name, description: desc, type, status: 'active', gained_turn: currentTurn(), lost_turn: null });
           if (type === 'diary' && !parsedData.diaryMemories[name]) {
             parsedData.diaryMemories[name] = [];
@@ -1280,7 +1553,8 @@
       if (!parsedData.diaryMemories) parsedData.diaryMemories = {};
       const mems = parsedData.diaryMemories[diaryName] || [];
 
-      let bodyHtml = '<div class="edit-section-title">' + esc(diaryName) + ' (' + mems.length + '/4 memories)</div>';
+      let bodyHtml = '<div class="edit-section-title">' + esc(diaryName) + ' (' + mems.length + '/4 memories)</div>'
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
 
       if (mems.length === 0) {
         bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.88rem;">No memories stored in this diary yet.</p>';
@@ -1289,7 +1563,7 @@
       mems.forEach((m, i) => {
         bodyHtml += '<div class="edit-list-item" style="flex-direction:column;align-items:stretch;">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
-          + '<strong>Memory ' + m.n + ' — ' + esc(m.theme) + '</strong>'
+          + '<strong>Memory ' + m.n + '</strong>'
           + '<button class="trash-btn" onclick="removeDiaryMemory(\'' + diaryName.replace(/'/g, "\\'") + '\',' + i + ')" title="Remove from diary to Lost Memories">🗑</button>'
           + '</div>';
         m.experiences.forEach((exp, j) => {
@@ -1297,6 +1571,7 @@
         });
         bodyHtml += '</div>';
       });
+      bodyHtml += '</div>'; // end scrollable
 
       openModal('Diary — ' + diaryName, bodyHtml, () => { });
     }
@@ -1329,119 +1604,155 @@
     }
 
     // ── Characters ────────────────────────────────────
-    function editCharacters() {
+    function editCharacters(type) {
       if (!editMode) return;
-      const allChars = [
-        ...parsedData.mortals.map(c => ({ ...c, type: 'mortal' })),
-        ...parsedData.immortals.map(c => ({ ...c, type: 'immortal' }))
-      ];
-      const living = allChars.filter(c => !c.dead)
+      const living = parsedData.characters.filter(c => c.type === type && !c.dead)
         .sort((a, b) => (b.gained_turn || 0) - (a.gained_turn || 0));
-      const dead = allChars.filter(c => c.dead)
-        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
 
-      let bodyHtml = '<div class="edit-section-title">Living Characters</div>';
-      if (living.length === 0) {
-        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">No living characters.</p>';
-      }
-      living.forEach(c => {
-        const arr = c.type === 'mortal' ? parsedData.mortals : parsedData.immortals;
-        const i = arr.findIndex(x => x.name === c.name && x.desc === c.desc);
-        bodyHtml += '<div class="edit-list-item">'
-          + '<div class="edit-list-item-text">'
-          + '<strong>' + esc(c.name) + '</strong>'
-          + ' <span style="font-size:.8rem;color:var(--ink-faint);">' + c.type
-          + (c.gained_turn ? ' · met turn ' + c.gained_turn : '') + '</span>'
-          + (c.desc ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(c.desc) + '</span>' : '')
-          + '</div>'
-          + '<div class="edit-list-actions">'
-          + '<button class="strike-btn" onclick="killCharacter(\'' + c.type + '\',' + i + ')">Kill</button>'
-          + '<button class="trash-btn" onclick="deleteCharacter(\'' + c.type + '\',' + i + ')">🗑</button>'
-          + '</div></div>';
-      });
+      const label = type === 'mortal' ? 'Mortal' : 'Immortal';
 
-      if (dead.length > 0) {
-        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Dead Characters</div>';
-        dead.forEach(c => {
-          const arr = c.type === 'mortal' ? parsedData.mortals : parsedData.immortals;
-          const i = arr.findIndex(x => x.name === c.name && x.desc === c.desc);
-          bodyHtml += '<div class="edit-list-item struck-item">'
-            + '<div class="edit-list-item-text">'
-            + '<strong>' + esc(c.name) + '</strong>'
-            + ' <span style="font-size:.8rem;color:var(--ink-faint);">' + c.type
-            + (c.lost_turn ? ' · died turn ' + c.lost_turn : '') + '</span>'
-            + (c.desc ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(c.desc) + '</span>' : '')
-            + '</div>'
-            + '<div class="edit-list-actions">'
-            + '<button class="strike-btn" onclick="restoreCharacter(\'' + c.type + '\',' + i + ')">Restore</button>'
-            + '<button class="trash-btn" onclick="deleteCharacter(\'' + c.type + '\',' + i + ')">🗑</button>'
-            + '</div></div>';
-        });
-      }
+      let bodyHtml = '';
 
-      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Add Character</div>'
+      bodyHtml += '<div class="edit-section-title">Add ' + label + ' Character</div>'
         + '<div class="form-row"><label class="form-label">Name</label>'
         + '<input class="form-input" id="ed-char-name" placeholder="e.g. Sister Agatha"></div>'
         + '<div class="form-row"><label class="form-label">Description</label>'
-        + '<textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea></div>'
-        + '<div class="form-row"><label class="form-label">Type</label>'
-        + '<select class="form-select" id="ed-char-type">'
-        + '<option value="mortal">🧑 Mortal</option>'
-        + '<option value="immortal">🧛 Immortal</option>'
-        + '</select></div>';
+        + '<textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea></div>';
 
-      openModal('Edit Characters', bodyHtml, () => {
+      bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Living ' + label + ' Characters</div>'
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
+
+      if (living.length === 0) {
+        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;margin-bottom:12px;">None yet.</p>';
+      }
+      living.forEach(c => {
+        const i = parsedData.characters.indexOf(c);
+        bodyHtml += '<div class="edit-list-item">'
+          + '<div class="edit-list-item-text">'
+          + '<strong>' + esc(c.name) + '</strong>'
+          + (c.gained_turn ? ' <span style="font-size:.8rem;color:var(--ink-faint);"> · met turn ' + c.gained_turn + '</span>' : '')
+          + (c.desc ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(c.desc) + '</span>' : '')
+          + '</div>'
+          + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="convertToImmortal(' + i + ')">🧛 Convert</button>'
+          + '<button class="strike-btn" onclick="editCharacter(' + i + ')">✎</button>'
+          + '<button class="strike-btn" onclick="killCharacter(' + i + ')">Kill</button>'
+          + '<button class="trash-btn" onclick="deleteCharacter(' + i + ')">🗑</button>'
+          + '</div></div>';
+      });
+      bodyHtml += '</div>'; // end scrollable
+
+      openModal('Edit ' + label + ' Characters', bodyHtml, () => {
         const name = document.getElementById('ed-char-name').value.trim();
         const desc = document.getElementById('ed-char-desc').value.trim();
-        const type = document.getElementById('ed-char-type').value;
         if (name) {
-          const gt = currentTurn() === null ? 0 : currentTurn();
-          const entry = { name, desc, description: desc, dead: false, death_reason: '', gained_turn: gt, lost_turn: null };
-          if (type === 'mortal') parsedData.mortals.push(entry);
-          else parsedData.immortals.push(entry);
+          parsedData.characters.push({
+            name, desc, type, dead: false,
+            death_reason: '', death_epitaph: '',
+            gained_turn: currentTurn(), lost_turn: null
+          });
           markUnsaved();
         }
       });
     }
 
-    function killCharacter(type, i) {
-      const arr = type === 'mortal' ? parsedData.mortals : parsedData.immortals;
-      const c = arr[i];
-      if (!confirm('Kill ' + c.name + '?')) return;
-      const bodyHtml = '<div class="form-row"><label class="form-label">Death Reason (required)</label>'
-        + '<input class="form-input" id="ed-death-reason" placeholder="e.g. Slain by Lydia Thorne">'
+    function editCharacter(i) {
+      const c = parsedData.characters[i];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Name</label>'
+        + '<input class="form-input" id="ed-char-edit-name" value="' + esc(c.name) + '">'
         + '</div>'
-        + '<div class="form-row"><label class="form-label">Epitaph (optional)</label>'
-        + '<input class="form-input" id="ed-death-epitaph" placeholder="Short epitaph to display in obituary">'
+        + '<div class="form-row">'
+        + '<label class="form-label">Description</label>'
+        + '<textarea class="form-textarea" id="ed-char-edit-desc" style="min-height:80px;">' + esc(c.desc) + '</textarea>'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Type</label>'
+        + '<select class="form-select" id="ed-char-edit-type">'
+        + '<option value="mortal" ' + (c.type === 'mortal' ? 'selected' : '') + '>🧑 Mortal</option>'
+        + '<option value="immortal" ' + (c.type === 'immortal' ? 'selected' : '') + '>🧛 Immortal</option>'
+        + '</select>'
+        + '</div>';
+      openModal('Edit Character', bodyHtml, () => {
+        const name = document.getElementById('ed-char-edit-name').value.trim();
+        const desc = document.getElementById('ed-char-edit-desc').value.trim();
+        const type = document.getElementById('ed-char-edit-type').value;
+        if (name) {
+          c.name = name;
+          c.desc = desc;
+          c.type = type;
+          markUnsaved();
+        }
+      });
+    }
+
+    function convertToImmortal(i) {
+      if (!editMode) return;
+      const c = parsedData.characters[i];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Description</label>'
+        + '<textarea class="form-textarea" id="ed-convert-desc" style="min-height:80px;">' + esc(c.desc) + '</textarea>'
+        + '<div class="form-hint">Update the description to reflect their transformation.</div>'
         + '</div>';
 
-      openModal('Record Death — ' + esc(c.name), bodyHtml, function () {
-        const reasonEl = document.getElementById('ed-death-reason');
-        const epitaphEl = document.getElementById('ed-death-epitaph');
-        const reasonVal = reasonEl ? reasonEl.value.trim() : '';
-        const epitaphVal = epitaphEl ? epitaphEl.value.trim() : '';
+      openModal('Convert ' + esc(c.name) + ' to Immortal', bodyHtml, () => {
+        const desc = document.getElementById('ed-convert-desc').value.trim();
+        c.type = 'immortal';
+        c.desc = desc;
+        markUnsaved();
+        setTimeout(() => editCharacters('immortal'), 0);
+      });
+    }
+
+    function killCharacter(i) {
+      const c = parsedData.characters[i];
+      const type = c.type;
+      if (!confirm('Kill ' + c.name + '?')) return;
+      const bodyHtml = '<div class="form-row"><label class="form-label">Death Reason (required)</label>'
+        + '<input class="form-input" id="ed-death-reason" placeholder="e.g. Slain by Lydia Thorne"></div>'
+        + '<div class="form-row"><label class="form-label">Epitaph (optional)</label>'
+        + '<input class="form-input" id="ed-death-epitaph" placeholder="Short epitaph…"></div>';
+
+      openModal('Record Death — ' + esc(c.name), bodyHtml, () => {
+        const reasonVal = document.getElementById('ed-death-reason').value.trim();
+        const epitaphVal = document.getElementById('ed-death-epitaph').value.trim();
         if (!reasonVal) { alert('Please provide a death reason.'); return; }
         c.dead = true;
         c.lost_turn = currentTurn();
         c.death_reason = reasonVal;
-        if (epitaphVal) c.death_epitaph = epitaphVal;
-        // Re-open the characters editor after modal flow completes
-        setTimeout(() => { editCharacters(); }, 0);
+        c.death_epitaph = epitaphVal;
+        markUnsaved();
+        setTimeout(() => editCharacters(type), 0);
       });
     }
 
-    function restoreCharacter(type, i) {
-      const arr = type === 'mortal' ? parsedData.mortals : parsedData.immortals;
-      arr[i].dead = false;
-      arr[i].lost_turn = null;
+    function restoreCharacter(i) {
+      const c = parsedData.characters[i];
+      c.dead = false;
+      c.lost_turn = null;
+      c.death_reason = '';
+      c.death_epitaph = '';
       markUnsaved();
-      editCharacters();
+      editObituary();
+    }
+
+    function deleteCharacter(i) {
+      const c = parsedData.characters[i];
+      if (!confirm('Delete ' + c.name + ' entirely?')) return;
+      const wasDead = c.dead;
+      const type = c.type;
+      parsedData.characters.splice(i, 1);
+      markUnsaved();
+      if (wasDead) editObituary();
+      else editCharacters(type);
     }
 
     // ── Memories ──────────────────────────────────────
     function editMemories() {
       if (!editMode) return;
-      let bodyHtml = '<div class="edit-section-title">Active Memories (' + parsedData.memories.length + '/5)</div>';
+      let bodyHtml = '<div class="edit-section-title">Active Memories (' + parsedData.memories.length + '/5)</div>'
+        + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
+
 
       parsedData.memories.forEach((mem, i) => {
         bodyHtml += '<div class="edit-list-item" style="flex-direction:column;align-items:stretch;">'
@@ -1450,30 +1761,25 @@
           + '<button class="trash-btn" onclick="deleteMemory(' + i + ')" title="Delete memory entirely">🗑</button>'
           + '</div>';
         mem.experiences.forEach((exp, j) => {
-          bodyHtml += '<div style="font-size:.88rem;padding-left:12px;margin-bottom:3px;">'
-            + (j + 1) + '. ' + esc(exp) + '</div>';
+          bodyHtml += '<div style="display:flex;align-items:flex-start;gap:8px;padding-left:12px;margin-bottom:6px;">'
+            + '<span style="font-size:.88rem;flex:1;">' + (j + 1) + '. ' + esc(exp) + '</span>'
+            + '<button class="trash-btn" onclick="deleteMemoryExperience(' + i + ',' + j + ')" title="Delete this experience">🗑</button>'
+            + '</div>';
         });
         if (mem.experiences.length === 0) {
           bodyHtml += '<div style="font-size:.85rem;color:var(--ink-faint);padding-left:12px;font-style:italic;">No experiences yet.</div>';
         }
-        const activeDiaries = parsedData.resources.filter(r => r.type === 'diary' && r.status === 'active');
-        if (activeDiaries.length > 0 && mem.theme && mem.experiences.length > 0) {
-          const availableDiaries = activeDiaries.filter(d =>
-            (parsedData.diaryMemories[d.name] || []).length < 4
-          );
-          bodyHtml += '<div style="margin-top:8px;">';
-          if (availableDiaries.length === 0) {
-            bodyHtml += '<span style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">All diaries full.</span>';
-          } else {
-            bodyHtml += '<select class="form-select" id="ed-mem-diary-' + i + '" style="font-size:.82rem;padding:4px 8px;width:auto;display:inline-block;margin-right:6px;">'
-              + availableDiaries.map(d => '<option value="' + esc(d.name) + '">' + esc(d.name) + ' (' + (parsedData.diaryMemories[d.name] || []).length + '/4)</option>').join('')
-              + '</select>'
-              + '<button class="strike-btn" onclick="moveMemoryToDiary(' + i + ', document.getElementById(\'ed-mem-diary-' + i + '\').value)">📖 Move to Diary</button>';
-          }
-          bodyHtml += '</div>';
+        const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+        if (activeDiary && mem.theme && mem.experiences.length > 0) {
+          const diaryCount = (parsedData.diaryMemories[activeDiary.name] || []).length;
+          bodyHtml += '<div style="margin-top:8px;">'
+            + '<button class="strike-btn" onclick="moveMemoryToDiary(' + i + ')">📖 Move to '
+            + esc(activeDiary.name) + ' (' + diaryCount + '/4)</button>'
+            + '</div>';
         }
         bodyHtml += '</div>';
       });
+      bodyHtml += '</div>'; // end scrollable
 
       if (parsedData.memories.length < 5) {
         bodyHtml += '<hr class="edit-divider">'
@@ -1501,28 +1807,74 @@
       });
     }
 
+    function deleteMemoryExperience(memIdx, expIdx) {
+      if (!editMode) return;
+      const mem = parsedData.memories[memIdx];
+      if (!confirm('Delete this experience from Memory ' + mem.n + '?\n\n"' + mem.experiences[expIdx] + '"')) return;
+      mem.experiences.splice(expIdx, 1);
+      markUnsaved();
+      editMemories();
+    }
+
     // ── Diary ─────────────────────────────────────────
-    function moveMemoryToDiary(memIdx, diaryName) {
+    function moveMemoryToDiary(memIdx) {
       if (!editMode) return;
       const mem = parsedData.memories[memIdx];
       if (!mem || !mem.theme) return;
-      const diaryMems = parsedData.diaryMemories[diaryName] || [];
+      const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+      if (!activeDiary) { alert('No active diary. Create a diary resource first.'); return; }
+      const diaryMems = parsedData.diaryMemories[activeDiary.name] || [];
+
       if (diaryMems.length >= 4) {
-        alert(diaryName + ' is full (4/4 memories).');
-        return;
+        // Diary is full — ask which diary memory to displace
+        let bodyHtml = '<div class="form-row">'
+          + '<label class="form-label">Diary is full — choose a memory to move to Lost Memories</label>'
+          + '<select class="form-select" id="ed-displace-mem">'
+          + diaryMems.map((m, i) =>
+            '<option value="' + i + '">Memory ' + m.n + ' — ' + esc(m.theme) + ' (' + m.experiences.length + ' experiences)</option>'
+          ).join('')
+          + '</select>'
+          + '</div>';
+
+        openModal('Displace Diary Memory', bodyHtml, () => {
+          const displaceIdx = parseInt(document.getElementById('ed-displace-mem').value);
+          const displaced = diaryMems[displaceIdx];
+          if (!confirm(
+            'Move Memory ' + displaced.n + ' "' + displaced.theme + '" to Lost Memories\n'
+            + 'and store Memory ' + mem.n + ' "' + mem.theme + '" in ' + activeDiary.name + '?'
+          )) return;
+
+          // Move displaced diary memory to lost memories
+          if (!parsedData.lostMemories) parsedData.lostMemories = [];
+          parsedData.lostMemories.push({
+            n: displaced.n,
+            theme: displaced.theme,
+            experiences: [...displaced.experiences],
+            lost_at: new Date().toISOString(),
+            lost_on_turn: currentTurn()
+          });
+
+          // Replace in diary with the new memory
+          diaryMems[displaceIdx] = { n: mem.n, theme: mem.theme, experiences: [...mem.experiences] };
+          parsedData.diaryMemories[activeDiary.name] = diaryMems;
+
+          // Empty the active memory slot
+          parsedData.memories[memIdx] = { n: mem.n, theme: '', experiences: [], description: '' };
+
+          markUnsaved();
+          renderChronicle(parsedData);
+        });
+
+      } else {
+        // Diary has room — normal flow
+        if (!confirm('Move Memory ' + mem.n + ' "' + mem.theme + '" into ' + activeDiary.name + '?\n\nThe memory slot will become empty.')) return;
+        diaryMems.push({ n: mem.n, theme: mem.theme, experiences: [...mem.experiences] });
+        parsedData.diaryMemories[activeDiary.name] = diaryMems;
+        parsedData.memories[memIdx] = { n: mem.n, theme: '', experiences: [], description: '' };
+        markUnsaved();
+        closeModal();
+        renderChronicle(parsedData);
       }
-      if (!confirm('Move Memory ' + mem.n + ' "' + mem.theme + '" into ' + diaryName + '?\n\nThe memory slot will become empty.')) return;
-
-      // Copy to diary
-      diaryMems.push({ n: mem.n, theme: mem.theme, experiences: [...mem.experiences] });
-      parsedData.diaryMemories[diaryName] = diaryMems;
-
-      // Empty the slot
-      parsedData.memories[memIdx] = { n: mem.n, theme: '', experiences: [], description: '' };
-
-      markUnsaved();
-      closeModal();
-      renderChronicle(parsedData);
     }
 
 
@@ -1542,7 +1894,7 @@
     </div>`;
       });
 
-      const activeMemsNotInDiary = parsedData.memories.filter(m => !m.struck && !m.inDiary);
+      const activeMemsNotInDiary = parsedData.memories.filter(m => !m.status === 'active' && !m.inDiary);
       if (parsedData.diary.memories.length < 4 && activeMemsNotInDiary.length > 0) {
         bodyHtml += `<hr class="edit-divider">
       <div class="edit-section-title">Move Active Memory to Diary</div>
@@ -1590,6 +1942,37 @@
       markUnsaved(); editDiary();
     }
 
+    // ── Obituary ─────────────────────────────────────────
+
+    function editObituary() {
+      if (!editMode) return;
+      const dead = parsedData.characters.filter(c => c.dead)
+        .sort((a, b) => (b.lost_turn || 0) - (a.lost_turn || 0));
+
+      let bodyHtml = '<div class="edit-section-title">Obituary</div>';
+      if (dead.length === 0) {
+        bodyHtml += '<p style="color:var(--ink-faint);font-style:italic;font-size:.9rem;">No dead characters.</p>';
+      }
+      dead.forEach(c => {
+        const i = parsedData.characters.indexOf(c);
+        bodyHtml += '<div class="edit-list-item struck-item">'
+          + '<div class="edit-list-item-text">'
+          + '<strong>' + esc(c.name) + '</strong>'
+          + ' <span style="font-size:.8rem;color:var(--ink-faint);">' + c.type
+          + (c.lost_turn ? ' · died turn ' + c.lost_turn : '') + '</span>'
+          + (c.desc ? '<br><span style="font-size:.85rem;color:var(--ink-faint);">' + esc(c.desc) + '</span>' : '')
+          + (c.death_reason ? '<br><span style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">' + esc(c.death_reason) + '</span>' : '')
+          + (c.death_epitaph ? '<br><span style="font-size:.82rem;color:var(--blood);font-style:italic;">' + esc(c.death_epitaph) + '</span>' : '')
+          + '</div>'
+          + '<div class="edit-list-actions">'
+          + '<button class="strike-btn" onclick="restoreCharacter(' + i + ')">Restore</button>'
+          + '<button class="trash-btn" onclick="deleteCharacter(' + i + ')">🗑</button>'
+          + '</div></div>';
+      });
+
+      openModal('Obituary', bodyHtml, () => { });
+    }
+
     // ── Admin Delete Actions ────────────────────
     // These are separate from game actions (striking, killing, forgetting).
     // Any admin with edit permission can delete items entirely from the JSON.
@@ -1616,19 +1999,6 @@ This is an admin action — it removes the resource entirely from the sheet.`)) 
       markUnsaved();
       setStatus('ok', 'Resource deleted');
       editResources();
-    }
-
-    function deleteChar(type, i) {
-      if (!editMode) return;
-      const arr = (type === 'mortal') ? parsedData.mortals : parsedData.immortals;
-      const c = arr[i];
-      if (!confirm(`Delete the character "${c.name || ('Character ' + (i + 1))}"?
-
-This is an admin action — it removes the character entirely from the sheet, different from killing (which marks them as dead).`)) return;
-      arr.splice(i, 1);
-      markUnsaved();
-      setStatus('ok', 'Character deleted');
-      editCharacters();
     }
 
     function deleteMemory(i) {
@@ -1679,7 +2049,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
     function getAnyAwaitingEntry() {
       for (const je of parsedData.journal) {
-        if (je.awaiting) return je;
+        if (!je.resolved) return je;
       }
       return null;
     }
@@ -1699,69 +2069,141 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
     function editJournal() {
       if (!editMode) return;
 
-      let bodyHtml = '';
+      const hasUnresolved = parsedData.journal.some(j => j.resolved === false);
+      const next = findNextFreePromptEntry();
 
-      // List existing journal entries (for deletion)
-      if (parsedData.journal.length > 0) {
-        bodyHtml += `<div class="edit-section-title">Journal Entries</div>`;
-        parsedData.journal.forEach((je, idx) => {
-          bodyHtml += `<div class="edit-list-item">
-    <div class="edit-list-item-text"><strong>Turn ${je.turn} — Prompt ${je.prompt}, Entry ${je.entry}</strong><br><span style="color:var(--ink-dim);font-size:.85rem">Awaiting: ${je.awaiting ? 'Yes' : 'No'}${je.prose ? ' — Has prose' : ''}</span></div>
-    <div class="edit-list-actions">
-      <button class="trash-btn" onclick="deleteJournalEntry(${idx})" title="Delete journal entry entirely">🗑</button>
-    </div>
-  </div>`;
-        });
-        bodyHtml += `<hr class="edit-divider">`;
+      let bodyHtml = '<div class="edit-section-title">Add New Journal Entry</div>';
+
+      if (hasUnresolved) {
+        bodyHtml += '<div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:12px;font-size:.88rem;color:var(--blood);">You have an unresolved entry. Resolve it before adding a new one.</div>';
       }
 
-      // Add new prompt entry
-      const hasReady = hasUnexperiencedMemory();
-      bodyHtml += `<div class="edit-section-title">Add New Journal Entry</div>
-<div class="form-row">
-  <label class="form-label">Prompt Number (1–80)</label>
-  <input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5">
-</div>
-<div class="form-row">
-  <label class="form-label">Entry Number</label>
-  <input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1">
-  <div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>
-</div>`;
+      bodyHtml += '<div class="form-row">'
+        + '<label class="form-label">Prompt Number (1–80)</label>'
+        + '<input class="form-input" id="ed-j-prompt" type="number" min="1" max="80" placeholder="e.g. 5"'
+        + (hasUnresolved ? ' disabled' : '') + '>'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Entry Number</label>'
+        + '<input class="form-input" id="ed-j-entry" type="number" min="1" max="3" value="1"'
+        + (hasUnresolved ? ' disabled' : '') + '>'
+        + '<div class="form-hint">Prompts 1–71 allow up to 3 entries; 72–80 allow only 1.</div>'
+        + '</div>'
+        + '<div id="ed-j-validation" style="display:none;background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-top:4px;font-size:.88rem;color:var(--blood);"></div>';
 
-      // If there's an awaiting entry and we don't have a ready memory, show memory add
-      const awaitingEntry = getAnyAwaitingEntry();
-      if (awaitingEntry && !hasReady) {
-        bodyHtml += `<div style="background:var(--blood);border-left:3px solid var(--blood-bright);padding:8px 12px;margin-top:14px;font-size:.88rem;color:var(--blood-bright);font-style:italic;">Resolve requires an unrecorded memory. Add one below using the per-entry edit (✎ button), then click Update.</div>`;
+      if (parsedData.journal.length > 0) {
+        bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Journal Entries</div>'
+          + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
+
+        const sortedJournal = [...parsedData.journal]
+          .sort((a, b) => (b.turn || 0) - (a.turn || 0));
+
+        sortedJournal.forEach(je => {
+          const idx = parsedData.journal.indexOf(je);
+          bodyHtml += '<div class="edit-list-item">'
+            + '<div class="edit-list-item-text">'
+            + '<strong>Turn ' + je.turn + ' — Prompt ' + je.prompt + ', Entry ' + je.entry + '</strong>'
+            + ' <span style="font-size:.8rem;color:' + (je.resolved ? 'var(--status-ok)' : 'var(--blood)') + ';">'
+            + (je.resolved ? '✓ Resolved' : '⚠ Awaiting') + '</span><br>'
+            + (je.experience ? '<span style="color:var(--ink-dim);font-size:.85rem">' + esc(je.experience.substring(0, 60)) + (je.experience.length > 60 ? '…' : '') + '</span>' : '')
+            + '</div>'
+            + '<div class="edit-list-actions">'
+            + '<button class="trash-btn" onclick="deleteJournalEntry(' + idx + ')" title="Delete journal entry entirely">🗑</button>'
+            + '</div></div>';
+        });
+
+        bodyHtml += '</div>';
       }
 
       openModal('Edit Journal', bodyHtml, () => {
-        // Add new entry — no promptText stored
+        if (hasUnresolved) return false;
+
         const promptNum = parseInt(document.getElementById('ed-j-prompt').value || '0');
         const entryNum = parseInt(document.getElementById('ed-j-entry').value || '1');
-        if (promptNum >= 1) {
-          const maxTurn = parsedData.journal.length > 0 ? Math.max(...parsedData.journal.map(j => j.turn)) : 0;
-          parsedData.journal.push({
-            turn: maxTurn + 1,
-            prompt: promptNum,
-            entry: entryNum,
-            prose: '',
-            changes: '',
-            awaiting: true
-          });
-          parsedData.frontmatter.current_prompt = promptNum;
-          markUnsaved();
+        const validationEl = document.getElementById('ed-j-validation');
+
+        if (!promptNum || promptNum < 1 || promptNum > 80) {
+          return showError('Please enter a prompt number between 1 and 80.');
         }
+
+        const duplicate = parsedData.journal.some(j => j.prompt === promptNum && j.entry === entryNum);
+        if (duplicate) {
+          const suggestion = findNextFreePromptEntry();
+          return showError('Prompt ' + promptNum + ', Entry ' + entryNum + ' already exists.'
+            + (suggestion ? ' Next free: Prompt ' + suggestion.prompt + ', Entry ' + suggestion.entry + '.' : ' All entries exhausted.'));
+        }
+
+        const maxTurn = parsedData.journal.length > 0 ? Math.max(...parsedData.journal.map(j => j.turn)) : 0;
+        parsedData.journal.push({
+          turn: maxTurn + 1,
+          prompt: promptNum,
+          entry: entryNum,
+          prose: '',
+          changes: '',
+          resolved: false,
+          resolved_at: null
+        });
+        parsedData.frontmatter.current_prompt = promptNum;
+        markUnsaved();
       });
+
+      // Live validation on input
+      setTimeout(() => {
+        const used = new Set(parsedData.journal.map(j => j.prompt + ',' + j.entry));
+        function validate() {
+          const p = parseInt(document.getElementById('ed-j-prompt').value || '0');
+          const e = parseInt(document.getElementById('ed-j-entry').value || '1');
+          const msg = document.getElementById('ed-j-validation');
+          if (!msg) return;
+          if (p && used.has(p + ',' + e)) {
+            const suggestion = findNextFreePromptEntry();
+            msg.style.display = '';
+            msg.textContent = 'Prompt ' + p + ', Entry ' + e + ' already exists.'
+              + (suggestion ? ' Next free: Prompt ' + suggestion.prompt + ', Entry ' + suggestion.entry + '.' : ' All entries exhausted.');
+          } else {
+            msg.style.display = 'none';
+          }
+        }
+        const promptEl = document.getElementById('ed-j-prompt');
+        const entryEl = document.getElementById('ed-j-entry');
+        if (promptEl) promptEl.addEventListener('input', validate);
+        if (entryEl) entryEl.addEventListener('input', validate);
+      }, 0);
     }
 
-    function previewMemoryState(memIdxStr) {
-      const i = parseInt(memIdxStr);
-      const mem = parsedData.memories[i];
-      if (!mem) return;
+    function previewMemoryState(val) {
       const preview = document.getElementById('mem-preview');
+      const newThemeWrap = document.getElementById('new-theme-wrap');
       const loseCheck = document.getElementById('ed-je-lose-check');
       const newThemeRow = document.getElementById('ed-je-new-theme-row');
       if (!preview) return;
+
+      if (val === 'diary') {
+        preview.textContent = 'Experience will start a new memory in ' + (activeDiary ? activeDiary.name : 'the diary') + '.';
+        preview.style.color = 'var(--ink-faint)';
+        if (loseCheck) loseCheck.closest('div').style.display = 'none';
+        if (newThemeRow) newThemeRow.style.display = 'none';
+        const diaryThemeWrap = document.getElementById('diary-theme-wrap');
+        if (diaryThemeWrap) diaryThemeWrap.style.display = '';
+        return;
+      }
+
+      // Hide diary theme wrap for non-diary selections
+      const diaryThemeWrap = document.getElementById('diary-theme-wrap');
+      if (diaryThemeWrap) diaryThemeWrap.style.display = 'none';
+
+      const i = parseInt(val);
+      const mem = parsedData.memories[i];
+      if (!mem) return;
+
+      // Empty slot — show theme field immediately, hide lose checkbox
+      if (!mem.theme && mem.experiences.length === 0) {
+        preview.textContent = 'Empty slot — provide a theme to start this memory.';
+        preview.style.color = 'var(--ink-faint)';
+        if (loseCheck) loseCheck.closest('div').style.display = 'none';
+        if (newThemeRow) newThemeRow.style.display = '';
+        return;
+      }
 
       if (mem.experiences.length > 0) {
         preview.textContent = mem.experiences.map((e, j) => (j + 1) + '. ' + e).join(' | ');
@@ -1769,24 +2211,16 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         preview.textContent = 'No experiences yet.';
       }
 
-      // Auto-check and show lose fields if memory is already full
+      if (loseCheck) loseCheck.closest('div').style.display = '';
+
       if (mem.experiences.length === 3) {
         preview.textContent += ' — FULL, will be lost.';
         preview.style.color = 'var(--blood)';
         if (loseCheck) loseCheck.checked = true;
         if (newThemeRow) newThemeRow.style.display = '';
-      } else if (mem.experiences.length === 0) {
-        // If the selected memory has no experiences yet, require a new theme
-        // (this uses the same UI as when replacing a full memory).
-        preview.style.color = 'var(--ink-faint)';
-        if (loseCheck) loseCheck.checked = false;
-        if (newThemeRow) newThemeRow.style.display = '';
       } else {
         preview.style.color = 'var(--ink-faint)';
-        // Don't uncheck — player may have manually checked it
-        if (loseCheck && !loseCheck.checked && newThemeRow) {
-          newThemeRow.style.display = 'none';
-        }
+        if (loseCheck && !loseCheck.checked && newThemeRow) newThemeRow.style.display = 'none';
       }
     }
 
@@ -1813,28 +2247,52 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         + '<div class="form-row">'
         + '<label class="form-label">Changes (mechanical summary)</label>'
         + '<input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="' + esc(je.changes) + '">'
-        + '<div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories added.</div>'
+        + '<div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories adedded.</div>'
         + '</div>';
 
-      if (je.awaiting) {
+      if (!je.resolved) {
         bodyHtml += '<hr class="edit-divider">'
           + '<div class="edit-section-title" style="color:var(--blood);">Record Memory Experience (required to resolve)</div>';
 
-        if (parsedData.memories.length === 0) {
-          bodyHtml += '<p style="color:var(--blood);font-size:.88rem;font-style:italic;">No active memories. Add a memory first via the Memories section.</p>';
+        const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+        const diaryMems = activeDiary ? (parsedData.diaryMemories[activeDiary.name] || []) : [];
+        const freeDiarySlots = activeDiary ? Math.max(0, 4 - diaryMems.length) : 0;
+        const hasOptions = parsedData.memories.length > 0 || freeDiarySlots > 0;
+
+        if (!hasOptions) {
+          bodyHtml += '<p style="color:var(--blood);font-size:.88rem;font-style:italic;">No active memories and no free diary slots. Add a memory or diary first.</p>';
         } else {
           bodyHtml += '<div class="form-row">'
             + '<label class="form-label">Choose Memory</label>'
-            + '<select class="form-select" id="ed-je-exp-mem" onchange="previewMemoryState(this.value)">'
-            + parsedData.memories.map((m, i) =>
-              '<option value="' + i + '">'
-              + 'Memory ' + m.n + ' — ' + esc(m.theme)
-              + ' (' + m.experiences.length + '/3 experiences)'
-              + '</option>'
-            ).join('')
-            + '</select>'
+            + '<select class="form-select" id="ed-je-exp-mem" onchange="previewMemoryState(this.value)">';
+
+          if (parsedData.memories.length > 0) {
+            bodyHtml += '<optgroup label="Active Memories">'
+              + parsedData.memories.map((m, i) =>
+                '<option value="' + i + '">'
+                + 'Memory ' + m.n + ' — ' + (m.theme || 'Empty slot')
+                + ' (' + m.experiences.length + '/3)'
+                + (m.experiences.length === 3 ? ' ⚠ FULL' : '')
+                + '</option>'
+              ).join('')
+              + '</optgroup>';
+          }
+
+          if (freeDiarySlots > 0) {
+            bodyHtml += '<optgroup label="' + esc(activeDiary.name) + ' (' + freeDiarySlots + ' free slot' + (freeDiarySlots !== 1 ? 's' : '') + ')">'
+              + '<option value="diary">📖 Add to diary (' + diaryMems.length + '/4 memories)</option>'
+              + '</optgroup>';
+          }
+
+          bodyHtml += '</select>'
             + '</div>'
             + '<div id="mem-preview" style="font-size:.82rem;color:var(--ink-faint);padding:6px 0 10px 2px;font-style:italic;"></div>'
+            + '<div id="diary-theme-wrap" style="display:none;">'
+            + '<div class="form-row">'
+            + '<label class="form-label">Diary Memory Theme (required)</label>'
+            + '<input class="form-input" id="ed-je-diary-theme" placeholder="Theme for this diary memory…">'
+            + '</div>'
+            + '</div>'
             + '<div class="form-row">'
             + '<label class="form-label">New Experience</label>'
             + '<textarea class="form-textarea" id="ed-je-exp-text" style="min-height:80px;" placeholder="A few sentences summarising this memory experience…"></textarea>'
@@ -1848,20 +2306,23 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             + '</div>'
             + '<div id="ed-je-new-theme-row" style="display:none;">'
             + '<div class="form-row">'
-            + '<label class="form-label" style="color:var(--blood);">New Memory Theme (required)</label>'
-            + '<input class="form-input" id="ed-je-new-theme" placeholder="Theme for the new memory that takes its place…">'
+            + '<label class="form-label">Memory Theme</label>'
+            + '<input class="form-input" id="ed-je-new-theme" placeholder="e.g. The Scholarly Curate">'
             + '</div>'
             + '</div>'
-            + '</div>'
+            + '</div>';
         }
       }
 
-      const isAwaiting = je.awaiting === true;
-      const resolveDisabled = !isAwaiting || parsedData.memories.length === 0;
+      const isResolved = je.resolved === true;
+      const hasMemoryOptions = parsedData.memories.length > 0
+        || (parsedData.resources.find(r => r.type === 'diary' && r.status === 'active')
+          && (parsedData.diaryMemories[parsedData.resources.find(r => r.type === 'diary' && r.status === 'active').name] || []).length < 4);
+      const resolveDisabled = isResolved || !hasMemoryOptions;
 
       const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
-        + (!isAwaiting ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
-        + '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>'
+        + (isResolved ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
+        + (!isResolved ? '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>' : '')
         + '<button class="modal-btn primary"'
         + ' style="background:var(--blood);border-color:var(--blood);' + (resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
         + (resolveDisabled ? ' disabled' : ' onclick="resolveJournalEntry(' + idx + ')"')
@@ -1888,7 +2349,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const changesEl = document.getElementById('ed-je-changes');
       if (proseEl) je.prose = proseEl.value.trim();
       if (changesEl) je.changes = changesEl.value.trim();
-      je.awaiting = true;
+      je.resolved = false;
       markUnsaved();
       renderChronicle(parsedData);
       closeModal();
@@ -1899,7 +2360,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
 
-      // Read prose + changes from DOM
       const proseEl = document.getElementById('ed-je-prose');
       const changesEl = document.getElementById('ed-je-changes');
       if (proseEl) je.prose = proseEl.value.trim();
@@ -1910,87 +2370,76 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         return;
       }
 
-      // Read memory experience from DOM
       const memSelEl = document.getElementById('ed-je-exp-mem');
       const expTextEl = document.getElementById('ed-je-exp-text');
       const newThemeEl = document.getElementById('ed-je-new-theme');
 
       if (!memSelEl || !expTextEl) {
-        alert('Cannot resolve: no active memories available. Add a memory first.');
+        alert('Cannot resolve: no memory options available.');
         return;
       }
 
-      const memIdx = parseInt(memSelEl.value);
+      const memVal = memSelEl.value;
       const expText = expTextEl.value.trim();
 
-      if (isNaN(memIdx) || memIdx < 0 || memIdx >= parsedData.memories.length) {
-        alert('Cannot resolve: please select a valid memory.');
-        return;
-      }
       if (!expText) {
         alert('Cannot resolve: please write a memory experience.');
         return;
       }
 
-      const mem = parsedData.memories[memIdx];
+      if (memVal === 'diary') {
+        // Add to diary as a new memory slot
+        const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
+        if (!activeDiary) { alert('No active diary found.'); return; }
+        const diaryMems = parsedData.diaryMemories[activeDiary.name] || [];
+        if (diaryMems.length >= 4) { alert(activeDiary.name + ' is full (4/4).'); return; }
+        diaryMems.push({ n: diaryMems.length + 1, experiences: [expText] });
+        parsedData.diaryMemories[activeDiary.name] = diaryMems;
 
-      // If the selected memory slot exists but has no experiences yet,
-      // require a new theme for the memory and create it (same flow as
-      // replacing a full memory, but without the confirmation).
-      if (Array.isArray(mem.experiences) && mem.experiences.length === 0) {
-        const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
-        if (!newTheme) {
-          alert('Please provide a theme for the new memory that will take its place.');
+      } else {
+        const memIdx = parseInt(memVal);
+        if (isNaN(memIdx) || memIdx < 0 || memIdx >= parsedData.memories.length) {
+          alert('Cannot resolve: please select a valid memory.');
           return;
         }
-        parsedData.memories[memIdx] = {
-          n: mem.n,
-          theme: newTheme,
-          experiences: [expText],
-          description: ''
-        };
-      } else {
-        const loseCheck = document.getElementById('ed-je-lose-check');
-        const playerChoseLose = loseCheck && loseCheck.checked;
-        const shouldLose = playerChoseLose || mem.experiences.length === 3;
 
-        if (shouldLose) {
+        const mem = parsedData.memories[memIdx];
+
+        if (mem.experiences.length === 0) {
+          // Empty slot — just needs a theme
           const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
-          if (!newTheme) {
-            alert('Please provide a theme for the new memory that will take its place.');
-            return;
-          }
+          if (!newTheme) { alert('Please provide a theme for this memory.'); return; }
+          parsedData.memories[memIdx] = { n: mem.n, theme: newTheme, experiences: [expText], description: '' };
 
-          if (!confirm(
-            'Memory ' + mem.n + ' "' + mem.theme + '" will be lost.\n\n'
-            + 'It will be moved to Lost Memories and a new memory "'
-            + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
-          )) return;
-
-          if (!parsedData.lostMemories) parsedData.lostMemories = [];
-          parsedData.lostMemories.push({
-            n: mem.n,
-            theme: mem.theme,
-            experiences: [...mem.experiences],
-            lost_at: new Date().toISOString(),
-            lost_on_turn: je.turn
-          });
-
-          parsedData.memories[memIdx] = {
-            n: mem.n,
-            theme: newTheme,
-            experiences: [expText],
-            description: ''
-          };
         } else {
-          mem.experiences.push(expText);
+          const loseCheck = document.getElementById('ed-je-lose-check');
+          const playerChoseLose = loseCheck && loseCheck.checked;
+          const shouldLose = playerChoseLose || mem.experiences.length === 3;
+
+          if (shouldLose) {
+            const newTheme = newThemeEl ? newThemeEl.value.trim() : '';
+            if (!newTheme) { alert('Please provide a theme for the new memory that will take its place.'); return; }
+            if (!confirm(
+              'Memory ' + mem.n + ' "' + mem.theme + '" will be lost.\n\n'
+              + 'It will be moved to Lost Memories and a new memory "'
+              + newTheme + '" will take slot ' + mem.n + '.\n\nContinue?'
+            )) return;
+            if (!parsedData.lostMemories) parsedData.lostMemories = [];
+            parsedData.lostMemories.push({
+              n: mem.n, theme: mem.theme,
+              experiences: [...mem.experiences],
+              lost_at: new Date().toISOString(),
+              lost_on_turn: je.turn
+            });
+            parsedData.memories[memIdx] = { n: mem.n, theme: newTheme, experiences: [expText], description: '' };
+          } else {
+            mem.experiences.push(expText);
+          }
         }
       }
 
-      // Mark resolved
-      je.awaiting = false;
+      je.resolved = true;
       je.resolved_at = new Date().toISOString();
-
       markUnsaved();
       closeModal();
       renderChronicle(parsedData);
@@ -2001,7 +2450,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       if (idx < 0 || idx >= parsedData.journal.length) return;
       const je = parsedData.journal[idx];
       if (!confirm(`Unresolve Turn ${je.turn}? This marks the entry as awaiting resolution again.`)) return;
-      je.awaiting = true;
+      je.resolved = false;
       markUnsaved();
       editjournalentry(idx); // re-open refreshed
     }
@@ -2039,7 +2488,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
 
       // Find the most recently resolved prompt to use as base
-      const resolved = journal.filter(j => j.resolved === true || j.awaiting === false);
+      const resolved = journal.filter(j => j.resolved === true || !j.resolved === false);
 
       // Roll dice
       const d10 = Math.floor(Math.random() * 10) + 1;
@@ -2110,8 +2559,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const token = getVaultKey();
       if (!token) { openKeyPanel(); alert('Please enter your vault key (🔑 icon) first.'); return; }
 
-      const sel = document.getElementById('game-select');
-      if (!sel.value) { alert('Select a vampire first.'); return; }
+      const filename = currentFilename || document.getElementById('game-select').value;
+      if (!filename) { alert('Select a vampire first.'); return; }
 
       const promptsReady = await ensurePromptsLoaded();
       if (!promptsReady) { openKeyPanel(); alert('Could not load prompts. Please check your vault key.'); return; }
@@ -2122,21 +2571,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         // Use parsedData for prompt computation — it reflects current state
         const vampire = JSON.parse(serializeJson(parsedData));
         const result = computeNextPrompt(vampire);
-
-        // For each living mortal, randomly decide (4 or 5 turns) whether to
-        // show the grave marker. This uses the upcoming turn number.
-        if (parsedData && Array.isArray(parsedData.mortals) && !result.error) {
-          parsedData.mortals.forEach(m => { delete m._graveIcon; });
-          parsedData.mortals.forEach(m => {
-            if (!m.dead) {
-              const gt = Number(m.gained_turn) || 0;
-              const threshold = Math.floor(Math.random() * 2) + 4; // 4 or 5
-              if (result.turn - gt >= threshold) m._graveIcon = true;
-            }
-          });
-          // Rerender immediately so the UI reflects any grave prefixes.
-          renderChronicle(parsedData);
-        }
+        const mortals = parsedData.characters.filter(c => c.type === 'mortal');
 
         if (result.error === 'all_prompts_exhausted') {
           displayPromptResult(result);
@@ -2158,7 +2593,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         parsedData.frontmatter.current_prompt = String(result.prompt);
 
         // Save to GitHub
-        const filename = sel.value;
         const fileUrl = GITHUB_API + '/' + encodeURIComponent(filename);
 
         // Get current SHA
@@ -2199,9 +2633,18 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       }
     }
 
-    loadGameList().then(() => {
-      const last = localStorage.getItem('tyov-last-chronicle');
-      if (last) loadVampire(last).catch(() => localStorage.removeItem('tyov-last-chronicle'));
+    let _initialLoadDone = false;
+
+    loadTomeList().then(() => {
+      if (!_initialLoadDone) {
+        _initialLoadDone = true;
+        const last = localStorage.getItem('tyov-last-chronicle');
+        if (last) {
+          loadVampire(last)
+            .then(() => turnToChronicle())
+            .catch(() => localStorage.removeItem('tyov-last-chronicle'));
+        }
+      }
     });
   </script>
 </body>

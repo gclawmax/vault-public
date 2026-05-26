@@ -1,33 +1,36 @@
 {
-  "name": "James McCloud",
+  "name": "James Macleod",
   "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
-  "mortal_self": "James McCloud, born 1050 AD in Scotland. A rich noble, pampered by slaves and surrounded by sycophants. Arrogant and soft.",
   "game_over": false,
   "game_start": "2026-05-14",
-  "modified": "2026-05-18",
-  "game_completed": "",
-  "show_suggestions": true,
-  "current_prompt": 6,
-  "prompts_resolved": 0,
+  "modified": "2026-05-25",
+  "current_prompt": 15,
+  "epitaph": null,
   "marks": [
     {
       "description": "A pair of small, pinprick scars on the forearm, where James drank Seraphina's corrupted blood. On cold nights, they burn; under moonlight, they glow faintly.",
       "concealment": "Always hidden beneath gauntlets or heavy fur cuffs.",
-      "status": "available"
+      "status": "active"
     }
   ],
   "memories": [
     {
       "n": 1,
-      "theme": "",
+      "theme": "Drinks all round",
       "description": "",
-      "experiences": []
+      "experiences": [
+        "Ran from my region to the pub",
+        "One drink too many, I guess. Killed sarah."
+      ]
     },
     {
       "n": 2,
-      "theme": "",
+      "theme": "The art of murderising",
       "description": "",
-      "experiences": []
+      "experiences": [
+        "They come for a haircut or a shave, so I shave them a little too close. drink their blood and mush their bodies into Mrs Rabbit's pies downstairs.",
+        "Jack used my old homestead to show them how I used to live. I used my art of murderising to get out of it"
+      ]
     },
     {
       "n": 3,
@@ -64,23 +67,26 @@
   "skills": [
     {
       "name": "Swordsmanship",
-      "description": "A master of the blade, deadly in the yard or on the battlefield.",
-      "status": "available",
+      "status": "checked",
       "gained_turn": null,
       "lost_turn": null
     },
     {
       "name": "Falconry",
-      "description": "A noble pastime and a discipline of patience and control over the wild.",
-      "status": "struck",
+      "status": "checked",
       "gained_turn": null,
       "lost_turn": 2
     },
     {
       "name": "Tactics and Command",
-      "description": "The art of warfare and strategy, learned in Bran's yard and your court.",
-      "status": "available",
+      "status": "checked",
       "gained_turn": null,
+      "lost_turn": null
+    },
+    {
+      "name": "The art of murderising",
+      "status": "unchecked",
+      "gained_turn": 5,
       "lost_turn": null
     }
   ],
@@ -89,7 +95,7 @@
       "name": "The Blackwood Seal Ring",
       "description": "Your family's signet ring, cold iridium and heavy with history. It bears the crest of your house and has pressed into wax a thousand ledgers, proclamations, and death warrants. A sign of your standing.",
       "type": "portable",
-      "status": "available",
+      "status": "active",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -97,15 +103,15 @@
       "name": "Blackwood Hall",
       "description": "The fortress of your ancestors, perched on a jagged ridge where the wind never stops its wailing. Thick stone walls, a great hall that can house your entire retinue. The heart of your power.",
       "type": "stationary",
-      "status": "available",
+      "status": "lost",
       "gained_turn": null,
-      "lost_turn": null
+      "lost_turn": 3
     },
     {
       "name": "Wintersteel Broadsword",
       "description": "A blade of grey steel, heavy and unyielding, brought from a campaign in the distant north. It never dulls, never chips, and its pommel is set with a dark gem that seems to draw the light from the air.",
       "type": "portable",
-      "status": "available",
+      "status": "active",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -113,7 +119,7 @@
       "name": "The vault key",
       "description": "",
       "type": "portable",
-      "status": "available",
+      "status": "active",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -121,7 +127,7 @@
       "name": "Red Diary",
       "description": "It's red...",
       "type": "diary",
-      "status": "available",
+      "status": "active",
       "gained_turn": null,
       "lost_turn": null
     }
@@ -130,28 +136,24 @@
     "Red Diary": [
       {
         "n": 1,
-        "theme": "Pokemon?",
         "experiences": [
           "Pokemon invaded"
         ]
       },
       {
         "n": 2,
-        "theme": "Memory 2",
         "experiences": [
           "The banner of a rival house burned over the borderlands, and in the reek of smoke and blood your swordsmanship became the final word your enemies heard; you felt nothing but the old warmth of the blade doing what it was forged to do."
         ]
       },
       {
         "n": 3,
-        "theme": "Memory 3",
         "experiences": [
           "Elspeth begged you to spare the villages your raids had reduced to ghosts, and you let her have that mercy â not for her sake, but because her voice was one thread in the tapestry of cruelty you had learned to love that still held your hand."
         ]
       },
       {
         "n": 4,
-        "theme": "Memory 4",
         "experiences": [
           "Jack's own retinue deserted him when your tactics stripped his lands bare, and you found his last letter burning in the hearth before you had to answer his challenge; the gem in your blade drank the light one last time."
         ]
@@ -165,15 +167,17 @@
       "description": "Younger sister. Smarter and kinder than James, she found refuge with the castle's animals â a wounded hawk, a stray hound, any creature in need of care. She loved James in spite of his arrogance; the only soul in that house who ever did.",
       "status": "dead",
       "death_reason": "",
+      "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": 2
     },
     {
       "name": "Jack Stewart",
-      "type": "mortal",
-      "description": "Young lord from a nearby estate. Matched James line for line â in wealth, in station, in charm. Where James was born to privilege, Jack had earned his standing. Now courts the same girl James loves, turning rivalry into something that cuts deeper than pride.",
+      "type": "immortal",
+      "description": "Undead bloke",
       "status": "alive",
       "death_reason": "",
+      "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -183,6 +187,7 @@
       "description": "Retired soldier and James's teacher. Grey-bearded, scarred, he drilled into James from the first dawn: kindness is the language of the weak. Paced the training yard before the sun until those words took root â ruthlessness, money, power. The only virtues.",
       "status": "alive",
       "death_reason": "",
+      "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": null
     },
@@ -192,8 +197,19 @@
       "description": "A leper saint of the borderlands, her face pocked and hands twisted by the disease that ate her from the outside in. She ran a hospice of corpses among the ruins of a border abbey. She chose James because she saw the hunger beneath his arrogance and fed it to him.",
       "status": "alive",
       "death_reason": "",
+      "death_epitaph": "",
       "gained_turn": null,
       "lost_turn": null
+    },
+    {
+      "name": "Sarah",
+      "type": "mortal",
+      "description": "The woman I met that time at the pub.",
+      "status": "dead",
+      "death_reason": "Killed because she was a drunkard",
+      "death_epitaph": "Should have had a water...",
+      "gained_turn": 3,
+      "lost_turn": 4
     }
   ],
   "journal": [
@@ -214,6 +230,42 @@
       "resolved_at": "2026-05-17T17:21:51.861Z",
       "experience": "A wild pikachu appears!",
       "changes": "pika!"
+    },
+    {
+      "turn": 3,
+      "prompt": 4,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T16:59:21.964Z",
+      "experience": "Ran to the pub. Changed my Jim Cloud. Sarah came with me.",
+      "changes": ""
+    },
+    {
+      "turn": 4,
+      "prompt": 5,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:01:07.572Z",
+      "experience": "Sarah was going to expose me after it turned out she was a drunkard. So I killed her with a sword.",
+      "changes": "Killed Sarah"
+    },
+    {
+      "turn": 5,
+      "prompt": 9,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:02:43.316Z",
+      "experience": "They come for a haircut or a shave, so I shave them a little too close. drink their blood and mush their bodies into Mrs Rabbit's pies downstairs.",
+      "changes": ""
+    },
+    {
+      "turn": 6,
+      "prompt": 14,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-21T17:05:44.380Z",
+      "experience": "Jack used my old homestead to show them how I used to live. I used my art of murderising to get out of it",
+      "changes": ""
     }
   ]
 }
