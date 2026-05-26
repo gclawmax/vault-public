@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-25",
   "modified": "2026-05-26",
-  "current_prompt": 5,
+  "current_prompt": 10,
   "epitaph": null,
   "marks": [
     {
@@ -36,7 +36,8 @@
       "theme": "Sisterhood",
       "description": "",
       "experiences": [
-        "Giving Paloma La Partera two of the precious gold coins that had been stitched into her cotte by her loyal childhood nursemaid when she left her father’s home to marry. The coins were used to by vital ingredients to treat the group of beaten women of ill repute whose bruises had been obtained during a illicit masquerade party held by one of the most respected and cruel Dukes of Cordoba."
+        "Giving Paloma La Partera two of the precious gold coins that had been stitched into her cotte by her loyal childhood nursemaid when she left her father’s home to marry. The coins were used to by vital ingredients to treat the group of beaten women of ill repute whose bruises had been obtained during a illicit masquerade party held by one of the most respected and cruel Dukes of Cordoba.",
+        "She was the first friend I had in the slums of deprivation, the one who directed me to where I was needed most.  She gave me skills I have used to survive this far - how to navigate the world beneath the arrogant noses of powerful men."
       ]
     },
     {
@@ -179,6 +180,15 @@
     {
       "turn": 3,
       "prompt": 5,
+      "entry": 1,
+      "resolved": true,
+      "resolved_at": "2026-05-26T16:46:18.277Z",
+      "experience": "A plague is sweeping through the slums of Cordoba, making widows and orphans of the most vulnerable in the community. Paloma seeks me out - I have not seen her in years, but she sense that something has changed, that the night she saw me dying I did not, and that she hasn't seen me since.  She has heard rumours, seen glimpses of me and suspects that I have become 'Una sunguijuela Humana', the superstitions of her foremothers telling tales of such people.  She comes seeking hope, that I can bring others into the fold of the dead, save them from the agonies and mourning of plague, save mothers and fathers and wives and husbands.  But I cannot.  I know what she does not - not all of us can transition from life into death without causing more misery than plague ever could.  She threatens to reveal my truth, send the desperate to me, to Maimonides.  I cannot allow that.",
+      "changes": "Killed Paloma La Partera, gained objectivity skill."
+    },
+    {
+      "turn": 4,
+      "prompt": 10,
       "entry": 1,
       "resolved": false,
       "resolved_at": null,
