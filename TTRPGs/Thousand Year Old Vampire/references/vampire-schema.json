@@ -3,45 +3,65 @@
   "title": "Thousand Year Old Vampire — Chronicle",
   "description": "Schema for a TYOV vampire chronicle file, compatible with the chronicle viewer.",
   "type": "object",
-  "required": ["name", "game_start", "modified", "marks", "memories", "lost_memories", "skills", "resources", "diary_memories", "characters", "journal"],
+  "required": [
+    "name",
+    "game_start",
+    "modified",
+    "marks",
+    "memories",
+    "lost_memories",
+    "skills",
+    "resources",
+    "diary_memories",
+    "characters",
+    "journal"
+  ],
   "additionalProperties": false,
   "properties": {
-
+    "draft": {
+      "type": "boolean",
+      "description": "Whether this chronicle is a draft that may be incomplete or contain placeholder content.",
+      "default": false
+    },
     "name": {
       "type": "string",
       "description": "The vampire's name. Used as the display name and filename.",
       "minLength": 1,
-      "examples": ["Prince Charming", "Eleanor of Aquitaine"]
+      "examples": [
+        "Prince Charming",
+        "Eleanor of Aquitaine"
+      ]
     },
-
     "vampire_desc": {
       "type": "string",
       "description": "A short tagline or concept for the vampire. Displayed in the top bar.",
-      "examples": ["A noble knight. Has nice hair"]
+      "examples": [
+        "A noble knight. Has nice hair"
+      ]
     },
-
     "game_over": {
       "type": "boolean",
       "description": "Whether the game has ended.",
       "default": false
     },
-
     "game_start": {
       "type": "string",
       "format": "date",
       "description": "The date the game started, in YYYY-MM-DD format.",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-      "examples": ["2026-05-21"]
+      "examples": [
+        "2026-05-21"
+      ]
     },
-
     "modified": {
       "type": "string",
       "format": "date",
       "description": "The date the chronicle was last modified, in YYYY-MM-DD format.",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-      "examples": ["2026-05-22"]
+      "examples": [
+        "2026-05-22"
+      ]
     },
-
     "current_prompt": {
       "type": "integer",
       "description": "The most recently assigned prompt number (1-80).",
@@ -49,9 +69,11 @@
       "maximum": 80,
       "default": 0
     },
-
     "epitaph": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "description": "An optional poetic epitaph for the vampire.",
       "properties": {
         "experience": {
@@ -61,42 +83,55 @@
       },
       "additionalProperties": false
     },
-
     "marks": {
       "type": "array",
       "description": "Physical marks that indicate the vampire's undying nature.",
       "items": {
         "type": "object",
-        "required": ["description", "concealment", "status"],
+        "required": [
+          "description",
+          "concealment",
+          "status"
+        ],
         "additionalProperties": false,
         "properties": {
           "description": {
             "type": "string",
             "description": "The visible mark.",
-            "examples": ["The world's most perfect(ly sharp) teeth"]
+            "examples": [
+              "The world's most perfect(ly sharp) teeth"
+            ]
           },
           "concealment": {
             "type": "string",
             "description": "How the mark is concealed.",
-            "examples": ["I don't really. I smile a LOT."]
+            "examples": [
+              "I don't really. I smile a LOT."
+            ]
           },
           "status": {
             "type": "string",
-            "enum": ["active", "lost"],
+            "enum": [
+              "active",
+              "lost"
+            ],
             "description": "Whether the mark is active or lost.",
             "default": "active"
           }
         }
       }
     },
-
     "memories": {
       "type": "array",
       "description": "The vampire's active memory slots. Maximum 5.",
       "maxItems": 5,
       "items": {
         "type": "object",
-        "required": ["n", "theme", "experiences"],
+        "required": [
+          "n",
+          "theme",
+          "experiences"
+        ],
         "additionalProperties": false,
         "properties": {
           "n": {
@@ -108,7 +143,11 @@
           "theme": {
             "type": "string",
             "description": "The name or header of this memory. Empty string for an empty slot.",
-            "examples": ["Mortal life", "Love", "Loyalty"]
+            "examples": [
+              "Mortal life",
+              "Love",
+              "Loyalty"
+            ]
           },
           "description": {
             "type": "string",
@@ -127,13 +166,18 @@
         }
       }
     },
-
     "lost_memories": {
       "type": "array",
       "description": "Memories that were lost when a 4th experience would have been added, or when a diary was lost. Ordered by lost_at ascending.",
       "items": {
         "type": "object",
-        "required": ["n", "theme", "experiences", "lost_at", "lost_on_turn"],
+        "required": [
+          "n",
+          "theme",
+          "experiences",
+          "lost_at",
+          "lost_on_turn"
+        ],
         "additionalProperties": false,
         "properties": {
           "n": {
@@ -158,26 +202,36 @@
             "description": "ISO 8601 timestamp of when this memory was lost."
           },
           "lost_on_turn": {
-            "type": ["integer", "null"],
+            "type": [
+              "integer",
+              "null"
+            ],
             "description": "The journal turn number that caused this memory to be lost."
           }
         }
       }
     },
-
     "skills": {
       "type": "array",
       "description": "Skills the vampire possesses.",
       "items": {
         "type": "object",
-        "required": ["name", "status", "gained_turn"],
+        "required": [
+          "name",
+          "status",
+          "gained_turn"
+        ],
         "additionalProperties": false,
         "properties": {
           "name": {
             "type": "string",
             "description": "The skill name.",
             "minLength": 1,
-            "examples": ["Swords", "Orator", "Riding"]
+            "examples": [
+              "Swords",
+              "Orator",
+              "Riding"
+            ]
           },
           "description": {
             "type": "string",
@@ -186,37 +240,54 @@
           },
           "status": {
             "type": "string",
-            "enum": ["unchecked", "checked"],
+            "enum": [
+              "unchecked",
+              "checked"
+            ],
             "description": "unchecked = available, checked = spent/used.",
             "default": "unchecked"
           },
           "gained_turn": {
-            "type": ["integer", "null"],
+            "type": [
+              "integer",
+              "null"
+            ],
             "description": "The journal turn on which this skill was gained. 0 for skills gained at character creation.",
             "minimum": 0
           },
           "lost_turn": {
-            "type": ["integer", "null"],
+            "type": [
+              "integer",
+              "null"
+            ],
             "description": "Always null for skills — skills are checked, not lost.",
             "default": null
           }
         }
       }
     },
-
     "resources": {
       "type": "array",
       "description": "Resources the vampire possesses or has lost.",
       "items": {
         "type": "object",
-        "required": ["name", "type", "status", "gained_turn"],
+        "required": [
+          "name",
+          "type",
+          "status",
+          "gained_turn"
+        ],
         "additionalProperties": false,
         "properties": {
           "name": {
             "type": "string",
             "description": "The resource name.",
             "minLength": 1,
-            "examples": ["Excalibur", "Castle Charming", "Horsey Twinkletoes"]
+            "examples": [
+              "Excalibur",
+              "Castle Charming",
+              "Horsey Twinkletoes"
+            ]
           },
           "description": {
             "type": "string",
@@ -225,28 +296,40 @@
           },
           "type": {
             "type": "string",
-            "enum": ["portable", "stationary", "diary"],
+            "enum": [
+              "portable",
+              "stationary",
+              "diary"
+            ],
             "description": "portable = can be taken away, stationary = fixed location, diary = a memory diary (max 1 active at a time)."
           },
           "status": {
             "type": "string",
-            "enum": ["active", "lost"],
+            "enum": [
+              "active",
+              "lost"
+            ],
             "description": "Whether the resource is currently held.",
             "default": "active"
           },
           "gained_turn": {
-            "type": ["integer", "null"],
+            "type": [
+              "integer",
+              "null"
+            ],
             "description": "The journal turn on which this resource was gained. 0 for resources gained at character creation.",
             "minimum": 0
           },
           "lost_turn": {
-            "type": ["integer", "null"],
+            "type": [
+              "integer",
+              "null"
+            ],
             "description": "The journal turn on which this resource was lost. Null if still active."
           }
         }
       }
     },
-
     "diary_memories": {
       "type": "object",
       "description": "Memories stored in diary resources, keyed by diary resource name. Each diary holds up to 4 memories.",
@@ -255,7 +338,10 @@
         "maxItems": 4,
         "items": {
           "type": "object",
-          "required": ["n", "experiences"],
+          "required": [
+            "n",
+            "experiences"
+          ],
           "additionalProperties": false,
           "properties": {
             "n": {
@@ -273,24 +359,35 @@
         }
       }
     },
-
     "characters": {
       "type": "array",
       "description": "All characters — mortal and immortal — encountered by the vampire.",
       "items": {
         "type": "object",
-        "required": ["name", "type", "status", "gained_turn"],
+        "required": [
+          "name",
+          "type",
+          "status",
+          "gained_turn"
+        ],
         "additionalProperties": false,
         "properties": {
           "name": {
             "type": "string",
             "description": "Character name.",
             "minLength": 1,
-            "examples": ["Lancelot", "Gwen", "Arthur"]
+            "examples": [
+              "Lancelot",
+              "Gwen",
+              "Arthur"
+            ]
           },
           "type": {
             "type": "string",
-            "enum": ["mortal", "immortal"],
+            "enum": [
+              "mortal",
+              "immortal"
+            ],
             "description": "mortal = ages and dies, immortal = undying."
           },
           "description": {
@@ -300,7 +397,10 @@
           },
           "status": {
             "type": "string",
-            "enum": ["alive", "dead"],
+            "enum": [
+              "alive",
+              "dead"
+            ],
             "description": "Whether the character is still living.",
             "default": "alive"
           },
@@ -315,24 +415,34 @@
             "default": ""
           },
           "gained_turn": {
-            "type": ["integer", "null"],
+            "type": [
+              "integer",
+              "null"
+            ],
             "description": "The journal turn on which this character was met. 0 for characters from character creation.",
             "minimum": 0
           },
           "lost_turn": {
-            "type": ["integer", "null"],
+            "type": [
+              "integer",
+              "null"
+            ],
             "description": "The journal turn on which this character died. Null if still alive."
           }
         }
       }
     },
-
     "journal": {
       "type": "array",
       "description": "The journal of prompts and experiences. Ordered by turn number ascending.",
       "items": {
         "type": "object",
-        "required": ["turn", "prompt", "entry", "resolved"],
+        "required": [
+          "turn",
+          "prompt",
+          "entry",
+          "resolved"
+        ],
         "additionalProperties": false,
         "properties": {
           "turn": {
@@ -358,7 +468,10 @@
             "default": false
           },
           "resolved_at": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "date-time",
             "description": "ISO 8601 timestamp of when this entry was resolved. Null if still awaiting."
           },
@@ -373,12 +486,18 @@
             "default": ""
           },
           "resolved_memory": {
-            "type": ["object", "null"],
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "Records where the memory experience was stored, for potential undo on unresolve.",
             "properties": {
               "type": {
                 "type": "string",
-                "enum": ["memory", "diary"]
+                "enum": [
+                  "memory",
+                  "diary"
+                ]
               },
               "memIdx": {
                 "type": "integer"
