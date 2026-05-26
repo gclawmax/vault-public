@@ -1,11 +1,11 @@
 {
-  "draft": false,
   "name": "Moraima de Córdoba",
   "vampire_desc": "The wife of the Moorish King of Grenada, when the area was taken by the Christians in 1236, Moraima was taken as hostage to Cordoba and trapped in the palace, stripped of her titles, and navigating a new life as a Morisca, forced to convert to Christianity. Her father was a royal physician and she used this knowledge to leverage herself into some autonomy, proving medical care for the destitute in Cordoba. ",
   "game_over": false,
   "game_start": "2026-05-25",
-  "modified": "2026-05-25",
-  "current_prompt": 0,
+  "modified": "2026-05-26",
+  "current_prompt": 2,
+  "epitaph": null,
   "marks": [
     {
       "description": "Twining, vine-like markings that blaze blood red on the skin of the hands, arms and neck when the curse of the dead begins to grasp the soul, awakening the predatorial instincts of Neshama K’vura",
@@ -55,7 +55,6 @@
       ]
     }
   ],
-  "diary_memories": {},
   "lost_memories": [],
   "skills": [
     {
@@ -103,11 +102,12 @@
       "lost_turn": null
     }
   ],
+  "diary_memories": {},
   "characters": [
     {
       "name": "Nafi al-Garnati",
-      "description": "Her father, respected Nabib to the royal court. Raised his daughter at his right hand, passing on the secrets of medicine and teaching principles of pragmatism and compassion.",
       "type": "mortal",
+      "description": "Her father, respected Nabib to the royal court. Raised his daughter at his right hand, passing on the secrets of medicine and teaching principles of pragmatism and compassion.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -116,8 +116,8 @@
     },
     {
       "name": "Ahmed ibn Malik al-Boabdil al-Garnati",
-      "description": "Her son. Taken alongside his mother at the age of 3 and raised in the Christian court and baptised. They were kept separated, with him being raised as a squire, but fell ill. She was not allowed to tend him and he died of dysentery aged 9.",
       "type": "mortal",
+      "description": "Her son. Taken alongside his mother at the age of 3 and raised in the Christian court and baptised. They were kept separated, with him being raised as a squire, but fell ill. She was not allowed to tend him and he died of dysentery aged 9.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -126,8 +126,8 @@
     },
     {
       "name": "Maimon ben Yosef",
-      "description": "A Sephardic Jewish Boticario in the Suq al-Attarin. She has a long standing professional and occasional intimate relationship as he supplies her with the ingredients she uses to craft medicine. A widower.",
       "type": "mortal",
+      "description": "A Sephardic Jewish Boticario in the Suq al-Attarin. She has a long standing professional and occasional intimate relationship as he supplies her with the ingredients she uses to craft medicine. A widower.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -136,8 +136,8 @@
     },
     {
       "name": "Paloma \"La Partera\"",
-      "description": "Castilian midwife: rough-tongued, practical, and carries the keys to the slum of Cordoba. She sees all and knows all, delivering babies from the most destitute of working girls to the secret mistresses of wealthy knights.",
       "type": "mortal",
+      "description": "Castilian midwife: rough-tongued, practical, and carries the keys to the slum of Cordoba. She sees all and knows all, delivering babies from the most destitute of working girls to the secret mistresses of wealthy knights.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -146,8 +146,8 @@
     },
     {
       "name": "Moses Maimonides,  רוֹפֵא הָעוֹלָם",
-      "description": "Name meaning ‘Rofeh Ha'Olam’ or ‘Eternal Healer’. Having dedicated his life to healing, in the latter years Maimonides turned his study to extending life, stumbling into the grey world of the afterlife and, more importantly, the undead. He committed Pidyon Nefesh b’Dam, The Ransom of the Soul in Blood, to pursue the path of healing for his people, making himself Neshama K’vura (The Buried Soul). Having staged his death in 1203, he cultivated a network of trusted healers to continue his life’s work, on occasion deigning to add another to his own damned fate when all other avenues have been exhausted.",
       "type": "immortal",
+      "description": "Name meaning ‘Rofeh Ha'Olam’ or ‘Eternal Healer’. Having dedicated his life to healing, in the latter years Maimonides turned his study to extending life, stumbling into the grey world of the afterlife and, more importantly, the undead. He committed Pidyon Nefesh b’Dam, The Ransom of the Soul in Blood, to pursue the path of healing for his people, making himself Neshama K’vura (The Buried Soul). Having staged his death in 1203, he cultivated a network of trusted healers to continue his life’s work, on occasion deigning to add another to his own damned fate when all other avenues have been exhausted.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -155,5 +155,15 @@
       "lost_turn": null
     }
   ],
-  "journal": []
+  "journal": [
+    {
+      "turn": 1,
+      "prompt": 2,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
+    }
+  ]
 }
