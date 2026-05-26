@@ -43,7 +43,8 @@
       "theme": "Motherhood",
       "description": "",
       "experiences": [
-        "On the occasion of her child’s second birthday, when he had survived the perilous early years of childhood, her husband gifted her a filigree locket, delicate and beautiful with a motif of an exotic flower. Within was a tiny etching of this precious child and a small compartment."
+        "On the occasion of her child’s second birthday, when he had survived the perilous early years of childhood, her husband gifted her a filigree locket, delicate and beautiful with a motif of an exotic flower. Within was a tiny etching of this precious child and a small compartment.",
+        "The days are long and the nights intense. Waking from death’s slumber is disorienting, the sense of myself only a formless ghost attempting to influence the animal that has taken possession of my body."
       ]
     },
     {
@@ -160,10 +161,10 @@
       "turn": 1,
       "prompt": 2,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-26T15:29:32.871Z",
+      "experience": "I hide in the surgery of Moses Maimonides, learning the ways of the Neshama K’vur. He feeds me and teaches me as I learn to manage the hunger and control the urges of the predator. He tests me as a healer, providing my knowledge and skill set to distract me from the thirst.",
+      "changes": "Gained skill : self control."
     }
   ]
 }
