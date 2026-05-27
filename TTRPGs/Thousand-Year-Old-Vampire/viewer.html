@@ -2427,35 +2427,35 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         + '<input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="' + esc(je.changes) + '">'
         + '<div class="form-hint">Mechanical summary — characters killed, skills gained/lost, resources changed.</div>'
         + '</div>';
-    }
 
-    const isResolved = je.resolved === true;
-    const hasMemoryOptions = parsedData.memories.length > 0
-      || (parsedData.resources.find(r => r.type === 'diary' && r.status === 'active')
-        && (parsedData.diaryMemories[parsedData.resources.find(r => r.type === 'diary' && r.status === 'active').name] || []).length < 4);
-    const resolveDisabled = isResolved || !hasMemoryOptions;
 
-    const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
-      + (isResolved ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
-      + (isResolved ? '<button class="modal-btn primary" onclick="saveResolvedEdits(' + idx + ')">💾 Save Edits</button>' : '')
-      + (!isResolved ? '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>' : '')
-      + '<button class="modal-btn primary"'
-      + ' style="background:var(--blood);border-color:var(--blood);' + (resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
-      + (resolveDisabled ? ' disabled' : ' onclick="resolveJournalEntry(' + idx + ')"')
-      + '>✓ Resolve This Entry</button>';
+      const isResolved = je.resolved === true;
+      const hasMemoryOptions = parsedData.memories.length > 0
+        || (parsedData.resources.find(r => r.type === 'diary' && r.status === 'active')
+          && (parsedData.diaryMemories[parsedData.resources.find(r => r.type === 'diary' && r.status === 'active').name] || []).length < 4);
+      const resolveDisabled = isResolved || !hasMemoryOptions;
 
-    openModal('Edit Journal Entry', bodyHtml, () => {
-      const proseEl = document.getElementById('ed-je-prose');
-      const changesEl = document.getElementById('ed-je-changes');
-      if (proseEl) je.prose = proseEl.value.trim();
-      if (changesEl) je.changes = changesEl.value.trim();
-      markUnsaved();
-    }, footerHtml);
+      const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
+        + (isResolved ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
+        + (isResolved ? '<button class="modal-btn primary" onclick="saveResolvedEdits(' + idx + ')">💾 Save Edits</button>' : '')
+        + (!isResolved ? '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>' : '')
+        + '<button class="modal-btn primary"'
+        + ' style="background:var(--blood);border-color:var(--blood);' + (resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
+        + (resolveDisabled ? ' disabled' : ' onclick="resolveJournalEntry(' + idx + ')"')
+        + '>✓ Resolve This Entry</button>';
 
-    setTimeout(() => {
-      const sel = document.getElementById('ed-je-exp-mem');
-      if (sel) previewMemoryState(sel.value);
-    }, 0);
+      openModal('Edit Journal Entry', bodyHtml, () => {
+        const proseEl = document.getElementById('ed-je-prose');
+        const changesEl = document.getElementById('ed-je-changes');
+        if (proseEl) je.prose = proseEl.value.trim();
+        if (changesEl) je.changes = changesEl.value.trim();
+        markUnsaved();
+      }, footerHtml);
+
+      setTimeout(() => {
+        const sel = document.getElementById('ed-je-exp-mem');
+        if (sel) previewMemoryState(sel.value);
+      }, 0);
     }
 
     function saveResolvedEdits(idx) {
