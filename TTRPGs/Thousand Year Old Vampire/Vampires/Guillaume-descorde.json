@@ -52,7 +52,8 @@
       "theme": "Transformation",
       "description": "",
       "experiences": [
-        "Believing he has uncovered a hidden network of falsified monastic records tied to the immortal Isolde de Vézin, Guillaume arrives at a secluded abbey crypt carrying documents from the Black Chest of Vaucelles, intending to use controlled blackmail as leverage over what he assumes is merely an unusually entrenched noble conspiracy; the negotiation collapses when he realizes too late that Isolde's influence spans generations because she herself has endured them, and after he attempts to threaten exposure, she answers not with panic but with predatory curiosity, feeding from him within the crypt before forcing her blood into him as judgment rather than mercy. He feels first disbelief, then humiliation, and finally a terrible clarity as his heartbeat slows and he understands that for the first time in his life he has encountered something that cannot be negotiated with because it exists entirely outside the systems he mastered."
+        "Believing he has uncovered a hidden network of falsified monastic records tied to the immortal Isolde de Vézin, Guillaume arrives at a secluded abbey crypt carrying documents from the Black Chest of Vaucelles, intending to use controlled blackmail as leverage over what he assumes is merely an unusually entrenched noble conspiracy; the negotiation collapses when he realizes too late that Isolde's influence spans generations because she herself has endured them, and after he attempts to threaten exposure, she answers not with panic but with predatory curiosity, feeding from him within the crypt before forcing her blood into him as judgment rather than mercy. He feels first disbelief, then humiliation, and finally a terrible clarity as his heartbeat slows and he understands that for the first time in his life he has encountered something that cannot be negotiated with because it exists entirely outside the systems he mastered.",
+        "Tore down the toll bridge of Saint-Vire. Made a ghost pal called Steve"
       ]
     }
   ],
@@ -160,10 +161,10 @@
       "turn": 2,
       "prompt": 8,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
-      "changes": ""
+      "resolved": true,
+      "resolved_at": "2026-05-27T08:04:27.395Z",
+      "experience": "# Chapter 2 - The next prompt#\n \nI was recognised by an **immortal** I can't believe it. His name was ~~Steave~~ ~~Steeve~~ Steve and he was a ghost.\n\nHe was apparently murdered on the toll bridge and thrown over the side by a vagabond. He is stuck to the toll bridge, but he said if I tore it down he'd owe me a favor. Not sure what a favour from a *Ghost* looks like. I guess we'll see.",
+      "changes": "Tore down the toll bridge of Saint-Vire. Made a ghost pal."
     }
   ]
 }
