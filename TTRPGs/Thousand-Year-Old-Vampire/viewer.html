@@ -1631,13 +1631,35 @@
           + '<button class="trash-btn" onclick="removeDiaryMemory(\'' + diaryName.replace(/'/g, "\\'") + '\',' + i + ')" title="Remove from diary to Lost Memories">🗑</button>'
           + '</div>';
         m.experiences.forEach((exp, j) => {
-          bodyHtml += '<div style="font-size:.88rem;padding-left:12px;margin-bottom:3px;">' + (j + 1) + '. ' + esc(exp) + '</div>';
+          bodyHtml += '<div style="display:flex;align-items:flex-start;gap:8px;padding-left:12px;margin-bottom:6px;">'
+            + '<span style="font-size:.88rem;flex:1;">' + (j + 1) + '. ' + esc(exp) + '</span>'
+            + '<button class="strike-btn" onclick="editDiaryExperience(\'' + diaryName.replace(/'/g, "\\'") + '\',' + i + ',' + j + ')">✎</button>'
+            + '</div>';
         });
         bodyHtml += '</div>';
       });
       bodyHtml += '</div>'; // end scrollable
 
       openModal('Diary — ' + diaryName, bodyHtml, () => { });
+    }
+
+    function editDiaryExperience(diaryName, memIdx, expIdx) {
+      if (!editMode) return;
+      const mem = (parsedData.diaryMemories[diaryName] || [])[memIdx];
+      if (!mem) return;
+      const current = mem.experiences[expIdx];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">' + esc(diaryName) + ' · Memory ' + mem.n + ' · Experience ' + (expIdx + 1) + '</label>'
+        + markdownToolbar('ed-diary-exp-edit')
+        + '<textarea class="form-textarea md-textarea" id="ed-diary-exp-edit" style="min-height:100px;">' + esc(current) + '</textarea>'
+        + '</div>';
+      openModal('Edit Diary Experience', bodyHtml, () => {
+        const val = document.getElementById('ed-diary-exp-edit').value.trim();
+        if (val) {
+          mem.experiences[expIdx] = val;
+          markUnsaved();
+        }
+      });
     }
 
     function removeDiaryMemory(diaryName, idx) {
@@ -1827,6 +1849,7 @@
         mem.experiences.forEach((exp, j) => {
           bodyHtml += '<div style="display:flex;align-items:flex-start;gap:8px;padding-left:12px;margin-bottom:6px;">'
             + '<span style="font-size:.88rem;flex:1;">' + (j + 1) + '. ' + esc(exp) + '</span>'
+            + '<button class="strike-btn" onclick="editMemoryExperience(' + i + ',' + j + ')">✎</button>'
             + '<button class="trash-btn" onclick="deleteMemoryExperience(' + i + ',' + j + ')" title="Delete this experience">🗑</button>'
             + '</div>';
         });
@@ -1866,6 +1889,24 @@
         if (theme && expText) {
           const newN = parsedData.memories.length > 0 ? Math.max(...parsedData.memories.map(m => m.n)) + 1 : 1;
           parsedData.memories.push({ n: newN, theme, experiences: [expText], description: '' });
+          markUnsaved();
+        }
+      });
+    }
+
+    function editMemoryExperience(memIdx, expIdx) {
+      if (!editMode) return;
+      const mem = parsedData.memories[memIdx];
+      const current = mem.experiences[expIdx];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Memory ' + mem.n + ' — ' + esc(mem.theme) + ' · Experience ' + (expIdx + 1) + '</label>'
+        + markdownToolbar('ed-mem-exp-edit')
+        + '<textarea class="form-textarea md-textarea" id="ed-mem-exp-edit" style="min-height:100px;">' + esc(current) + '</textarea>'
+        + '</div>';
+      openModal('Edit Experience', bodyHtml, () => {
+        const val = document.getElementById('ed-mem-exp-edit').value.trim();
+        if (val) {
+          mem.experiences[expIdx] = val;
           markUnsaved();
         }
       });
