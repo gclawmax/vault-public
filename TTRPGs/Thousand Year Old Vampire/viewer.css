@@ -1524,35 +1524,39 @@ body {
     border: 1px solid var(--border);
     border-bottom: none;
     flex-wrap: wrap;
+    align-items: center;
   }
 
   .md-btn {
-    background: none;
-    border: 1px solid transparent;
-    color: var(--ink-dim);
-    padding: 3px 8px;
-    cursor: pointer;
-    font-size: 13px;
-    font-family: serif;
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--ink) !important;
+    padding: 4px 10px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-family: 'EB Garamond', serif !important;
     border-radius: 2px;
-    line-height: 1;
+    line-height: 1.4;
+    min-width: 28px;
+    text-align: center;
   }
 
   .md-btn:hover {
-    background: var(--surface);
-    border-color: var(--border);
-    color: var(--ink);
+    background: var(--tag-bg) !important;
+    border-color: var(--border-bright) !important;
+    color: var(--blood) !important;
   }
 
   .md-toolbar-sep {
     width: 1px;
+    height: 20px;
     background: var(--border);
-    margin: 2px 4px;
+    margin: 0 4px;
+    flex-shrink: 0;
   }
 
   .md-textarea {
-    border-top: none;
-    font-family: 'EB Garamond', serif;
+    border-top: none !important;
   }
 
   /* ── Prose heading styles ── */
