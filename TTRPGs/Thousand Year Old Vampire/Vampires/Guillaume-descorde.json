@@ -16,11 +16,10 @@
   "memories": [
     {
       "n": 1,
-      "theme": "Mortal life",
+      "theme": "The Scholarly Curate",
       "description": "",
       "experiences": [
-        "Born in 1182 to a minor marcher lord near a disputed frontier. Inherited little land but an instinct for division. Built power through feuds, shifting alliances, marriages, debts, and whispered promises. By middle age, became indispensable to greater lords who publicly condemned him while privately relying upon. A negotiator of truces that never fully hold, patron of mercenaries, and master of exploiting quarrels between neighboring houses. Chroniclers described him with admiration and unease in the same sentence.",
-        "**Not** a real thing"
+        "What's a curate?"
       ]
     },
     {
@@ -102,9 +101,27 @@
       "status": "active",
       "gained_turn": 0,
       "lost_turn": null
+    },
+    {
+      "name": "The red diary",
+      "description": "It's a red diary.",
+      "type": "diary",
+      "status": "active",
+      "gained_turn": 3,
+      "lost_turn": null
     }
   ],
-  "diary_memories": {},
+  "diary_memories": {
+    "The red diary": [
+      {
+        "n": 1,
+        "experiences": [
+          "Born in **1182 **to a minor marcher lord near a disputed frontier. \nInherited little land but an instinct for division. Built power through feuds, shifting alliances, marriages, debts, and whispered promises. At a young ~~middle ~~ age, became indispensable to greater lords who publicly condemned him while privately relying upon. A negotiator of truces that never fully hold, patron of mercenaries, and master of exploiting quarrels between neighboring houses. Chroniclers described him with admiration and unease in the same sentence.",
+          "**Not** a real thing"
+        ]
+      }
+    ]
+  },
   "characters": [
     {
       "name": "Hugues de Saint-Rémy",
@@ -139,7 +156,7 @@
     {
       "name": "Isolde de Vézin",
       "type": "immortal",
-      "description": "To the living world, once the widowed lady of a ruined estate swallowed by forest and plague during the late 8th century. Official records describe her as dead after a winter fever, but the monastery that buried her keeps a sealed crypt beneath its chapel foundations. She is not dead — merely hidden, enduring, and patient. A predator who spans generations, she has manipulated local property and monastic politics for centuries. Guillaume's attempt at blackmail brought her attention to him; her response was to feed from him and force her blood into him as judgment, not mercy.",
+      "description": "To the living world, once the widowed lady of a ruined estate swallowed by forest and plague during the late 8th century. \n\nOfficial records describe her as dead after a winter fever, but the monastery that buried her keeps a sealed crypt beneath its chapel foundations. She is not dead — merely hidden, enduring, and patient. A predator who spans generations, she has manipulated local property and monastic politics for centuries. Guillaume's attempt at blackmail brought her attention to him; her response was to feed from him and force her blood into him as judgment, not mercy.",
       "status": "alive",
       "death_reason": "",
       "death_epitaph": "",
@@ -170,9 +187,9 @@
       "turn": 3,
       "prompt": 10,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
+      "resolved": true,
+      "resolved_at": "2026-05-27T08:50:39.317Z",
+      "experience": "I did a thing.",
       "changes": ""
     }
   ]
