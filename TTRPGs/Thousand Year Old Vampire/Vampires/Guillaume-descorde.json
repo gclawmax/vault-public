@@ -202,24 +202,6 @@
       "resolved_at": "2026-05-27T08:50:39.317Z",
       "experience": "I did a thing.",
       "changes": ""
-    },
-    {
-      "turn": 4,
-      "prompt": 13,
-      "entry": 1,
-      "resolved": true,
-      "resolved_at": "2026-05-27T15:08:41.722Z",
-      "experience": "I did a thing",
-      "changes": ""
-    },
-    {
-      "turn": 5,
-      "prompt": 13,
-      "entry": 2,
-      "resolved": true,
-      "resolved_at": "2026-05-27T15:09:22.098Z",
-      "experience": "I did a different thing",
-      "changes": ""
     }
   ]
 }
