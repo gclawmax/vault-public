@@ -388,7 +388,6 @@ body {
 .modal-box {
   background: var(--bg2);
   border: 1px solid var(--border-bright);
-  min-width: 480px;
   max-width: 660px;
   width: 90vw;
   max-height: 88vh;
@@ -1515,80 +1514,86 @@ body {
   #contents-inner {
     padding: 32px 20px 60px;
   }
+}
 
-  /* ── Markdown toolbar ── */
-  .md-toolbar .md-btn {
-    background: var(--surface) !important;
-    border: 1px solid var(--border) !important;
-    color: var(--ink) !important;
-    padding: 4px 10px !important;
-    font-size: 15px !important;
-    font-family: 'EB Garamond', serif !important;
-    height: 30px !important;
-    min-width: 32px !important;
-    box-sizing: border-box !important;
-    line-height: 1 !important;
-    border-radius: 2px !important;
-    cursor: pointer !important;
-  }
+/* ── Markdown toolbar ── */
+.md-toolbar {
+  display: flex;
+  gap: 2px;
+  padding: 4px 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  flex-wrap: wrap;
+}
 
-  .md-toolbar .md-btn:hover {
-    background: var(--tag-bg) !important;
-    border-color: var(--border-bright) !important;
-    color: var(--blood) !important;
-  }
+.md-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--ink-dim);
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: serif;
+  border-radius: 2px;
+  line-height: 1;
+}
 
-  .md-toolbar-sep {
-    width: 1px;
-    height: 20px;
-    background: var(--border);
-    margin: 0 4px;
-    flex-shrink: 0;
-  }
+.md-btn:hover {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--ink);
+}
 
-  .md-textarea {
-    border-top: none !important;
-  }
+.md-toolbar-sep {
+  width: 1px;
+  background: var(--border);
+  margin: 2px 4px;
+}
 
-  /* ── Prose heading styles ── */
-  .journal-body .prose-h1 {
-    font-family: 'Cinzel', serif;
-    font-size: 1.1rem;
-    color: var(--blood);
-    letter-spacing: .06em;
-    margin: 16px 0 8px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 4px;
-  }
+.md-textarea {
+  border-top: none;
+  font-family: 'EB Garamond', serif;
+}
 
-  .journal-body .prose-h2 {
-    font-family: 'Cinzel', serif;
-    font-size: .95rem;
-    color: var(--accent);
-    letter-spacing: .05em;
-    margin: 14px 0 6px;
-  }
+/* ── Prose heading styles ── */
+.journal-body .prose-h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--blood);
+  letter-spacing: .06em;
+  margin: 16px 0 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
 
-  .journal-body .prose-h3 {
-    font-family: 'Cinzel', serif;
-    font-size: .85rem;
-    color: var(--ink-dim);
-    letter-spacing: .04em;
-    margin: 12px 0 4px;
-    font-style: italic;
-  }
+.journal-body .prose-h2 {
+  font-family: 'Cinzel', serif;
+  font-size: .95rem;
+  color: var(--accent);
+  letter-spacing: .05em;
+  margin: 14px 0 6px;
+}
 
-  .journal-body strong {
-    color: var(--ink);
-  }
+.journal-body .prose-h3 {
+  font-family: 'Cinzel', serif;
+  font-size: .85rem;
+  color: var(--ink-dim);
+  letter-spacing: .04em;
+  margin: 12px 0 4px;
+  font-style: italic;
+}
 
-  .journal-body em {
-    font-style: italic;
-    color: var(--ink-dim);
-  }
+.journal-body strong {
+  color: var(--ink);
+}
 
-  .journal-body del {
-    opacity: .5;
-    text-decoration: line-through;
-  }
+.journal-body em {
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+.journal-body del {
+  opacity: .5;
+  text-decoration: line-through;
 }
