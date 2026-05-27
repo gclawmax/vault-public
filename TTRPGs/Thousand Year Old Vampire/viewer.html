@@ -151,6 +151,31 @@
     // ═══════════════════════════════════════════════════
     // UTILITY
     // ═══════════════════════════════════════════════════
+    function insertMarkdown(textareaId, before, after) {
+      const ta = document.getElementById(textareaId);
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const selected = ta.value.substring(start, end);
+      const replacement = before + (selected || 'text') + (after || before);
+      ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+      ta.focus();
+      ta.selectionStart = start + before.length;
+      ta.selectionEnd = start + before.length + (selected || 'text').length;
+    }
+
+    function markdownToolbar(targetId) {
+      return '<div class="md-toolbar">'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'**\',\'**\')" title="Bold">𝐁</button>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'*\',\'*\')" title="Italic">𝐼</button>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'~~\',\'~~\')" title="Strikethrough">S̶</button>'
+        + '<span class="md-toolbar-sep"></span>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'# \',\'\')" title="Heading 1">H1</button>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'## \',\'\')" title="Heading 2">H2</button>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'### \',\'\')" title="Heading 3">H3</button>'
+        + '</div>';
+    }
+
     function findNextFreePromptEntry() {
       const journal = parsedData.journal;
       // Find the last resolved prompt as base
@@ -259,10 +284,46 @@
 
     function renderProse(s) {
       if (!s) return '';
-      return esc(s)
-        .split('\n\n')
-        .map(para => '<p>' + para.replace(/\n/g, '<br>') + '</p>')
-        .join('');
+      // Process block elements first, then inline
+      const lines = s.split('\n');
+      let html = '';
+      let inPara = false;
+
+      const renderInline = (text) => {
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g, '<em>$1</em>')
+          .replace(/~~(.+?)~~/g, '<del>$1</del>')
+          .replace(/_(.+?)_/g, '<em>$1</em>');
+      };
+
+      const flushPara = () => {
+        if (inPara) { html += '</p>'; inPara = false; }
+      };
+
+      lines.forEach(line => {
+        if (line.startsWith('### ')) {
+          flushPara();
+          html += '<h3 class="prose-h3">' + renderInline(line.slice(4)) + '</h3>';
+        } else if (line.startsWith('## ')) {
+          flushPara();
+          html += '<h2 class="prose-h2">' + renderInline(line.slice(3)) + '</h2>';
+        } else if (line.startsWith('# ')) {
+          flushPara();
+          html += '<h1 class="prose-h1">' + renderInline(line.slice(2)) + '</h1>';
+        } else if (line.trim() === '') {
+          flushPara();
+        } else {
+          if (!inPara) { html += '<p>'; inPara = true; }
+          else html += '<br>';
+          html += renderInline(line);
+        }
+      });
+      flushPara();
+      return html;
     }
 
     // ═══════════════════════════════════════════════════
@@ -2241,8 +2302,9 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         + '</div>'
         + '<div class="form-row">'
         + '<label class="form-label">Journal Prose</label>'
-        + '<textarea class="form-textarea" id="ed-je-prose" style="min-height:120px;">' + esc(je.prose) + '</textarea>'
-        + '<div class="form-hint">Your character\'s experience with this prompt.</div>'
+        + markdownToolbar('ed-je-prose')
+        + '<textarea class="form-textarea md-textarea" id="ed-je-prose" style="min-height:200px;">' + esc(je.prose) + '</textarea>'
+        + '<div class="form-hint">Supports **bold**, *italic*, ~~strikethrough~~, # Heading</div>'
         + '</div>'
         + '<div class="form-row">'
         + '<label class="form-label">Changes (mechanical summary)</label>'
