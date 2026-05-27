@@ -989,8 +989,9 @@
           + '</div>';
         if (!isEmpty) {
           html += '<ol>';
-          mem.experiences.forEach(exp => { html += '<li>' + esc(exp) + '</li>'; });
-          html += '</ol>';
+          mem.experiences.forEach(exp => {
+            html += '<li>' + renderProse(exp) + '</li>';
+          }); html += '</ol>';
         } else {
           html += '<p style="font-size:.85rem;color:var(--ink-faint);font-style:italic;">Awaiting new memory.</p>';
         }
@@ -1010,8 +1011,9 @@
           contentHtml += '<div class="memory-block">'
             + '<div class="memory-title">Memory ' + mem.n + '</div>'
             + '<ol>';
-          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
-          contentHtml += '</ol></div>';
+          mem.experiences.forEach(exp => {
+            contentHtml += '<li>' + renderProse(exp) + '</li>';
+          }); contentHtml += '</ol></div>';
         });
         contentHtml += '</div>';
         html += '<div class="memories-section section-editwrap" '
@@ -1033,8 +1035,9 @@
             + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme)
             + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + ' · ' + lostDate + '</span></div>'
             + '<ol>';
-          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
-          contentHtml += '</ol></div>';
+          mem.experiences.forEach(exp => {
+            contentHtml += '<li>' + renderProse(exp) + '</li>';
+          }); contentHtml += '</ol></div>';
         });
         contentHtml += '</div>';
         html += collapsibleSection('lost-memories', '🌒', 'Lost Memories', contentHtml, em ? 'editLostMemories()' : null, sorted.length);
@@ -1877,7 +1880,8 @@
           + '</div>'
           + '<div class="form-row">'
           + '<label class="form-label">First Experience</label>'
-          + '<textarea class="form-textarea" id="ed-mem-exp" style="min-height:60px;" placeholder="First memory experience…"></textarea>'
+          + markdownToolbar('ed-mem-exp')
+          + '<textarea class="form-textarea md-textarea" id="ed-mem-exp" style="min-height:60px;" placeholder="First memory experience…"></textarea>'
           + '</div>';
       } else {
         bodyHtml += '<p style="margin-top:12px;color:var(--blood);font-size:.85rem;font-style:italic;">Memory cap reached (5/5).</p>';
@@ -2401,7 +2405,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             + '</div>'
             + '<div class="form-row">'
             + '<label class="form-label">New Experience</label>'
-            + '<textarea class="form-textarea" id="ed-je-exp-text" style="min-height:80px;" placeholder="A few sentences summarising this memory experience…"></textarea>'
+            + markdownToolbar('ed-je-exp-text')
+            + '<textarea class="form-textarea md-textarea" id="ed-je-exp-text" style="min-height:80px;" placeholder="A few sentences summarising this memory experience…"></textarea>'
             + '</div>'
             + '<div id="new-theme-wrap">'
             + '<div class="form-row" style="margin-bottom:8px;">'
