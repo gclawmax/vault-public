@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-26",
   "modified": "2026-05-27",
-  "current_prompt": 8,
+  "current_prompt": 10,
   "epitaph": null,
   "marks": [
     {
@@ -20,7 +20,7 @@
       "description": "",
       "experiences": [
         "Born in 1182 to a minor marcher lord near a disputed frontier. Inherited little land but an instinct for division. Built power through feuds, shifting alliances, marriages, debts, and whispered promises. By middle age, became indispensable to greater lords who publicly condemned him while privately relying upon. A negotiator of truces that never fully hold, patron of mercenaries, and master of exploiting quarrels between neighboring houses. Chroniclers described him with admiration and unease in the same sentence.",
-        "foo"
+        "**Not** a real thing"
       ]
     },
     {
@@ -165,6 +165,15 @@
       "resolved_at": "2026-05-27T08:04:27.395Z",
       "experience": "# Chapter 2 - The next prompt\n \nI was recognised by an **immortal** I can't believe it. His name was ~~Steave~~ ~~Steeve~~ Steve and he was a ghost.\n\nHe was apparently murdered on the toll bridge and thrown over the side by a vagabond. He is stuck to the toll bridge, but he said if I tore it down he'd owe me a favor. Not sure what a favour from a *Ghost* looks like. I guess we'll see.",
       "changes": "Tore down the toll bridge of Saint-Vire. Made a ghost pal."
+    },
+    {
+      "turn": 3,
+      "prompt": 10,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
+      "changes": ""
     }
   ]
 }
