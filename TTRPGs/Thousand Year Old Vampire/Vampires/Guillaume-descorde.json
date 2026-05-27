@@ -3,8 +3,8 @@
   "vampire_desc": "Second son of a marcher lord who built power through feuds and shifting alliances",
   "game_over": false,
   "game_start": "2026-05-26",
-  "modified": "2026-05-26",
-  "current_prompt": 1,
+  "modified": "2026-05-27",
+  "current_prompt": 8,
   "epitaph": null,
   "marks": [
     {
@@ -154,6 +154,15 @@
       "resolved": true,
       "resolved_at": "2026-05-26T16:57:17.186Z",
       "experience": "I'm using line breaks and carriage returns.\n\nLook at me go.",
+      "changes": ""
+    },
+    {
+      "turn": 2,
+      "prompt": 8,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
       "changes": ""
     }
   ]
