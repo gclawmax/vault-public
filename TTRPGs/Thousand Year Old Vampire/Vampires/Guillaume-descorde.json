@@ -16,11 +16,10 @@
   "memories": [
     {
       "n": 1,
-      "theme": "The Scholarly Curate",
+      "theme": "The things that  I did.",
       "description": "",
       "experiences": [
-        "What's a curate?",
-        "I did a thing"
+        "I did a different thing"
       ]
     },
     {
@@ -57,7 +56,18 @@
       ]
     }
   ],
-  "lost_memories": [],
+  "lost_memories": [
+    {
+      "n": 1,
+      "theme": "The Scholarly Curate",
+      "experiences": [
+        "What's a curate?",
+        "I did a thing"
+      ],
+      "lost_at": "2026-05-27T15:09:22.097Z",
+      "lost_on_turn": 5
+    }
+  ],
   "skills": [
     {
       "name": "Feudal Ledgercraft",
@@ -206,9 +216,9 @@
       "turn": 5,
       "prompt": 13,
       "entry": 2,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
+      "resolved": true,
+      "resolved_at": "2026-05-27T15:09:22.098Z",
+      "experience": "I did a different thing",
       "changes": ""
     }
   ]
