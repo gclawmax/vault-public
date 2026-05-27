@@ -19,7 +19,8 @@
       "theme": "The Scholarly Curate",
       "description": "",
       "experiences": [
-        "What's a curate?"
+        "What's a curate?",
+        "I did a thing"
       ]
     },
     {
@@ -196,9 +197,9 @@
       "turn": 4,
       "prompt": 13,
       "entry": 1,
-      "resolved": false,
-      "resolved_at": null,
-      "experience": "",
+      "resolved": true,
+      "resolved_at": "2026-05-27T15:08:41.722Z",
+      "experience": "I did a thing",
       "changes": ""
     }
   ]
