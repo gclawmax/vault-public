@@ -2387,6 +2387,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
       const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
         + (isResolved ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
+        + (isResolved ? '<button class="modal-btn primary" onclick="saveResolvedEdits(' + idx + ')">💾 Save Edits</button>' : '')
         + (!isResolved ? '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>' : '')
         + '<button class="modal-btn primary"'
         + ' style="background:var(--blood);border-color:var(--blood);' + (resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
@@ -2405,6 +2406,19 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         const sel = document.getElementById('ed-je-exp-mem');
         if (sel) previewMemoryState(sel.value);
       }, 0);
+    }
+
+    function saveResolvedEdits(idx) {
+      const je = parsedData.journal[idx];
+      const proseEl = document.getElementById('ed-je-prose');
+      const changesEl = document.getElementById('ed-je-changes');
+      if (proseEl) je.prose = proseEl.value.trim();
+      if (changesEl) je.changes = changesEl.value.trim();
+      // resolved status, resolved_at and resolved_memory are untouched
+      markUnsaved();
+      closeModal();
+      renderChronicle(parsedData);
+      setStatus('ok', 'Turn ' + je.turn + ' edits saved.');
     }
 
     function saveJournalEntryAsDraft(idx) {
