@@ -1517,35 +1517,22 @@ body {
   }
 
   /* ── Markdown toolbar ── */
-  .md-toolbar {
-    display: flex;
-    gap: 2px;
-    padding: 4px 6px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-bottom: none;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .md-btn {
-    height: 28px;
-    min-width: 32px;
-    box-sizing: border-box;
+  .md-toolbar .md-btn {
     background: var(--surface) !important;
     border: 1px solid var(--border) !important;
     color: var(--ink) !important;
     padding: 4px 10px !important;
-    cursor: pointer !important;
-    font-size: 14px !important;
+    font-size: 15px !important;
     font-family: 'EB Garamond', serif !important;
-    border-radius: 2px;
-    line-height: 1.4;
-    min-width: 28px;
-    text-align: center;
+    height: 30px !important;
+    min-width: 32px !important;
+    box-sizing: border-box !important;
+    line-height: 1 !important;
+    border-radius: 2px !important;
+    cursor: pointer !important;
   }
 
-  .md-btn:hover {
+  .md-toolbar .md-btn:hover {
     background: var(--tag-bg) !important;
     border-color: var(--border-bright) !important;
     color: var(--blood) !important;
