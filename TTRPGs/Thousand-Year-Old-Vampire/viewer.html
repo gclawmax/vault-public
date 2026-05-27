@@ -900,8 +900,8 @@
           + esc(c.name)
           + (c._graveIcon ? ' <span title="This mortal may not survive much longer…">🪦</span>' : '')
           + '</div>'
-          + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
-          + '</div>';
+          + '<div class="char-row-desc">' + renderProse(c.desc) + '</div>';
+        + '</div>';
       });
       html += '</div></div></div>';
 
@@ -967,7 +967,7 @@
       livingImmortals.forEach(c => {
         html += '<div class="char-row">'
           + '<div class="char-row-name">' + esc(c.name) + '</div>'
-          + '<div class="char-row-desc">' + esc(c.desc) + '</div>'
+          + '<div class="char-row-desc">' + renderProse(c.desc) + '</div>'
           + '</div>';
       });
       html += '</div></div></div>';
@@ -1088,7 +1088,7 @@
             + '<div class="memory-title">' + esc(c.name)
             + ' <span style="font-size:.75em;color:var(--ink-faint);">— ' + c.type
             + (c.lost_turn ? ' · died turn ' + c.lost_turn : '') + '</span></div>'
-            + (c.desc ? '<p style="font-size:.88rem;margin-bottom:6px;">' + esc(c.desc) + '</p>' : '')
+            + (c.desc ? '<div style="font-size:.88rem;margin-bottom:6px;">' + renderProse(c.desc) + '</div>' : '')
             + (c.death_reason ? '<p style="font-size:.82rem;color:var(--ink-faint);font-style:italic;">' + esc(c.death_reason) + '</p>' : '')
             + (c.death_epitaph ? '<p style="font-size:.82rem;color:var(--blood);font-style:italic;border-left:2px solid var(--blood);padding-left:8px;margin-top:6px;">' + esc(c.death_epitaph) + '</p>' : '')
             + '</div>';
@@ -1706,7 +1706,9 @@
         + '<div class="form-row"><label class="form-label">Name</label>'
         + '<input class="form-input" id="ed-char-name" placeholder="e.g. Sister Agatha"></div>'
         + '<div class="form-row"><label class="form-label">Description</label>'
-        + '<textarea class="form-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea></div>';
+        + markdownToolbar('ed-char-desc')
+        + '<textarea class="form-textarea md-textarea" id="ed-char-desc" style="min-height:60px;" placeholder="Brief description…"></textarea>'
+        + '</div>'
 
       bodyHtml += '<hr class="edit-divider"><div class="edit-section-title">Living ' + label + ' Characters</div>'
         + '<div style="max-height:320px;overflow-y:auto;margin-bottom:4px;">';
@@ -1753,7 +1755,8 @@
         + '</div>'
         + '<div class="form-row">'
         + '<label class="form-label">Description</label>'
-        + '<textarea class="form-textarea" id="ed-char-edit-desc" style="min-height:80px;">' + esc(c.desc) + '</textarea>'
+        + markdownToolbar('ed-char-edit-desc')
+        + '<textarea class="form-textarea md-textarea" id="ed-char-edit-desc" style="min-height:80px;">' + esc(c.desc) + '</textarea>'
         + '</div>'
         + '<div class="form-row">'
         + '<label class="form-label">Type</label>'
