@@ -3,8 +3,8 @@
   "vampire_desc": "An arrogant and pampered Scottish noble, born around 1050 AD. Soft from a life of luxury, surrounded by sycophants.",
   "game_over": false,
   "game_start": "2026-05-14",
-  "modified": "2026-05-25",
-  "current_prompt": 15,
+  "modified": "2026-05-27",
+  "current_prompt": 14,
   "epitaph": null,
   "marks": [
     {
@@ -265,6 +265,15 @@
       "resolved": true,
       "resolved_at": "2026-05-21T17:05:44.380Z",
       "experience": "Jack used my old homestead to show them how I used to live. I used my art of murderising to get out of it",
+      "changes": ""
+    },
+    {
+      "turn": 7,
+      "prompt": 14,
+      "entry": 2,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
       "changes": ""
     }
   ]
