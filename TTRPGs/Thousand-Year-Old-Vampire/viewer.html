@@ -2419,8 +2419,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         + '<div class="form-row">'
         + '<label class="form-label">Prose</label>'
         + markdownToolbar('ed-je-prose')
-        + '<textarea class="form-textarea md-textarea" id="ed-je-prose" style="min-height:120px;">' + esc(je.prose) + '</textarea>'
-        + '<div class="form-hint">Your character\'s thoughts on this prompt. If left blank, the memory experience will be used instead.</div>'
+        + '<textarea class="form-textarea md-textarea" id="ed-je-prose" style="min-height:120px;" placeholder="Your character\'s journal entry. If left blank, the memory experience will be used instead.">' + esc(je.prose) + '</textarea>'
+        + '<div class="form-hint">Your character\'s journal entry. If left blank, the memory experience will be used instead.</div>'
         + '</div>'
         + '<div class="form-row">'
         + '<label class="form-label">Changes <span style="font-weight:normal;font-style:italic;font-size:.85em;">(optional)</span></label>'
@@ -2493,11 +2493,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const changesEl = document.getElementById('ed-je-changes');
       if (proseEl) je.prose = proseEl.value.trim();
       if (changesEl) je.changes = changesEl.value.trim();
-
-      if (!je.prose) {
-        alert('Cannot resolve: prose must be written first.');
-        return;
-      }
 
       const memSelEl = document.getElementById('ed-je-exp-mem');
       const expTextEl = document.getElementById('ed-je-exp-text');
