@@ -158,8 +158,11 @@
       const end = ta.selectionEnd;
       const selected = ta.value.substring(start, end);
       const replacement = before + (selected || 'text') + (after || before);
-      ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
       ta.focus();
+      if (!document.execCommand('insertText', false, replacement)) {
+        // Fallback — loses undo history but still works
+        ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+      }
       ta.selectionStart = start + before.length;
       ta.selectionEnd = start + before.length + (selected || 'text').length;
     }
