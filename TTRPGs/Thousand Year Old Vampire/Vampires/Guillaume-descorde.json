@@ -4,7 +4,7 @@
   "game_over": false,
   "game_start": "2026-05-26",
   "modified": "2026-05-27",
-  "current_prompt": 10,
+  "current_prompt": 13,
   "epitaph": null,
   "marks": [
     {
@@ -190,6 +190,15 @@
       "resolved": true,
       "resolved_at": "2026-05-27T08:50:39.317Z",
       "experience": "I did a thing.",
+      "changes": ""
+    },
+    {
+      "turn": 4,
+      "prompt": 13,
+      "entry": 1,
+      "resolved": false,
+      "resolved_at": null,
+      "experience": "",
       "changes": ""
     }
   ]
