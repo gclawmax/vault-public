@@ -193,15 +193,6 @@
       "resolved_at": "2026-05-27T08:04:27.395Z",
       "experience": "# Chapter 2 - The next prompt\n \nI was recognised by an **immortal** I can't believe it. His name was ~~Steave~~ ~~Steeve~~ Steve and he was a ghost.\n\nHe was apparently murdered on the toll bridge and thrown over the side by a vagabond. He is stuck to the toll bridge, but he said if I tore it down he'd owe me a favor. Not sure what a favour from a *Ghost* looks like. I guess we'll see.",
       "changes": "Tore down the toll bridge of Saint-Vire. Made a ghost pal."
-    },
-    {
-      "turn": 3,
-      "prompt": 10,
-      "entry": 1,
-      "resolved": true,
-      "resolved_at": "2026-05-27T08:50:39.317Z",
-      "experience": "I did a thing.",
-      "changes": ""
     }
   ]
 }
