@@ -353,8 +353,10 @@
       journal: []
     };
 
-    function getVaultKey() { return document.getElementById('vault-key').value.trim(); }
-
+    function getVaultKey() {
+      return document.getElementById('vault-key').value.trim()
+        || localStorage.getItem('tyov-vault-key') || '';
+    }
     function openKeyPanel() { document.getElementById('key-panel').classList.add('open'); document.getElementById('key-toggle').style.display = ''; }
     function closeKeyPanel() { document.getElementById('key-panel').classList.remove('open'); }
 
@@ -961,8 +963,6 @@
 
     async function loadDraft() {
       const token = getVaultKey();
-      console.log('token:', token);
-      console.log('localStorage draft:', localStorage.getItem(DRAFT_KEY));
 
       // If no token, fall back to session storage only
       if (!token) {
@@ -1161,4 +1161,5 @@
 
   </script>
 </body>
+
 </html>
