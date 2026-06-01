@@ -151,6 +151,34 @@
     // ═══════════════════════════════════════════════════
     // UTILITY
     // ═══════════════════════════════════════════════════
+    function insertMarkdown(textareaId, before, after) {
+      const ta = document.getElementById(textareaId);
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const selected = ta.value.substring(start, end);
+      const suffix = after !== undefined ? after : before;
+      const replacement = before + (selected || 'text') + suffix;
+      ta.focus();
+      if (!document.execCommand('insertText', false, replacement)) {
+        ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+      }
+      ta.selectionStart = start + before.length;
+      ta.selectionEnd = start + before.length + (selected || 'text').length;
+    }
+
+    function markdownToolbar(targetId) {
+      return '<div class="md-toolbar">'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'**\',\'**\')" title="Bold"><strong>B</strong></button>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'*\',\'*\')" title="Italic"><em>I</em></button>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'~~\',\'~~\')" title="Strikethrough"><del>S</del></button>'
+        + '<span class="md-toolbar-sep"></span>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'# \',\'\')" title="Heading 1">H1</button>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'## \',\'\')" title="Heading 2">H2</button>'
+        + '<button type="button" class="md-btn" onclick="insertMarkdown(\'' + targetId + '\',\'### \',\'\')" title="Heading 3">H3</button>'
+        + '</div>';
+    }
+
     function findNextFreePromptEntry() {
       const journal = parsedData.journal;
       // Find the last resolved prompt as base
@@ -259,10 +287,46 @@
 
     function renderProse(s) {
       if (!s) return '';
-      return esc(s)
-        .split('\n\n')
-        .map(para => '<p>' + para.replace(/\n/g, '<br>') + '</p>')
-        .join('');
+      // Process block elements first, then inline
+      const lines = s.split('\n');
+      let html = '';
+      let inPara = false;
+
+      const renderInline = (text) => {
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g, '<em>$1</em>')
+          .replace(/~~(.+?)~~/g, '<del>$1</del>')
+          .replace(/_(.+?)_/g, '<em>$1</em>');
+      };
+
+      const flushPara = () => {
+        if (inPara) { html += '</p>'; inPara = false; }
+      };
+
+      lines.forEach(line => {
+        if (line.startsWith('### ')) {
+          flushPara();
+          html += '<h3 class="prose-h3">' + renderInline(line.slice(4)) + '</h3>';
+        } else if (line.startsWith('## ')) {
+          flushPara();
+          html += '<h2 class="prose-h2">' + renderInline(line.slice(3)) + '</h2>';
+        } else if (line.startsWith('# ')) {
+          flushPara();
+          html += '<h1 class="prose-h1">' + renderInline(line.slice(2)) + '</h1>';
+        } else if (line.trim() === '') {
+          flushPara();
+        } else {
+          if (!inPara) { html += '<p>'; inPara = true; }
+          else html += '<br>';
+          html += renderInline(line);
+        }
+      });
+      flushPara();
+      return html;
     }
 
     // ═══════════════════════════════════════════════════
@@ -925,8 +989,9 @@
           + '</div>';
         if (!isEmpty) {
           html += '<ol>';
-          mem.experiences.forEach(exp => { html += '<li>' + esc(exp) + '</li>'; });
-          html += '</ol>';
+          mem.experiences.forEach(exp => {
+            html += '<li>' + renderProse(exp) + '</li>';
+          }); html += '</ol>';
         } else {
           html += '<p style="font-size:.85rem;color:var(--ink-faint);font-style:italic;">Awaiting new memory.</p>';
         }
@@ -946,8 +1011,9 @@
           contentHtml += '<div class="memory-block">'
             + '<div class="memory-title">Memory ' + mem.n + '</div>'
             + '<ol>';
-          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
-          contentHtml += '</ol></div>';
+          mem.experiences.forEach(exp => {
+            contentHtml += '<li>' + renderProse(exp) + '</li>';
+          }); contentHtml += '</ol></div>';
         });
         contentHtml += '</div>';
         html += '<div class="memories-section section-editwrap" '
@@ -969,8 +1035,9 @@
             + '<div class="memory-title">Memory ' + mem.n + ' — ' + esc(mem.theme)
             + ' <span style="font-size:.75em;color:var(--ink-faint);">lost turn ' + mem.lost_on_turn + ' · ' + lostDate + '</span></div>'
             + '<ol>';
-          mem.experiences.forEach(exp => { contentHtml += '<li>' + esc(exp) + '</li>'; });
-          contentHtml += '</ol></div>';
+          mem.experiences.forEach(exp => {
+            contentHtml += '<li>' + renderProse(exp) + '</li>';
+          }); contentHtml += '</ol></div>';
         });
         contentHtml += '</div>';
         html += collapsibleSection('lost-memories', '🌒', 'Lost Memories', contentHtml, em ? 'editLostMemories()' : null, sorted.length);
@@ -1567,13 +1634,35 @@
           + '<button class="trash-btn" onclick="removeDiaryMemory(\'' + diaryName.replace(/'/g, "\\'") + '\',' + i + ')" title="Remove from diary to Lost Memories">🗑</button>'
           + '</div>';
         m.experiences.forEach((exp, j) => {
-          bodyHtml += '<div style="font-size:.88rem;padding-left:12px;margin-bottom:3px;">' + (j + 1) + '. ' + esc(exp) + '</div>';
+          bodyHtml += '<div style="display:flex;align-items:flex-start;gap:8px;padding-left:12px;margin-bottom:6px;">'
+            + '<span style="font-size:.88rem;flex:1;">' + (j + 1) + '. ' + esc(exp) + '</span>'
+            + '<button class="strike-btn" onclick="editDiaryExperience(\'' + diaryName.replace(/'/g, "\\'") + '\',' + i + ',' + j + ')">✎</button>'
+            + '</div>';
         });
         bodyHtml += '</div>';
       });
       bodyHtml += '</div>'; // end scrollable
 
       openModal('Diary — ' + diaryName, bodyHtml, () => { });
+    }
+
+    function editDiaryExperience(diaryName, memIdx, expIdx) {
+      if (!editMode) return;
+      const mem = (parsedData.diaryMemories[diaryName] || [])[memIdx];
+      if (!mem) return;
+      const current = mem.experiences[expIdx];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">' + esc(diaryName) + ' · Memory ' + mem.n + ' · Experience ' + (expIdx + 1) + '</label>'
+        + markdownToolbar('ed-diary-exp-edit')
+        + '<textarea class="form-textarea md-textarea" id="ed-diary-exp-edit" style="min-height:100px;">' + esc(current) + '</textarea>'
+        + '</div>';
+      openModal('Edit Diary Experience', bodyHtml, () => {
+        const val = document.getElementById('ed-diary-exp-edit').value.trim();
+        if (val) {
+          mem.experiences[expIdx] = val;
+          markUnsaved();
+        }
+      });
     }
 
     function removeDiaryMemory(diaryName, idx) {
@@ -1763,6 +1852,7 @@
         mem.experiences.forEach((exp, j) => {
           bodyHtml += '<div style="display:flex;align-items:flex-start;gap:8px;padding-left:12px;margin-bottom:6px;">'
             + '<span style="font-size:.88rem;flex:1;">' + (j + 1) + '. ' + esc(exp) + '</span>'
+            + '<button class="strike-btn" onclick="editMemoryExperience(' + i + ',' + j + ')">✎</button>'
             + '<button class="trash-btn" onclick="deleteMemoryExperience(' + i + ',' + j + ')" title="Delete this experience">🗑</button>'
             + '</div>';
         });
@@ -1790,7 +1880,8 @@
           + '</div>'
           + '<div class="form-row">'
           + '<label class="form-label">First Experience</label>'
-          + '<textarea class="form-textarea" id="ed-mem-exp" style="min-height:60px;" placeholder="First memory experience…"></textarea>'
+          + markdownToolbar('ed-mem-exp')
+          + '<textarea class="form-textarea md-textarea" id="ed-mem-exp" style="min-height:60px;" placeholder="First memory experience…"></textarea>'
           + '</div>';
       } else {
         bodyHtml += '<p style="margin-top:12px;color:var(--blood);font-size:.85rem;font-style:italic;">Memory cap reached (5/5).</p>';
@@ -1802,6 +1893,24 @@
         if (theme && expText) {
           const newN = parsedData.memories.length > 0 ? Math.max(...parsedData.memories.map(m => m.n)) + 1 : 1;
           parsedData.memories.push({ n: newN, theme, experiences: [expText], description: '' });
+          markUnsaved();
+        }
+      });
+    }
+
+    function editMemoryExperience(memIdx, expIdx) {
+      if (!editMode) return;
+      const mem = parsedData.memories[memIdx];
+      const current = mem.experiences[expIdx];
+      const bodyHtml = '<div class="form-row">'
+        + '<label class="form-label">Memory ' + mem.n + ' — ' + esc(mem.theme) + ' · Experience ' + (expIdx + 1) + '</label>'
+        + markdownToolbar('ed-mem-exp-edit')
+        + '<textarea class="form-textarea md-textarea" id="ed-mem-exp-edit" style="min-height:100px;">' + esc(current) + '</textarea>'
+        + '</div>';
+      openModal('Edit Experience', bodyHtml, () => {
+        const val = document.getElementById('ed-mem-exp-edit').value.trim();
+        if (val) {
+          mem.experiences[expIdx] = val;
           markUnsaved();
         }
       });
@@ -2238,21 +2347,10 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       let bodyHtml = '<div class="edit-section-title">Turn ' + je.turn + ' — Prompt ' + je.prompt + ', Entry ' + je.entry + '</div>'
         + '<div style="background:var(--tag-bg);border-left:3px solid var(--blood);padding:8px 12px;margin-bottom:16px;font-size:.88rem;color:var(--ink-dim);">'
         + esc(getPromptText(je.prompt, je.entry))
-        + '</div>'
-        + '<div class="form-row">'
-        + '<label class="form-label">Journal Prose</label>'
-        + '<textarea class="form-textarea" id="ed-je-prose" style="min-height:120px;">' + esc(je.prose) + '</textarea>'
-        + '<div class="form-hint">Your character\'s experience with this prompt.</div>'
-        + '</div>'
-        + '<div class="form-row">'
-        + '<label class="form-label">Changes (mechanical summary)</label>'
-        + '<input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="' + esc(je.changes) + '">'
-        + '<div class="form-hint">Describe what changed: characters killed, skills gained/lost, resources changed, memories adedded.</div>'
         + '</div>';
 
       if (!je.resolved) {
-        bodyHtml += '<hr class="edit-divider">'
-          + '<div class="edit-section-title" style="color:var(--blood);">Record Memory Experience (required to resolve)</div>';
+        bodyHtml += '<div class="edit-section-title" style="color:var(--blood);">Record Memory Experience (required to resolve)</div>';
 
         const activeDiary = parsedData.resources.find(r => r.type === 'diary' && r.status === 'active');
         const diaryMems = activeDiary ? (parsedData.diaryMemories[activeDiary.name] || []) : [];
@@ -2260,7 +2358,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         const hasOptions = parsedData.memories.length > 0 || freeDiarySlots > 0;
 
         if (!hasOptions) {
-          bodyHtml += '<p style="color:var(--blood);font-size:.88rem;font-style:italic;">No active memories and no free diary slots. Add a memory or diary first.</p>';
+          bodyHtml += '<p style="color:var(--blood);font-size:.88rem;font-style:italic;margin-bottom:16px;">No active memories and no free diary slots. Add a memory or diary first.</p>';
         } else {
           bodyHtml += '<div class="form-row">'
             + '<label class="form-label">Choose Memory</label>'
@@ -2295,7 +2393,8 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             + '</div>'
             + '<div class="form-row">'
             + '<label class="form-label">New Experience</label>'
-            + '<textarea class="form-textarea" id="ed-je-exp-text" style="min-height:80px;" placeholder="A few sentences summarising this memory experience…"></textarea>'
+            + markdownToolbar('ed-je-exp-text')
+            + '<textarea class="form-textarea md-textarea" id="ed-je-exp-text" style="min-height:80px;" placeholder="A few sentences summarising this memory experience…"></textarea>'
             + '</div>'
             + '<div id="new-theme-wrap">'
             + '<div class="form-row" style="margin-bottom:8px;">'
@@ -2312,7 +2411,23 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             + '</div>'
             + '</div>';
         }
+
+        bodyHtml += '<hr class="edit-divider">';
       }
+
+      bodyHtml += '<div class="edit-section-title" style="color:var(--ink-faint);">Journal Entry <span style="font-weight:normal;font-style:italic;">(optional)</span></div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Prose</label>'
+        + markdownToolbar('ed-je-prose')
+        + '<textarea class="form-textarea md-textarea" id="ed-je-prose" style="min-height:120px;" placeholder="Your character\'s journal entry. If left blank, the memory experience will be used instead.">' + esc(je.prose) + '</textarea>'
+        + '<div class="form-hint">Your character\'s journal entry. If left blank, the memory experience will be used instead.</div>'
+        + '</div>'
+        + '<div class="form-row">'
+        + '<label class="form-label">Changes <span style="font-weight:normal;font-style:italic;font-size:.85em;">(optional)</span></label>'
+        + '<input class="form-input" id="ed-je-changes" placeholder="e.g. Killed Lydia Thorne. Gained skill Bloodthirsty." value="' + esc(je.changes) + '">'
+        + '<div class="form-hint">Mechanical summary — characters killed, skills gained/lost, resources changed.</div>'
+        + '</div>';
+
 
       const isResolved = je.resolved === true;
       const hasMemoryOptions = parsedData.memories.length > 0
@@ -2322,6 +2437,7 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
 
       const footerHtml = '<button class="modal-btn" onclick="closeModal()">Cancel</button>'
         + (isResolved ? '<button class="modal-btn" onclick="unresolveJournalEntry(' + idx + ')">↩ Unresolve</button>' : '')
+        + (isResolved ? '<button class="modal-btn primary" onclick="saveResolvedEdits(' + idx + ')">💾 Save Edits</button>' : '')
         + (!isResolved ? '<button class="modal-btn" onclick="saveJournalEntryAsDraft(' + idx + ')">💾 Save as Draft</button>' : '')
         + '<button class="modal-btn primary"'
         + ' style="background:var(--blood);border-color:var(--blood);' + (resolveDisabled ? 'opacity:.4;cursor:not-allowed;' : '') + '"'
@@ -2340,6 +2456,19 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
         const sel = document.getElementById('ed-je-exp-mem');
         if (sel) previewMemoryState(sel.value);
       }, 0);
+    }
+
+    function saveResolvedEdits(idx) {
+      const je = parsedData.journal[idx];
+      const proseEl = document.getElementById('ed-je-prose');
+      const changesEl = document.getElementById('ed-je-changes');
+      if (proseEl) je.prose = proseEl.value.trim();
+      if (changesEl) je.changes = changesEl.value.trim();
+      // resolved status, resolved_at and resolved_memory are untouched
+      markUnsaved();
+      closeModal();
+      renderChronicle(parsedData);
+      setStatus('ok', 'Turn ' + je.turn + ' edits saved.');
     }
 
     function saveJournalEntryAsDraft(idx) {
@@ -2364,11 +2493,6 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
       const changesEl = document.getElementById('ed-je-changes');
       if (proseEl) je.prose = proseEl.value.trim();
       if (changesEl) je.changes = changesEl.value.trim();
-
-      if (!je.prose) {
-        alert('Cannot resolve: prose must be written first.');
-        return;
-      }
 
       const memSelEl = document.getElementById('ed-je-exp-mem');
       const expTextEl = document.getElementById('ed-je-exp-text');
@@ -2436,6 +2560,11 @@ This is an admin action — it removes the entire entry from the sheet.`)) retur
             mem.experiences.push(expText);
           }
         }
+      }
+
+      // Auto-populate prose from experience if left blank
+      if (!je.prose && expText) {
+        je.prose = expText;
       }
 
       je.resolved = true;

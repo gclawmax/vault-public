@@ -431,7 +431,8 @@ body {
 .modal-body {
   padding: 20px 22px;
   flex: 1;
-  overflow-y: visible; /* let inner containers handle scroll */
+  overflow-y: visible;
+  /* let inner containers handle scroll */
 }
 
 .modal-footer {
@@ -1513,4 +1514,86 @@ body {
   #contents-inner {
     padding: 32px 20px 60px;
   }
+}
+
+/* ── Markdown toolbar ── */
+.md-toolbar {
+  display: flex;
+  gap: 2px;
+  padding: 4px 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  flex-wrap: wrap;
+}
+
+.md-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--ink-dim);
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: serif;
+  border-radius: 2px;
+  line-height: 1;
+}
+
+.md-btn:hover {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+.md-toolbar-sep {
+  width: 1px;
+  background: var(--border);
+  margin: 2px 4px;
+}
+
+.md-textarea {
+  border-top: none;
+  font-family: 'EB Garamond', serif;
+}
+
+/* ── Prose heading styles ── */
+.journal-body .prose-h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--blood);
+  letter-spacing: .06em;
+  margin: 16px 0 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+.journal-body .prose-h2 {
+  font-family: 'Cinzel', serif;
+  font-size: .95rem;
+  color: var(--accent);
+  letter-spacing: .05em;
+  margin: 14px 0 6px;
+}
+
+.journal-body .prose-h3 {
+  font-family: 'Cinzel', serif;
+  font-size: .85rem;
+  color: var(--ink-dim);
+  letter-spacing: .04em;
+  margin: 12px 0 4px;
+  font-style: italic;
+}
+
+.journal-body strong {
+  color: var(--ink);
+}
+
+.journal-body em {
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+.journal-body del {
+  opacity: .5;
+  text-decoration: line-through;
 }
