@@ -895,6 +895,22 @@
     }
 
     // ═══════════════════════════════════════════════════
+    // Modals
+    // ═══════════════════════════════════════════════════
+
+    function openModal(title, bodyHtml, confirmFn) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').innerHTML = bodyHtml;
+      document.getElementById('modal-footer').innerHTML =
+        '<button class="modal-btn" onclick="closeModal()">Cancel</button>';
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+    }
+
+    // ═══════════════════════════════════════════════════
     // Draft
     // ═══════════════════════════════════════════════════
     const DRAFT_KEY = 'tyov-creator-draft';
@@ -1160,6 +1176,16 @@
     }
 
   </script>
+  <div id="modal-overlay">
+    <div class="modal-box" id="modal-box">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title"></span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
 </body>
 
 </html>
