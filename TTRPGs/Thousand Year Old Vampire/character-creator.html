@@ -961,6 +961,8 @@
 
     async function loadDraft() {
       const token = getVaultKey();
+      console.log('token:', token);
+      console.log('localStorage draft:', localStorage.getItem(DRAFT_KEY));
 
       // If no token, fall back to session storage only
       if (!token) {
