@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "name": "",
+  "vampire_desc": "",
+  "game_over": false,
+  "game_start": "2026-06-01",
+  "modified": "2026-06-01",
+  "current_prompt": 0,
+  "marks": [],
+  "memories": [
+    {
+      "n": 1,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 2,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 3,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 4,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    },
+    {
+      "n": 5,
+      "theme": "",
+      "description": "",
+      "experiences": []
+    }
+  ],
+  "diary_memories": {},
+  "lost_memories": [],
+  "skills": [],
+  "resources": [],
+  "characters": [],
+  "journal": []
+}

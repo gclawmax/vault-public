@@ -656,3 +656,147 @@
 .tome-back-btn:hover {
   color: var(--blood-bright);
 }
+
+#modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .55);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+
+#modal-overlay.open {
+  display: flex;
+}
+
+.modal-box {
+  background: var(--bg2);
+  border: 1px solid var(--border-bright);
+  max-width: 560px;
+  width: 90vw;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-faint);
+  font-size: 20px;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.modal-close:hover {
+  color: var(--blood);
+}
+
+.modal-body {
+  padding: 20px 22px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.modal-footer {
+  padding: 12px 22px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  background: var(--bg3);
+}
+
+.modal-btn {
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  color: var(--accent);
+  padding: 7px 18px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.modal-btn.primary {
+  background: var(--blood);
+  color: white;
+  border-color: var(--blood);
+}
+
+.modal-btn:hover {
+  opacity: .9;
+}
+
+.edit-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
+.edit-list-item-text {
+  flex: 1;
+  font-size: .97rem;
+  line-height: 1.5;
+}
+
+.edit-list-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.edit-section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  margin-bottom: 10px;
+}
+
+.trash-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--ink-faint);
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  opacity: .5;
+}
+
+.trash-btn:hover {
+  opacity: 1;
+  background: var(--blood);
+  color: white;
+  border-color: var(--blood);
+}

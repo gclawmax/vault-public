@@ -353,8 +353,10 @@
       journal: []
     };
 
-    function getVaultKey() { return document.getElementById('vault-key').value.trim(); }
-
+    function getVaultKey() {
+      return document.getElementById('vault-key').value.trim()
+        || localStorage.getItem('tyov-vault-key') || '';
+    }
     function openKeyPanel() { document.getElementById('key-panel').classList.add('open'); document.getElementById('key-toggle').style.display = ''; }
     function closeKeyPanel() { document.getElementById('key-panel').classList.remove('open'); }
 
@@ -893,25 +895,61 @@
     }
 
     // ═══════════════════════════════════════════════════
+    // Modals
+    // ═══════════════════════════════════════════════════
+
+    function openModal(title, bodyHtml, confirmFn) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').innerHTML = bodyHtml;
+      document.getElementById('modal-footer').innerHTML =
+        '<button class="modal-btn" onclick="closeModal()">Cancel</button>';
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+    }
+
+    // ═══════════════════════════════════════════════════
     // Draft
     // ═══════════════════════════════════════════════════
     const DRAFT_KEY = 'tyov-creator-draft';
 
-    async function saveDraft() {
-      const token = getVaultKey();
+    function saveDraft() {
       try {
         localStorage.setItem(DRAFT_KEY, JSON.stringify({
           step: currentStep,
           data: characterData,
           fields: captureFields()
         }));
-        if (token) {
-          await pushCharacterToGitHub(token, true);
-          setStatus('ok', 'Draft saved to GitHub');
-        }
+        setStatus('ok', '💾 Draft saved locally');
+        document.getElementById('load-draft-btn').style.display = '';
+        // Also push to GitHub if token available
+        const token = getVaultKey();
+        if (token) pushCharacterToGitHub(token, true)
+          .then(() => setStatus('ok', '💾 Draft saved'))
+          .catch(() => { });
       } catch (e) {
-        alert('Failed to save draft: ' + e.message);
+        setStatus('err', 'Failed to save draft: ' + e.message);
       }
+    }
+
+    function clearDraft() {
+      localStorage.removeItem(DRAFT_KEY);
+      // Also remove from GitHub
+      const token = getVaultKey();
+      if (!token) return;
+      const filename = 'DRAFT_' + sanitizeFilename(characterData.name || 'unnamed') + '.json';
+      fetch(GITHUB_API + '/' + encodeURIComponent(filename), {
+        headers: { Authorization: 'token ' + token }
+      }).then(r => r.ok ? r.json() : null).then(data => {
+        if (!data) return;
+        fetch(GITHUB_API + '/' + encodeURIComponent(filename), {
+          method: 'DELETE',
+          headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'Remove draft: ' + filename, sha: data.sha })
+        });
+      }).catch(() => { });
     }
 
     function captureFields() {
@@ -939,10 +977,87 @@
       });
     }
 
-    function loadDraft() {
+    async function loadDraft() {
+      const token = getVaultKey();
+
+      // If no token, fall back to session storage only
+      if (!token) {
+        loadDraftFromStorage();
+        return;
+      }
+
+      setStatus('busy', 'Fetching drafts…');
+      try {
+        const resp = await fetch(GITHUB_API, {
+          headers: { Authorization: 'token ' + token }
+        });
+        if (!resp.ok) throw new Error(resp.status);
+        const files = await resp.json();
+        const drafts = files.filter(f => f.name.startsWith('DRAFT_') && f.name.endsWith('.json'));
+
+        // Also check session storage for a draft not yet pushed
+        const localDraft = localStorage.getItem(DRAFT_KEY);
+        const localName = localDraft ? (JSON.parse(localDraft).data.name || 'unnamed') : null;
+
+        if (drafts.length === 0 && !localDraft) {
+          setStatus('ok', 'No drafts found.');
+          document.getElementById('load-draft-btn').style.display = 'none';
+          return;
+        }
+
+        setStatus('ok', 'Ready');
+
+        // If only one source and it's local, load directly
+        if (drafts.length === 0 && localDraft) {
+          loadDraftFromStorage();
+          return;
+        }
+
+        // Build picker
+        let bodyHtml = '<div class="edit-section-title">Available Drafts</div>'
+          + '<div style="max-height:360px;overflow-y:auto;">';
+
+        // Local session storage draft first if it exists
+        if (localDraft) {
+          bodyHtml += '<div class="edit-list-item" style="cursor:pointer;" onclick="loadDraftFromStorage();closeModal();">'
+            + '<div class="edit-list-item-text">'
+            + '<strong>' + esc(localName) + '</strong>'
+            + '<br><span style="font-size:.85rem;color:var(--ink-faint);">Local session draft</span>'
+            + '</div>'
+            + '<div class="edit-list-actions">'
+            + '<button class="trash-btn" onclick="event.stopPropagation();discardLocalDraft()" title="Discard local draft">🗑</button>'
+            + '</div>'
+            + '</div>';
+        }
+
+        // GitHub drafts
+        drafts.forEach(f => {
+          const display = f.name.replace('DRAFT_', '').replace('.json', '').replace(/-/g, ' ');
+          bodyHtml += '<div class="edit-list-item" style="cursor:pointer;" onclick="loadDraftFromGitHub(\'' + f.name + '\');closeModal();">'
+            + '<div class="edit-list-item-text">'
+            + '<strong>' + esc(display) + '</strong>'
+            + '<br><span style="font-size:.85rem;color:var(--ink-faint);">Saved to GitHub</span>'
+            + '</div>'
+            + '<div class="edit-list-actions">'
+            + '<button class="trash-btn" onclick="event.stopPropagation();deleteDraftFile(\'' + f.name + '\')" title="Delete from GitHub">🗑</button>'
+            + '</div>'
+            + '</div>';
+        });
+
+        bodyHtml += '</div>';
+        openModal('Load Draft', bodyHtml, () => { });
+
+      } catch (e) {
+        setStatus('err', 'Failed to fetch drafts: ' + e.message);
+        // Fall back to local
+        loadDraftFromStorage();
+      }
+    }
+
+    function loadDraftFromStorage() {
       try {
         const raw = localStorage.getItem(DRAFT_KEY);
-        if (!raw) return false;
+        if (!raw) { setStatus('err', 'No local draft found.'); return; }
         const draft = JSON.parse(raw);
         characterData = draft.data;
         currentStep = draft.step;
@@ -956,15 +1071,76 @@
         updateStep3Next();
         updateStep4Next();
         setStatus('ok', '📂 Draft loaded — ' + (characterData.name || 'unnamed'));
-        return true;
       } catch (e) {
-        console.error('Failed to load draft:', e);
-        return false;
+        setStatus('err', 'Failed to load local draft.');
+        console.error(e);
       }
     }
 
-    function clearDraft() {
+    async function loadDraftFromGitHub(filename) {
+      const token = getVaultKey();
+      if (!token) { openKeyPanel(); return; }
+      setStatus('busy', 'Loading draft from GitHub…');
+      try {
+        const resp = await fetch(GITHUB_API + '/' + encodeURIComponent(filename), {
+          headers: { Authorization: 'token ' + token }
+        });
+        if (!resp.ok) throw new Error(resp.status);
+        const data = await resp.json();
+        const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, '')))));
+        characterData = decoded;
+        currentStep = detectStep(characterData);
+        // Save into session storage so it becomes the active local draft
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          step: currentStep,
+          data: characterData,
+          fields: {}
+        }));
+        showStep(currentStep);
+        initStepIndicator();
+        restoreFieldsFromData(characterData);
+        renderCharacters();
+        renderSkills();
+        renderResources();
+        updateStep2Next();
+        updateStep3Next();
+        updateStep4Next();
+        setStatus('ok', '📂 Draft loaded — ' + (characterData.name || 'unnamed'));
+      } catch (e) {
+        setStatus('err', 'Failed to load draft: ' + e.message);
+      }
+    }
+
+    function discardLocalDraft() {
+      if (!confirm('Discard local draft? This removes it from this device only.')) return;
       localStorage.removeItem(DRAFT_KEY);
+      closeModal();
+      document.getElementById('load-draft-btn').style.display = 'none';
+      setStatus('ok', 'Local draft discarded.');
+    }
+
+    async function deleteDraftFile(filename) {
+      const token = getVaultKey();
+      if (!token) { openKeyPanel(); return; }
+      if (!confirm('Delete "' + filename.replace('DRAFT_', '').replace('.json', '') + '" from GitHub? This cannot be undone.')) return;
+      setStatus('busy', 'Deleting…');
+      try {
+        const resp = await fetch(GITHUB_API + '/' + encodeURIComponent(filename), {
+          headers: { Authorization: 'token ' + token }
+        });
+        if (!resp.ok) throw new Error(resp.status);
+        const data = await resp.json();
+        await fetch(GITHUB_API + '/' + encodeURIComponent(filename), {
+          method: 'DELETE',
+          headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'Delete draft: ' + filename, sha: data.sha })
+        });
+        setStatus('ok', 'Draft deleted.');
+        closeModal();
+        await loadDraft();
+      } catch (e) {
+        setStatus('err', 'Failed to delete: ' + e.message);
+      }
     }
 
 
@@ -980,11 +1156,36 @@
     });
 
     initStepIndicator();
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity .4s ease';
+    requestAnimationFrame(() => requestAnimationFrame(() => { document.body.style.opacity = '1'; }));
+
+    // Show load button if local draft exists
     if (localStorage.getItem(DRAFT_KEY)) {
       document.getElementById('load-draft-btn').style.display = '';
     }
+    // Also check GitHub if token available
+    if (getVaultKey()) {
+      fetch(GITHUB_API, { headers: { Authorization: 'token ' + getVaultKey() } })
+        .then(r => r.ok ? r.json() : [])
+        .then(files => {
+          if (Array.isArray(files) && files.some(f => f.name.startsWith('DRAFT_'))) {
+            document.getElementById('load-draft-btn').style.display = '';
+          }
+        }).catch(() => { });
+    }
 
   </script>
+  <div id="modal-overlay">
+    <div class="modal-box" id="modal-box">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title"></span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
 </body>
 
 </html>
