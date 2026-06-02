@@ -1,0 +1,31 @@
+{
+  "name": "Testy McTestFace",
+  "vampire_desc": "A random software tester from Bristol",
+  "game_over": false,
+  "game_start": "2026-06-01",
+  "modified": "2026-06-01",
+  "current_prompt": 0,
+  "epitaph": null,
+  "marks": [],
+  "memories": [
+    { "n": 1, "theme": "Mortal life", "description": "", "experiences": ["A random software tester from Bristol"] },
+    { "n": 2, "theme": "", "description": "", "experiences": [] },
+    { "n": 3, "theme": "", "description": "", "experiences": [] },
+    { "n": 4, "theme": "", "description": "", "experiences": [] },
+    { "n": 5, "theme": "Transformation", "description": "", "experiences": [] }
+  ],
+  "lost_memories": [],
+  "skills": [
+    { "name": "Hackerman", "description": "Good at hacking into things", "status": "unchecked", "gained_turn": 0 },
+    { "name": "Duplicitous", "description": "Good at looking busy when he's not", "status": "unchecked", "gained_turn": 0 },
+    { "name": "D&D GM", "description": "Can hold a kick-ass D&D party", "status": "unchecked", "gained_turn": 0 }
+  ],
+  "resources": [],
+  "diary_memories": {},
+  "characters": [
+    { "name": "Thing", "description": "NPC 1", "type": "mortal", "status": "alive", "gained_turn": 0, "lost_turn": null, "death_reason": "", "death_epitaph": "" },
+    { "name": "Thing 1", "description": "NPC 2", "type": "mortal", "status": "alive", "gained_turn": 0, "lost_turn": null, "death_reason": "", "death_epitaph": "" },
+    { "name": "Thing 3", "description": "NPC 3", "type": "mortal", "status": "alive", "gained_turn": 0, "lost_turn": null, "death_reason": "", "death_epitaph": "" }
+  ],
+  "journal": []
+}
